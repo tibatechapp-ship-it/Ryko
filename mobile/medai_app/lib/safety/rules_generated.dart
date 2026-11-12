@@ -1,6 +1,6 @@
 // GENERATED FILE - DO NOT EDIT MANUALLY.
 // Source: safety/rules/*.yaml | Generator: safety/codegen/generator.py
-// MEDICAL-AI CORE v0 - W1 (السلامة أولاً) - المستودع: Ryko-Arabic (ريكو عربي)
+// MEDICAL-AI CORE v0 - W1 (السلامة أولاً) - المستودع: Ryko
 // ⚠ كل العتبات والقواعد هنا قيم افتراضية معلقة على التوقيع السريري (docs/00-intended-use.md §0.6).
 // ADR-0002: الحمولة الموحدة kRulesJson مطابقة بايت-ببايت مع RULES_JSON في Python (make parity).
 // بوابة الخطر المحلية تعمل على الجهاز بلا إنترنت (offline-first). أي شرط غير قابل

@@ -10,6 +10,7 @@ venv/
 evals/results.json
 evals/parity_report.json
 audit_report.md
+var/
 
 # Flutter / Dart (W4+)
 .dart_tool/

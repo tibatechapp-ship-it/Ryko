@@ -1,0 +1,13 @@
+[project]
+name = "ryko"
+version = "0.3.0"
+description = "Ryko — منظومة هندسية لتركيب القطع (NOVA-ONE): سجل قطع محكوم، حلقة تحقق مستقلة، وأدلة قابلة لإعادة التشغيل"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+authors = [{ name = "Vixona Technologies", email = "tibatechapp-ship-it@users.noreply.github.com" }]
+dependencies = ["PyYAML>=6.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

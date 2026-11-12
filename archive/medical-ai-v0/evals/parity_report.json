@@ -1,0 +1,11 @@
+{
+  "rules_count_py": 6,
+  "rules_count_dart": 6,
+  "ids_match": true,
+  "rules_version_py": "1.0.0",
+  "payload_sha256": "117ef5d28096678d0be107823fe6411c1a8af853dfed45af902046fb4ce42824",
+  "generated_py_sha256": "5552eeb681329e866f9a965d47fe83d8fc9b86f64159caf3f83fbbf31390736f",
+  "generated_dart_sha256": "185a2bf5921451a4f7e252a03a048a89e68b706b55c5fda12c2fd63c28339dae",
+  "byte_identical": true,
+  "status": "pass"
+}

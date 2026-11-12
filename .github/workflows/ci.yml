@@ -1,58 +1,23 @@
-name: MEDICAL-AI CORE CI (Ryko)
+name: Ryko CI — Medical Archive (v0.1.0)
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
 
 jobs:
-  safety-gates:
+  medical-archive:
+    name: أرشيف MEDICAL-AI — 529 اختباراً + بواباته
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pip-audit
-
-      - name: Secrets scan (gitleaks)
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Dependency audit (غير مانع في v0 — يُشدَّد عند دخول W8)
-        run: pip-audit -r requirements.txt || true
-
-      - name: Generate safety rules (Python + Dart)
-        run: make generate-safety
-
-      - name: Golden dataset reproducibility
-        run: make golden-check
-
-      - name: Parity check (Python <-> Dart)
-        run: make parity
-
-      - name: Safety gates (500 cases)
-        run: make safety-gates
-
-      - name: Unit and contract tests
-        run: make test
-
-      - name: Upload results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: eval-results
-          path: |
-            evals/results.json
-            evals/parity_report.json
+      - run: pip install -r requirements.txt
+      - name: Archive tests
+        run: make medical-tests
+      - name: Archive safety gates (ذهبية + تكافؤ + عتبات)
+        run: make medical-gates

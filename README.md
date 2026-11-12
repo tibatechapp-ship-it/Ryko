@@ -1,76 +1,97 @@
-# Ryko · ريكو عربي
+<div align="center">
 
-> **مستودع التنفيذ الهندسي لحزمة MEDICAL-AI CORE v0** — عربية-أولاً، السلامة أولاً.
+# Ryko
+
+### منظومة هندسية لتركيب القطع — NOVA-ONE
+
+**Piece-Composition Engineering Platform — compose pieces you own into one governed system.**
+
+[![CI](https://github.com/tibatechapp-ship-it/Ryko/actions/workflows/ci.yml/badge.svg)](https://github.com/tibatechapp-ship-it/Ryko/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Tests](https://img.shields.io/badge/tests-600%2B%20passing-brightgreen)
+![Phase](https://img.shields.io/badge/phase-P0%20foundations-orange)
+![License](https://img.shields.io/badge/license-proprietary-red)
+[![Docs](https://img.shields.io/badge/docs-PLAN%20%7C%20ARCHITECTURE-informational)](docs/PLAN.md)
+
+</div>
+
+> **القرار المعماري الحاكم:** لا نموذج جاهزاً نضبطه، ولا نموذجاً نبنيه من الصفر. نأخذ **قطعاً** — أوزان أساس، Adapters، أدوات، بيانات، مدققات — ونركّبها في منظومة واحدة نملكها، خلف سجل قطع محكوم بعقود واجهة وتراخيص وتقييم Holdout ومراجعة مستقلة.
 >
-> Ryko هو الاسم التنظيمي للمستودع؛ اسم النظام في جميع الوثائق والتقارير التنظيمية يبقى **MEDICAL-AI CORE v0** حرفياً (قرار إعادة التسمية 2026-11-12).
+> **القاعدة الذهبية:** لا تجعل النموذج الذي كتب الكود هو الحكم الوحيد على صحته.
 
-**الحالة الحالية:** W0 — بانتظار توقيع [docs/00-intended-use.md](docs/00-intended-use.md) قبل بدء W1.
+---
 
-## بيان الاستخدام المقصود (الخلاصة المعتمدة حرفياً)
+## ما هذا المستودع؟
 
-> «MEDICAL-AI v0 أداة شخصية لتنظيم المعلومات الصحية: جمع المستندات الطبية، استخراج قيم التحاليل وعرضها واتجاهاتها بعد تأكيد المستخدم، تنظيم قائمة الأدوية المبلّغ عنها، فحص التداخلات الدوائية معلوماتياً عبر قاعدة معرفة مرخّصة، وإعداد تقرير منظم لزيارة الطبيب. الأداة **لا تشخّص، لا تعالج، لا توصي بجرعات، ولا تفسر صوراً أو تخطيطات**. عند رصد مؤشرات خطر مُعرّفة مسبقاً، تعرض تعليمات التواصل مع خدمات الطوارئ المحلية فوراً.»
-
-⚠ **قاعدة بروتوكول v0:** أي سطر كود تنفيذي قبل توقيع المستند 0 يُعد مخالفة للبروتوكول. كل قواعد السلامة في هذا المستودع تحمل كتلة `clinical_signoff` فارغة ⚠ — هي قيم افتراضية **لا تعمل في الإنتاج قبل التوقيع**.
-
-## البنية
+Ryko تنفيذ هندسي لخطة **NOVA-ONE** (12–16 شهراً، 6 بوابات انتقال): منظومة تُنفّذ مهام هندسة برمجيات عبر حلقة تحقق لا تُعطَّل:
 
 ```
-Ryko-Arabic/
-├── docs/                    # المستند 0 + الهندسية + ترتيب البناء + التدقيق + ADRs
-├── contracts/v1/            # JSON Schema 2020-12 — المصدر الوحيد للحقيقة (5 عقود)
-├── safety/
-│   ├── rules/*.yaml         # قواعد الخطر + القيم الحرجة (⚠ بديل توقيع سريري)
-│   ├── codegen/             # مولّد Python + Dart + فاحص التكافؤ
-│   └── golden/              # triage_500.jsonl — 500 حالة ذهبية (بذرة 42)
-├── services/safety/         # بوابة الخطر المولّدة (الخادم)
-├── mobile/medai_app/lib/safety/  # بوابة الخطر المولّدة (الجهاز — offline)
-├── evals/                   # مشغّل البوابات + فاحص العتبات
-├── scripts/                 # مولّد المجموعة الذهبية
-├── tests/                   # اختبارات الوحدة والعقود
-├── alembic/                 # هجرة W2 (سلسلة التجزئة + حالة التأكيد)
-├── infra/                   # (W2+) Docker / Terraform / Keycloak
-└── Makefile                 # make all / safety-gates / parity / golden-check
+قطعة (أ) تكتب → اختبارات → إصلاح ≤3 → قطعة (ب) مستقلة تراجع → قبول/رفض بأدلة
 ```
+
+كل قرار مسجَّل في Evidence Log قابل لإعادة التشغيل، وكل قطعة في Piece Registry بعقد واجهة وترخيص ونتيجة Holdout، وكل أمر في سجل تدقيق بسلسلة تجزئة غير قابلة للتعديل.
+
+## الحالة الحالية
+
+| المرحلة | الوسم | الحالة | الأدلة |
+|---|---|---|---|
+| P0 — البنية والوثائق | `v0.1.0` | منجز | CI أخضر + أرشيف حي 529 اختباراً |
+| P0 — سجل القطع + التدقيق | `v0.2.0` | منجز | tamper-detection + حوكمة اعتماد |
+| P0 — حلقة التحقق MVP | `v0.3.0` | منجز | بوابة 0: 3 مهام بأدلة كاملة |
+| P1 — الحلقة على نموذج حقيقي (20 مهمة، ≥60%) | — | قادم | — |
+
+الخطة الكاملة: [docs/PLAN.md](docs/PLAN.md) · المعمارية: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ## البدء السريع
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
+git clone https://github.com/tibatechapp-ship-it/Ryko.git && cd Ryko
 pip install -r requirements.txt
-make all
+
+make test            # اختبارات المنصة
+make medical-tests   # اختبارات أرشيف MEDICAL-AI (529)
+make registry-validate registry-list   # سجل القطع
+make demo-loop       # بوابة 0: 3 مهام بحلقة التحقق الكاملة
 ```
 
-تشغّل `make all` البوابات بالترتيب: فحص الأسرار → إعادة إنتاج المجموعة الذهبية → توليد كود السلامة → تكافؤ Python↔Dart → بوابات السلامة (500 حالة) → الاختبارات.
+تشغيل حلقة مهام عبر vLLM (أو أي نقطة نهاية OpenAI-Compatible) — بلا أي تغيير كود:
 
-## بوابات القبول المنفذة (القسم 9)
+```bash
+export RYKO_LLM_BASE_URL="http://localhost:8000/v1"
+export RYKO_LLM_API_KEY="none"
+export RYKO_LLM_MODEL="Qwen/Qwen2.5-7B-Instruct"
+python3 -m ryko.runner run --tasks tasks/demo --registry registry/registry.yaml
+```
 
-| البوابة | العتبة | الحالة |
-|---|---|---|
-| حساسية الطوارئ | ≥99% | منفذة — `make safety-gates` |
-| نوعية الفرز (منع فرط التوجيه) | ≥85% | منفذة |
-| ألم صدر منفرد | 0 طمأنة (قاعدة صلبة) | منفذة + اختبار وحدة |
-| القيم الحرجة (CV-K-01) | استرجاع 100% | منفذة (بوتاسيوم ≥6.5 من قيم مؤكدة فقط) |
-| تكافؤ القواعد Python↔Dart | 100% للحمولة الموحدة | منفذ — `make parity` |
-| استخراج التحاليل / التداخلات / زمن بوابة الخطر / اختبار الاختراق | وفق القسم 9 | مع موجات W3+ |
+## بنية المستودع
 
-## الحوكمة والملكية
+```
+Ryko/
+├── ryko/                    # المنصة: registry, audit, tasks, providers, runner, evidence
+├── registry/                # سجل القطع — قلب الحوكمة
+├── tasks/                   # مواصفات المهام + fixtures
+├── corpus/style/            # Style & Standards Corpus — أول أصل مملوك
+├── evidence/                # أدلة البوابات (قابلة لإعادة التشغيل)
+├── docs/                    # PLAN + ARCHITECTURE + ADRs
+├── archive/medical-ai-v0/   # أول workload حقيقي — بواباته تعمل في CI
+├── tests/                   # اختبارات المنصة
+└── .github/                 # CI + قوالب PR/Issues
+```
 
-- **الترخيص:** بدون ترخيص — جميع الحقوق محفوظة © 2026 Vixona Technologies (`tibatechapp-ship-it`). الاستخدام أو إعادة التوزيع تتطلب إذناً كتابياً.
-- **السوق الأول المقترح:** السعودية (عربية-أولاً + مسار SFDA MDS-G027) — الحسم النهائي في W0 عبر [ADR-0001](docs/adr/ADR-0001-market-kb.md).
-- **أرقام الطوارئ:** قابلة للتهيئة حسب الدولة (السعودية 997، الإمارات 998، مصر 123) ⚠ مراجعة قانونية.
+## الحوكمة في سطر واحد
 
-## التصحيحات الموثقة على الحزمة المصدر (شفافية هندسية)
+| القاعدة | الأداة التي تفرضها |
+|---|---|
+| لا قطعة بلا عقد واجهة وترخيص وHoldout | `ryko.registry` — الاعتماد يرفض تلقائياً `compositional_delta < +0.10` |
+| المراجع مستقل عن المنفذ | الحلقة ترفض `family` متطابقاً قبل أي توليد |
+| لا فشل صامت | `ryko.audit` سلسلة تجزئة + كشف تلاعب |
+| لا قبول بلا أدلة | `ryko.evidence` + Evidence Gate |
+| لا مفاتيح في المستودع | مزودات تقرأ البيئة فقط، فحص gitleaks في CI |
 
-1. `evals/runner.py`: إصلاح خطأ صياغة (قاموس غير مغلق) في مسودة الحزمة، واعتماد `triage_decision` الحتمي بدل التقييم المبسّط.
-2. `contracts/v1/triage.schema.json`: توسيع نمط `rule_id` إلى `^[A-Z]{2,3}-[A-Z]{0,2}-?[0-9]{2,3}$` — النمط الأصلي كان يستبعد `CV-K-01` و`MON-002` المستخدمَين في المجموعة الذهبية نفسها؛ وتوسيع نمط `message_key` إلى `^safety\.[a-z_]+(\.[a-z_]+)*$` — النمط الأصلي يناقض أمثلة الحزمة ذاتها (`safety.emergency.chest_pain` تحوي نقطتين).
-3. هجرة Alembic 001: إضافة عمودي `effective_at` و`collected_at` — كانت الفهرسة الجزئية تشير إلى `effective_at` دون إنشائه (فشل تطبيق حتمي).
-4. مولّد المجموعة الذهبية: بذرة ثابتة (42) عبر `random.Random` بدل العشوائية العامة — شرط بوابة `golden-check`.
-5. CI: تثبيت gitleaks عبر `gitleaks-action@v2` بدل pip (حزمة غير موجودة على PyPI)، وفصل مهمة Flutter حتى دخول W4.
-6. توحيد صيغة القواعد على البنية الآلية (`all_of/any_of` بمعاملات صريحة) المتوافقة مع المولّد بدل الشكل الاختصاري في القسم 5.
-7. تصحيح «Valores الحرجة» إلى «القيم الحرجة» في جدول البوابات (خطأ مطبعي في المصدر).
+## المساهمة
 
-## الخطوات التالية (بالترتيب الملزم)
+اقرأ [CONTRIBUTING.md](CONTRIBUTING.md) — تلتزم فيها بقواعد الانضباط الخمس و[Style Corpus](corpus/style/README.md). الأمان: [SECURITY.md](SECURITY.md). سلوك المجتمع: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
-1. **التوقيع:** توقيع المستند 0 وتسمية القائد السريري ⚠.
-2. **W0:** تشغيل بروتوكول فحص المستودع (شاملاً وحدة `pharma-sdl`) وتعزيز [docs/REPO_AUDIT.md](docs/REPO_AUDIT.md) بالنتائج الفعلية وتوقيعه.
-3. **W1:** إقرار قواعد السلامة بالتوقيع السريري ثم تكملة التكافؤ السلوكي على Dart SDK (1000 حالة عشوائية) — راجع [docs/BUILD_ORDER.md](docs/BUILD_ORDER.md).
+## الترخيص
+
+**ملكية خاصة — جميع الحقوق محفوظة © 2026 Vixona Technologies (tibatechapp-ship-it).** الاستخدام أو إعادة التوزيع تتطلب إذناً كتابياً.

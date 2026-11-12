@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-11-12T15:54:49.963165+00:00",
+  "rules_version": "1.0.0",
+  "total_cases": 500,
+  "emergency_cases": 100,
+  "non_emergency_cases": 400,
+  "true_positives": 100,
+  "false_negatives": 0,
+  "true_negatives": 400,
+  "false_positives": 0,
+  "chest_pain_isolated_cases": 100,
+  "chest_pain_reassurance_given": 0,
+  "rule_id_mismatches": 0,
+  "failed_cases": [],
+  "metrics": {
+    "sensitivity": 100.0,
+    "specificity": 100.0,
+    "chest_pain_reassurance_rate": 0,
+    "rule_id_mismatches": 0
+  }
+}
