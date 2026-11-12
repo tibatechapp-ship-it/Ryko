@@ -1,4 +1,4 @@
-name: Ryko CI — Platform + Medical Archive (v0.2.0)
+name: Ryko CI — Platform + Gate0 + Medical Archive
 
 on:
   push:
@@ -38,11 +38,29 @@ jobs:
       - name: Piece Registry validation
         run: make registry-validate
 
-      - name: Audit chain integrity
+      - name: Audit chain integrity (أدلة البوابات)
         run: make audit-verify
 
       - name: Platform tests
         run: make test
+
+  gate0-loop:
+    name: بوابة 0 — حلقة التحقق على المهام الثلاث
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run verification loop (strict)
+        run: make demo-loop
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate0-evidence
+          path: var/evidence/
 
   medical-archive:
     name: أرشيف MEDICAL-AI — 529 اختباراً + بواباته

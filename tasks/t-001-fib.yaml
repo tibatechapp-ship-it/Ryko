@@ -1,0 +1,13 @@
+id: t-001-fib
+title: "تنفيذ دالة فيبوناتشي تكرارية"
+instruction: |
+  اكتب ملف solution.py يعرّف دالة fib(n) تكرارية (بلا استدعاء ذاتي):
+  - fib(0) == 0 و fib(1) == 1.
+  - n سالب ⇒ ValueError، ون-غير صحيح ⇒ TypeError.
+  - دوكسترينغ عربي موجز إلزامي (corpus/style/06-docs-standards.md).
+fixture_dir: tasks/fixtures/t-001-fib
+target_path: solution.py
+test_command: "python3 -m pytest -q test_solution.py"
+implementer_piece: implementer-mock-v1
+reviewer_piece: reviewer-mock-v1
+max_attempts: 3

@@ -1,0 +1,13 @@
+id: t-002-slugify
+title: "تنفيذ slugify واعٍ لليونيكود"
+instruction: |
+  اكتب ملف solution.py يعرّف slugify(text):
+  - حروف/أرقام يونيكود تبقى (مرحبا تبقى مرحبا)، الحروف اللاتينية تُصغَّر.
+  - كل شغلة من غير الحروف/الأرقام (مسافات، ترقيم) تُطوى إلى شرطة واحدة.
+  - بلا شرطات طرفية، والنص الفارغ/None يعيد "".
+fixture_dir: tasks/fixtures/t-002-slugify
+target_path: solution.py
+test_command: "python3 -m pytest -q test_solution.py"
+implementer_piece: implementer-mock-v1
+reviewer_piece: reviewer-mock-v1
+max_attempts: 3

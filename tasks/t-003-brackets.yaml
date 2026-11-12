@@ -1,0 +1,12 @@
+id: t-003-brackets
+title: "مدقق توازن الأقواس"
+instruction: |
+  اكتب ملف solution.py يعرّف is_balanced(text):
+  - () [] {} فقط؛ ترتيب التداخل الصحيح إلزامي ("([)]" خاطئ).
+  - الأحرف الأخرى تُتجاهل؛ النص الفارغ متوازن؛ حل مكدس خطي.
+fixture_dir: tasks/fixtures/t-003-brackets
+target_path: solution.py
+test_command: "python3 -m pytest -q test_solution.py"
+implementer_piece: implementer-mock-v1
+reviewer_piece: reviewer-mock-v1
+max_attempts: 3
