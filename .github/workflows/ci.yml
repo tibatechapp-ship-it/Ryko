@@ -1,4 +1,4 @@
-name: Ryko CI — Medical Archive (v0.1.0)
+name: Ryko CI — Platform + Medical Archive (v0.2.0)
 
 on:
   push:
@@ -8,6 +8,42 @@ on:
     branches: [main]
 
 jobs:
+  platform:
+    name: المنصة — سجل القطع + سلسلة التدقيق + الاختبارات
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pip-audit
+
+      - name: Secrets scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dependency audit (غير مانع في P0)
+        run: pip-audit -r requirements.txt || true
+
+      - name: Piece Registry validation
+        run: make registry-validate
+
+      - name: Audit chain integrity
+        run: make audit-verify
+
+      - name: Platform tests
+        run: make test
+
   medical-archive:
     name: أرشيف MEDICAL-AI — 529 اختباراً + بواباته
     runs-on: ubuntu-latest

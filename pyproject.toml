@@ -1,6 +1,6 @@
 [project]
 name = "ryko"
-version = "0.3.0"
+version = "0.2.0"
 description = "Ryko — منظومة هندسية لتركيب القطع (NOVA-ONE): سجل قطع محكوم، حلقة تحقق مستقلة، وأدلة قابلة لإعادة التشغيل"
 readme = "README.md"
 requires-python = ">=3.10"

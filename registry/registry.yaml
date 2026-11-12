@@ -1,0 +1,139 @@
+# سجل القطع — Ryko (NOVA-ONE)
+# المصدر الوحيد للحقيقة لحوكمة القطع — يُعدَّل فقط عبر ryko.registry (كتابة ذرية + تدقيق).
+# الاعتماد يتطلب: holdout_scores.standalone + compositional_delta >= +0.10 + مراجعة مستقلة.
+# استثناء موثق (ADR-0003/PLAN §0.3): القطع الأساسية baseline: true — بنية تحتية يُقاس عليها.
+schema: ryko.registry/v1
+pieces:
+  - id: implementer-mock-v1
+    type: provider
+    role: implementer
+    family: mock-impl-family
+    version: 1.0.0
+    description: "مزود منفذ حتمي offline (ADR-0004) — حاملة الاختبارات المكثفة وبوابة 0"
+    source: "ryko://providers/mock.py#MockImplementer"
+    license: "internal"
+    interface_contract:
+      inputs: [task_spec, feedback]
+      outputs: [file_content]
+      constraints: [deterministic, offline, no_network]
+    config:
+      kind: mock
+      mode: standard
+      fail_until_attempt: 0
+    holdout_scores:
+      standalone: 1.0
+      compositional_delta: 0.0
+    baseline: true
+    cost:
+      inference: "0$/task"
+    status: approved
+    independent_review: approved
+    changelog:
+      - "1.0.0: إنشاء — حلول ثلاث حتمية + عطب قابل للحقن"
+
+  - id: reviewer-mock-v1
+    type: reviewer
+    role: reviewer
+    family: mock-rev-family
+    version: 1.0.0
+    description: "مراجع مستقل حتمي — يرفض الأنماط المحظورة ويطالب بصيغة VERDICT موحدة"
+    source: "ryko://providers/mock.py#MockReviewer"
+    license: "internal"
+    interface_contract:
+      inputs: [task_context, file_content, test_tail]
+      outputs: [review_verdict]
+      constraints: [deterministic, family_isolated, no_executor_log_access]
+    config:
+      kind: mock
+      mode: standard
+    holdout_scores:
+      standalone: 1.0
+      compositional_delta: 0.0
+    baseline: true
+    cost:
+      inference: "0$/task"
+    status: approved
+    independent_review: approved
+    changelog:
+      - "1.0.0: إنشاء — فحص أنماط محظورة + صيغة حكم موحدة"
+
+  - id: provider-openai-compat-v1
+    type: provider
+    role: implementer
+    family: openai-compat-family
+    version: 1.0.0
+    description: "عميل OpenAI-Compatible (vLLM/أي نقطة نهاية) — إعدادات من البيئة فقط"
+    source: "ryko://providers/openai_compat.py#OpenAICompatProvider"
+    license: "internal"
+    interface_contract:
+      inputs: [system, prompt]
+      outputs: [text]
+      constraints: [env_only_config, no_persisted_secrets, retries_2]
+    config:
+      kind: openai_compat
+    holdout_scores: null
+    cost:
+      inference: "حسب النقطة"
+    status: candidate
+    independent_review: pending
+    changelog:
+      - "1.0.0: إنشاء — اختبارات عقد فقط؛ بانتظار Holdout حقيقي قبل الاعتماد"
+
+  - id: tool-task-harness-v0
+    type: tool
+    version: 0.1.0
+    description: "مشغّل المهام والسندبكس وحلقة الإصلاح — ryko.runner"
+    source: "ryko://runner.py"
+    license: "internal"
+    interface_contract:
+      inputs: [task_spec_yaml]
+      outputs: [task_outcome, evidence_log]
+      constraints: [sandbox_isolated, timeout_enforced]
+    holdout_scores: null
+    cost:
+      run: "أعطال مقيسة بالثواني"
+    status: approved
+    independent_review: approved
+    baseline: true
+    changelog:
+      - "0.1.0: إنشاء — حلقة MVP بفرض استقلالية العائلة"
+
+  - id: tool-audit-chain-v0
+    type: tool
+    version: 0.1.0
+    description: "سجل تدقيق بسلسلة تجزئة SHA-256 + كشف تلاعب — ryko.audit / ryko.evidence"
+    source: "ryko://audit.py"
+    license: "internal"
+    interface_contract:
+      inputs: [action, actor, resource, payload]
+      outputs: [chained_entry]
+      constraints: [append_only, tamper_evident]
+    holdout_scores: null
+    cost:
+      run: "أغلبها تجزئة"
+    status: approved
+    independent_review: approved
+    baseline: true
+    changelog:
+      - "0.1.0: إنشاء"
+
+  - id: corpus-style-v0-1
+    type: corpus
+    version: 0.1.0
+    description: "Style & Standards Corpus v0.1 — معايير «ما هو الجيد» (أول أصل مملوك)"
+    source: "corpus/style/README.md"
+    license: "internal"
+    interface_contract:
+      inputs: [doc_request]
+      outputs: [standard_doc]
+      constraints: [arabic_first, indexed, integrity_tested]
+    holdout_scores:
+      standalone: 1.0
+      compositional_delta: 0.0
+    baseline: true
+    cost:
+      maintenance: "تحديث ربع سنوي"
+    status: approved
+    independent_review: approved
+    changelog:
+      - "0.1.0: 8 معايير + فهرس محصون باختبار"
