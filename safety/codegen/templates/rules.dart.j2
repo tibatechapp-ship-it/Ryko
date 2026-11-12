@@ -1,0 +1,176 @@
+// GENERATED FILE - DO NOT EDIT MANUALLY.
+// Source: safety/rules/*.yaml | Generator: safety/codegen/generator.py
+// MEDICAL-AI CORE v0 - W1 (السلامة أولاً) - المستودع: Ryko-Arabic (ريكو عربي)
+// ⚠ كل العتبات والقواعد هنا قيم افتراضية معلقة على التوقيع السريري (docs/00-intended-use.md §0.6).
+// ADR-0002: الحمولة الموحدة kRulesJson مطابقة بايت-ببايت مع RULES_JSON في Python (make parity).
+// بوابة الخطر المحلية تعمل على الجهاز بلا إنترنت (offline-first). أي شرط غير قابل
+// للتقييم لا يُطلق القاعدة (فشل آمن). لا أرقام مولّدة هنا — قرارات حتمية فقط.
+
+import 'dart:convert';
+
+const String kRulesVersion = '{{ rules_version }}';
+const String kDisclaimer = '{{ disclaimer }}';
+
+const String kRulesJson = r'''
+{{ rules_json }}
+''';
+
+class SafetyRule {
+  final String id;
+  final String description;
+  final Map<String, dynamic> trigger;
+  final Map<String, dynamic> action;
+
+  const SafetyRule({
+    required this.id,
+    required this.description,
+    required this.trigger,
+    required this.action,
+  });
+
+  factory SafetyRule.fromMap(Map<String, dynamic> m) => SafetyRule(
+        id: m['id'] as String,
+        description: (m['description'] ?? '') as String,
+        trigger: ((m['trigger'] ?? <String, dynamic>{}) as Map).cast<String, dynamic>(),
+        action: ((m['action'] ?? <String, dynamic>{}) as Map).cast<String, dynamic>(),
+      );
+}
+
+final List<SafetyRule> kSafetyRules =
+    (jsonDecode(kRulesJson) as List).map((e) => SafetyRule.fromMap((e as Map).cast<String, dynamic>())).toList(growable: false);
+
+const Map<String, int> kLevelRank = {
+  'SELF_CARE': 1,
+  'SHORT_TERM_MONITORING': 2,
+  'URGENT': 3,
+  'EMERGENCY': 4,
+};
+
+double? _asNum(Object? x) {
+  if (x is num) return x.toDouble();
+  if (x is String) return double.tryParse(x);
+  return null;
+}
+
+bool _numCmp(Object? a, String op, Object? b) {
+  final na = _asNum(a);
+  final nb = _asNum(b);
+  if (na == null || nb == null) return false;
+  switch (op) {
+    case 'gte':
+      return na >= nb;
+    case 'lte':
+      return na <= nb;
+    case 'gt':
+      return na > nb;
+    case 'lt':
+      return na < nb;
+    case 'eq':
+      return na == nb;
+    default:
+      throw ArgumentError('معامل رقمي غير معروف: $op');
+  }
+}
+
+bool _matchCondition(Map<String, dynamic> patient, Map<String, dynamic> cond) {
+  final field = cond['field'] as String;
+  final op = cond['operator'] as String;
+  final value = cond['value'];
+  if (field == 'symptoms') {
+    final sym = (patient['symptoms'] as List?) ?? <dynamic>[];
+    if (op == 'contains') return sym.contains(value);
+    if (op == 'subset_of') {
+      if (sym.isEmpty) return false;
+      final allowed = (value as List).toSet();
+      return sym.toSet().difference(allowed).isEmpty;
+    }
+    throw ArgumentError('معامل أعراض غير معروف: $op');
+  }
+  if (field == 'confirmed_critical_labs') {
+    final labs = (patient['confirmed_critical_labs'] as List?) ?? <dynamic>[];
+    if (op == 'lab_any') {
+      final spec = (value as Map).cast<String, dynamic>();
+      for (final lab in labs) {
+        final m = (lab as Map).cast<String, dynamic>();
+        if (m['loinc'].toString() == spec['loinc'].toString() &&
+            _numCmp(m['value'], (spec['op'] ?? 'gte') as String, spec['value'])) {
+          return true;
+        }
+      }
+      return false;
+    }
+    throw ArgumentError('معامل مختبرات غير معروف: $op');
+  }
+  final v = patient[field];
+  switch (op) {
+    case 'eq':
+      return v == value;
+    case 'gte':
+      return v != null && _numCmp(v, 'gte', value);
+    case 'lte':
+      return v != null && _numCmp(v, 'lte', value);
+    default:
+      throw ArgumentError('معامل قيمة غير معروف: $op');
+  }
+}
+
+bool _evalGroup(Map<String, dynamic> patient, Map<String, dynamic> trigger) {
+  final allOf = (trigger['all_of'] as List?) ?? <dynamic>[];
+  for (final c in allOf) {
+    if (!_matchCondition(patient, (c as Map).cast<String, dynamic>())) return false;
+  }
+  final anyOf = (trigger['any_of'] as List?) ?? <dynamic>[];
+  if (anyOf.isNotEmpty) {
+    var hit = false;
+    for (final c in anyOf) {
+      if (_matchCondition(patient, (c as Map).cast<String, dynamic>())) {
+        hit = true;
+        break;
+      }
+    }
+    if (!hit) return false;
+  }
+  return true;
+}
+
+List<SafetyRule> evaluateRules(Map<String, dynamic> patientData) {
+  final triggered = <SafetyRule>[];
+  for (final rule in kSafetyRules) {
+    try {
+      if (_evalGroup(patientData, rule.trigger)) triggered.add(rule);
+    } catch (_) {
+      // فشل آمن: شرط غير قابل للتقييم لا يُطلق القاعدة
+    }
+  }
+  return triggered;
+}
+
+Map<String, dynamic> triageDecision(Map<String, dynamic> patientData,
+    {String emergencyNumber = '997'}) {
+  // ألم صدر منفرد ⇒ URGENT كحد أدنى (قاعدة صلبة — لا طمأنة أبداً).
+  // الطوارئ تتقدم على كل المستويات. بلا قاعدة مستوفاة ⇒ SELF_CARE افتراضي آمن.
+  final triggered = evaluateRules(patientData);
+  if (triggered.isEmpty) {
+    return {
+      'level': 'SELF_CARE',
+      'rule_id': 'SC-000',
+      'rules_version': kRulesVersion,
+      'action': 'monitor',
+      'emergency_number': emergencyNumber,
+      'message_key': 'safety.selfcare.default',
+      'disclaimer': kDisclaimer,
+    };
+  }
+  triggered.sort((a, b) => kLevelRank[b.action['level']]!.compareTo(kLevelRank[a.action['level']]!));
+  final top = triggered.first;
+  final act = top.action;
+  return {
+    'level': act['level'],
+    'rule_id': top.id,
+    'rules_version': kRulesVersion,
+    'action': act['action'],
+    'emergency_number': (act['default_emergency_number'] ?? emergencyNumber).toString(),
+    'message_key': act['message_key'],
+    'disclaimer': kDisclaimer,
+  };
+}

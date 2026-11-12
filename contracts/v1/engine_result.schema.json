@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://medical-ai.local/schemas/v1/engine_result.json",
+  "title": "Engine Result",
+  "type": "object",
+  "required": ["engine", "engine_version", "status", "data", "evidence", "confidence", "limitations"],
+  "properties": {
+    "engine": { "type": "string", "enum": ["lab", "pharma", "records", "reports"] },
+    "engine_version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+    "status": { "type": "string", "enum": ["ok", "abstain", "error"] },
+    "data": {
+      "type": "object",
+      "description": "يحتوي فقط على بيانات من قاعدة البيانات أو قواعد موحدة. ممنوع توليد أرقام هنا."
+    },
+    "evidence": {
+      "type": "array",
+      "description": "إلزامي إذا كان status == 'ok'. يثبت مصدر كل معلومة.",
+      "items": {
+        "type": "object",
+        "required": ["source_document_id", "quote"],
+        "properties": {
+          "source_document_id": { "type": "string", "format": "uuid" },
+          "page": { "type": "integer", "minimum": 1 },
+          "bbox": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+          "quote": { "type": "string" }
+        }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "required": ["method", "value"],
+      "properties": {
+        "method": { "type": "string", "enum": ["ocr_field_score", "kb_exact_match", "rule"] },
+        "value": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+      }
+    },
+    "abstain_reason": { "type": ["string", "null"], "enum": ["unmapped_unit", "low_ocr", "conflicting_values", null] },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "safety_flags": { "type": "array", "items": { "type": "string" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "ok" } } },
+      "then": {
+        "properties": { "evidence": { "minItems": 1 } },
+        "required": ["evidence"]
+      }
+    }
+  ]
+}

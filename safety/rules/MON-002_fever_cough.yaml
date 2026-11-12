@@ -1,0 +1,22 @@
+# MON-002: أعراض متوسطة — مراقبة قصيرة المدى
+# ⚠ يتطلب توقيعاً سريرياً قبل أي عمل إنتاجي
+id: MON-002
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null
+description: "حمى خفيفة مع كحلة — مراقبة قصيرة المدى، بلا قيم حرجة مؤكدة"
+trigger:
+  all_of:
+    - field: symptoms
+      operator: contains
+      value: low_grade_fever
+    - field: symptoms
+      operator: contains
+      value: cough
+action:
+  level: SHORT_TERM_MONITORING
+  action: monitor
+  message_key: safety.monitoring.fever_cough
+  default_emergency_number: "997"

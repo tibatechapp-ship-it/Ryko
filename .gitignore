@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# مخارج البناء والبوابات (تُرفع كـ artifacts في CI)
+evals/results.json
+evals/parity_report.json
+audit_report.md
+
+# Flutter / Dart (W4+)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+
+# IDE والنظام
+.idea/
+.vscode/
+.DS_Store
+*.log

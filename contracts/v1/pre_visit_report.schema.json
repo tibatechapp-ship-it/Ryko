@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://medical-ai.local/schemas/v1/pre_visit_report.json",
+  "title": "Pre-Visit Report (Composition payload)",
+  "type": "object",
+  "$comment": "مسودة v0 — تُعتمد في W0. القاعدة الصلبة: بيانات مؤكدة فقط؛ أي قيمة غير مؤكدة إما تُستثنى أو تُعرض موسومة «مستخرج — غير مؤكد» خارج الحسابات. الوسم القانوني «ليس تشخيصاً» إلزامي على التقرير وPDF المولد.",
+  "required": ["patient_ref", "generated_at", "sections", "disclaimer"],
+  "properties": {
+    "patient_ref": { "type": "string", "format": "uuid" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "locale": { "type": "string", "default": "ar-SA" },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "items"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["labs", "medications", "allergies", "documents", "questions"] },
+          "items": {
+            "type": "array",
+            "description": "عناصر القسم — أرقامها من قاعدة البيانات حصراً (لا توليد LLM)"
+          },
+          "provenance": {
+            "type": "array",
+            "description": "ملحق الإثبات لكل عنصر: مستند/صفحة/اقتباس/حالة تأكيد",
+            "items": {
+              "type": "object",
+              "required": ["source_document_id", "confirmation_status"],
+              "properties": {
+                "source_document_id": { "type": "string", "format": "uuid" },
+                "page": { "type": "integer", "minimum": 1 },
+                "quote": { "type": "string" },
+                "confirmation_status": { "type": "string", "enum": ["confirmed", "corrected", "extracted", "rejected"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "unconfirmed_included": { "type": "boolean", "const": false, "description": "قيمة false إلزامية — لا قيم غير مؤكدة في الحسابات أو جسم التقرير" },
+    "disclaimer": {
+      "type": "string",
+      "const": "هذا التقرير ليس تشخيصاً ويُقرأ للطبيب فقط."
+    }
+  }
+}

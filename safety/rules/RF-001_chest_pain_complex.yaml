@@ -1,0 +1,32 @@
+# RF-001: ألم صدر مع عرض مرافق أو مدة ≥ 15 دقيقة
+# ⚠ يتطلب توقيعاً سريرياً (docs/00-intended-use.md §0.6) قبل أي عمل إنتاجي
+id: RF-001
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null            # تُملأ عند التوقيع — لا توقيع = لا إنتاج
+description: "ألم صدر مع أي عرض مرافق أو مدة تتجاوز 15 دقيقة"
+trigger:
+  all_of:
+    - field: symptoms
+      operator: contains
+      value: chest_pain
+  any_of:
+    - field: symptoms
+      operator: contains
+      value: dyspnea
+    - field: symptoms
+      operator: contains
+      value: diaphoresis
+    - field: symptoms
+      operator: contains
+      value: radiating_pain
+    - field: duration_min
+      operator: gte
+      value: 15
+action:
+  level: EMERGENCY
+  action: call_ambulance
+  message_key: safety.emergency.chest_pain_complex
+  default_emergency_number: "997"   # يُستبدل ديناميكياً حسب locale ⚠ مراجعة قانونية

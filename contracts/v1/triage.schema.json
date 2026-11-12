@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://medical-ai.local/schemas/v1/triage.json",
+  "title": "Triage Output",
+  "type": "object",
+  "$comment": "تصحيحان موثقان على مسودة الحزمة المصدر: (1) نمط rule_id وسّع إلى ^[A-Z]{2,3}-[A-Z]{0,2}-?[0-9]{2,3}$ ليغطي المعرفات المستخدمة في المجموعة الذهبية (RF-001، RF-005، RF-010، CV-K-01، SC-001، MON-002) — النمط الأصلي ^[A-Z]{2}-[0-9]{3}$ كان يستبعد CV-K-01 وMON-002 المتعارض مع المجموعة الذهبية نفسها. (2) نمط message_key وسّع إلى ^safety\\.[a-z_]+(\\.[a-z_]+)*$ — النمط الأصلي ^safety\\.[a-z_]+$ يناقض أمثلة الحزمة ذاتها (safety.emergency.chest_pain تحوي نقطتين).",
+  "required": ["level", "rule_id", "rules_version", "action", "message_key", "disclaimer"],
+  "properties": {
+    "level": { "type": "string", "enum": ["EMERGENCY", "URGENT", "SHORT_TERM_MONITORING", "SELF_CARE"] },
+    "rule_id": { "type": "string", "pattern": "^[A-Z]{2,3}-[A-Z]{0,2}-?[0-9]{2,3}$" },
+    "rules_version": { "type": "string" },
+    "action": { "type": "string", "enum": ["call_ambulance", "contact_doctor_now", "see_doctor_today", "monitor"] },
+    "emergency_number": { "type": "string", "pattern": "^\\d{3,4}$" },
+    "message_key": { "type": "string", "pattern": "^safety\\.[a-z_]+(\\.[a-z_]+)*$" },
+    "disclaimer": {
+      "type": "string",
+      "const": "هذه الأداة لا تشخص ولا تعالج. في حالة الطوارئ، اتصل فوراً بخدمات الطوارئ المحلية."
+    }
+  }
+}

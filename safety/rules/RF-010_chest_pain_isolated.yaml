@@ -1,0 +1,19 @@
+# RF-010: ألم صدر منفرد — حظر مطلق للطمأنة (قاعدة صلبة)
+# ⚠ يتطلب توقيعاً سريرياً قبل أي عمل إنتاجي
+id: RF-010
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null
+description: "ألم صدر منفرد: لا طمأنة أبداً — URGENT كحد أدنى بغض النظر عن العمر أو المدة"
+trigger:
+  all_of:
+    - field: symptoms
+      operator: contains
+      value: chest_pain
+action:
+  level: URGENT
+  action: see_doctor_today
+  message_key: safety.urgent.chest_pain_isolated
+  default_emergency_number: "997"

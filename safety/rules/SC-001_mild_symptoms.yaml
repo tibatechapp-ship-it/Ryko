@@ -1,0 +1,19 @@
+# SC-001: أعراض خفيفة — رعاية ذاتية/مراقبة (الافتراضي الآمن الصريح)
+# ⚠ يتطلب توقيعاً سريرياً قبل أي عمل إنتاجي
+id: SC-001
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null
+description: "عرض خفيف معروف ضمن قائمة الأعراض غير المقلقة، بلا قيم حرجة مؤكدة"
+trigger:
+  all_of:
+    - field: symptoms
+      operator: subset_of
+      value: [mild_headache, mild_fatigue, sneezing]
+action:
+  level: SELF_CARE
+  action: monitor
+  message_key: safety.selfcare.mild_symptoms
+  default_emergency_number: "997"

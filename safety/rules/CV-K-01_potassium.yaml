@@ -1,0 +1,24 @@
+# CV-K-01: قيمة بوتاسيوم حرجة — من تحاليل مؤكدة فقط
+# ⚠ العتبة 6.5 mmol/L قيمة افتراضية معلقة على التوقيع السريري (القسم 5 من الوثيقة الهندسية)
+id: CV-K-01
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null
+description: "بوتاسيوم ≥ 6.5 mmol/L من قيم مؤكدة بشرياً فقط — طوارئ"
+trigger:
+  all_of:
+    - field: confirmed_critical_labs
+      operator: lab_any
+      value:
+        loinc: "2823-3"     # Potassium [Moles/volume] in Serum or Plasma
+        unit: mmol/L
+        op: gte
+        value: 6.5          # ⚠ يتطلب توقيعاً سريرياً
+action:
+  level: EMERGENCY
+  action: contact_doctor_now
+  flag: critical_value
+  message_key: safety.emergency.critical_potassium
+  default_emergency_number: "997"

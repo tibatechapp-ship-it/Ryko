@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://medical-ai.local/schemas/v1/lab_extraction.json",
+  "title": "Lab Extraction Result (data payload of EngineResult)",
+  "type": "object",
+  "$comment": "مسودة v0 — تُعتمد في W0. يوصف حقل data داخل EngineResult لمحرك LAB. كل قيمة مستخرجة تُعرض موسومة بحالة التأكيد، ولا تدخل السجل المؤكد إلا عبر تأكيد بشري إلزامي.",
+  "required": ["extractions"],
+  "properties": {
+    "extractions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["original_name", "confirmation_status"],
+        "properties": {
+          "original_name": { "type": "string", "description": "الاسم كما ظهر في المستند (عربي/إنجليزي)" },
+          "loinc_code": { "type": ["string", "null"], "pattern": "^[0-9]+-[0-9]+$", "description": "رمز LOINC بعد اعتماد الخريطة عبر loinc_map فقط" },
+          "value_num": { "type": ["number", "null"] },
+          "value_text": { "type": ["string", "null"] },
+          "original_unit": { "type": ["string", "null"] },
+          "unit_ucum": { "type": ["string", "null"], "description": "فارغ إذا لم تُعتمد وحدة عبر unit_map — امتناع لا تخمين" },
+          "ref_low": { "type": ["number", "null"], "description": "من المستند نفسه — لا جداول عامة" },
+          "ref_high": { "type": ["number", "null"], "description": "من المستند نفسه — لا جداول عامة" },
+          "ref_unit_ucum": { "type": ["string", "null"] },
+          "effective_at": { "type": ["string", "null"], "format": "date-time" },
+          "collected_at": { "type": ["string", "null"], "format": "date-time" },
+          "confirmation_status": { "type": "string", "enum": ["extracted", "confirmed", "corrected", "rejected"] },
+          "page_no": { "type": ["integer", "null"], "minimum": 1 },
+          "bbox": { "type": ["array", "null"], "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+          "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1, "description": "معايرة استخراج — لا تقييم ذاتي من LLM" }
+        }
+      }
+    },
+    "abstain_reason": { "type": ["string", "null"], "enum": ["unmapped_unit", "low_ocr", "conflicting_values", null] }
+  }
+}

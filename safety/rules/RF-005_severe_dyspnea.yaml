@@ -1,0 +1,22 @@
+# RF-005: ضيق تنفس حاد مع زرقة
+# ⚠ يتطلب توقيعاً سريرياً قبل أي عمل إنتاجي
+id: RF-005
+version: "1.0.0"
+clinical_signoff:
+  name: "د. [الاسم الكامل] ⚠"
+  license_number: "[رقم الترخيص السعودي] ⚠"
+  date: null
+description: "ضيق تنفس حاد مع زرقة — مؤشر طوارئ"
+trigger:
+  all_of:
+    - field: symptoms
+      operator: contains
+      value: severe_dyspnea
+    - field: symptoms
+      operator: contains
+      value: cyanosis
+action:
+  level: EMERGENCY
+  action: call_ambulance
+  message_key: safety.emergency.severe_dyspnea_cyanosis
+  default_emergency_number: "997"
