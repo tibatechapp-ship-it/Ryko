@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ryko — نموذج لغوي عربي</title>
+<style>
+  :root {
+    --bg: #0b0f19; --panel: #121826; --panel-2: #0e1422; --border: #1f2a44;
+    --text: #e5ecf8; --muted: #8b98b5; --accent: #4f7cff; --accent-2: #22d3ee;
+    --ok: #34d399; --warn: #fbbf24;
+    font-size: 15px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(1200px 600px at 80% -10%, #16213c 0%, var(--bg) 55%);
+    color: var(--text); min-height: 100vh;
+    font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; }
+  header { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; }
+  .logo {
+    width: 46px; height: 46px; border-radius: 13px; flex: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: grid; place-items: center; font-weight: 800; font-size: 22px; color: #07101f;
+  }
+  h1 { font-size: 1.55rem; letter-spacing: .3px; }
+  .sub { color: var(--muted); font-size: .92rem; margin-top: 2px; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 22px; }
+  .badge {
+    background: var(--panel); border: 1px solid var(--border); color: var(--muted);
+    padding: 5px 12px; border-radius: 999px; font-size: .78rem;
+  }
+  .badge b { color: var(--text); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 18px;
+  }
+  .card h2 { font-size: .95rem; color: var(--muted); font-weight: 600; margin-bottom: 12px; }
+  textarea, input[type=number] {
+    width: 100%; background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px; padding: 12px; font-size: .95rem;
+    font-family: inherit; resize: vertical; outline: none;
+  }
+  textarea:focus, input:focus { border-color: var(--accent); }
+  textarea { min-height: 84px; }
+  .btn {
+    width: 100%; margin-top: 12px; padding: 13px; border: 0; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #06101f; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+    border-radius: 999px; padding: 6px 13px; font-size: .8rem; cursor: pointer; font-family: inherit;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  .ctrl { margin-bottom: 13px; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+  .ctrl output { color: var(--accent-2); font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .out {
+    margin-top: 16px; background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; min-height: 130px; white-space: pre-wrap;
+    line-height: 2; font-size: 1.02rem;
+  }
+  .out .placeholder { color: var(--muted); font-size: .9rem; }
+  .cursor { display: inline-block; width: 9px; height: 1.15em; background: var(--accent-2);
+    vertical-align: text-bottom; animation: blink 1s steps(1) infinite; margin-inline-start: 2px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .stats { color: var(--muted); font-size: .78rem; margin-top: 10px; min-height: 1.2em; }
+  footer { margin-top: 30px; color: var(--muted); font-size: .8rem; text-align: center; line-height: 1.9; }
+  footer a { color: var(--accent-2); text-decoration: none; }
+  .note { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.25);
+    color: #d9c07a; border-radius: 12px; padding: 12px 16px; font-size: .82rem; line-height: 1.9; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">R</div>
+    <div>
+      <h1>Ryko</h1>
+      <div class="sub">نموذج لغوي عربي توليدي — مبني بالكامل بمكتبة tokenizers وPyTorch</div>
+    </div>
+  </header>
+
+  <div class="badges" id="badges">
+    <span class="badge">المعمارية <b>Decoder-only + RoPE + RMSNorm + SwiGLU + GQA</b></span>
+    <span class="badge">الرموز <b id="b-params">—</b></span>
+    <span class="badge">المفردات <b id="b-vocab">—</b></span>
+    <span class="badge">السياق <b id="b-ctx">—</b></span>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>التوليد</h2>
+      <textarea id="prompt" placeholder="اكتب بداية جملة بالعربية، وسيكملها النموذج...">اللغة العربية</textarea>
+      <button class="btn" id="go">توليد</button>
+      <div class="chips">
+        <button class="chip">كان يا ما كان</button>
+        <button class="chip">العلم والتعليم</button>
+        <button class="chip">في يوم من الأيام</button>
+        <button class="chip">تعد اللغات</button>
+      </div>
+      <div class="out" id="out"><span class="placeholder">سيظهر النص المولّد هنا أولاً بأول (بث مباشر)…</span></div>
+      <div class="stats" id="stats"></div>
+      <div class="note">
+        هذا نموذج تجريبي صغير (11.5 مليون معلم، تدريب مرجعي على 4.9 مليون توكن) هدفه إثبات
+        جاهزية الخط الكامل: تجميع كوربوس، رمزنة Byte-Level BPE، تدريب، تقييم، وخدمة استدلال.
+        النص المولّد قد يكون غير متماسك دلالياً — وهذا متوقع وموثق في دليل التدريب.
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>إعدادات التوليد</h2>
+      <div class="ctrl"><label>الطول الأقصى <output id="v-len">64</output></label>
+        <input type="range" id="len" min="16" max="160" step="8" value="64"></div>
+      <div class="ctrl"><label>الحرارة (Temperature) <output id="v-temp">0.8</output></label>
+        <input type="range" id="temp" min="0.2" max="1.6" step="0.05" value="0.8"></div>
+      <div class="ctrl"><label>Top-K <output id="v-topk">50</output></label>
+        <input type="range" id="topk" min="5" max="200" step="5" value="50"></div>
+      <div class="ctrl"><label>Top-P <output id="v-topp">0.95</output></label>
+        <input type="range" id="topp" min="0.5" max="1" step="0.05" value="0.95"></div>
+      <div class="ctrl"><label>عقوبة التكرار <output id="v-rep">1.15</output></label>
+        <input type="range" id="rep" min="1" max="1.6" step="0.05" value="1.15"></div>
+      <div class="ctrl"><label>البذرة (اختياري)</label>
+        <input type="number" id="seed" placeholder="افتراضي عشوائي"></div>
+    </aside>
+  </div>
+
+  <footer>
+    Ryko — Apache-2.0 · مبني بـ <a href="https://github.com/huggingface/tokenizers">tokenizers</a> وPyTorch ·
+    <a href="https://github.com/tibatechapp-ship-it/Ryko">المستودع على GitHub</a>
+  </footer>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const out = $("out"), stats = $("stats"), go = $("go"), promptBox = $("prompt");
+let busy = false;
+
+for (const [r, o, fmt] of [["len","v-len",v=>v],["temp","v-temp",v=>(+v).toFixed(2)],
+     ["topk","v-topk",v=>v],["topp","v-topp",v=>(+v).toFixed(2)],["rep","v-rep",v=>(+v).toFixed(2)]]) {
+  $(r).addEventListener("input", e => $(o).textContent = fmt(e.target.value));
+}
+document.querySelectorAll(".chip").forEach(c => c.onclick = () => { promptBox.value = c.textContent; });
+
+fetch("/model").then(r => r.ok ? r.json() : null).then(m => {
+  if (!m) return;
+  $("b-params").textContent = (m.params/1e6).toFixed(1) + "M";
+  $("b-vocab").textContent = (m.vocab_size/1024).toFixed(0) + "K";
+  $("b-ctx").textContent = m.block_size;
+}).catch(()=>{});
+
+async function generate() {
+  if (busy) return;
+  busy = true; go.disabled = true; go.textContent = "جارٍ التوليد…";
+  out.textContent = ""; stats.textContent = "";
+  const cursor = document.createElement("span"); cursor.className = "cursor";
+  out.appendChild(cursor);
+
+  const body = {
+    prompt: promptBox.value,
+    max_new_tokens: +$("len").value,
+    temperature: +$("temp").value,
+    top_k: +$("topk").value,
+    top_p: +$("topp").value,
+    repetition_penalty: +$("rep").value,
+  };
+  if ($("seed").value !== "") body.seed = +$("seed").value;
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch("/generate/stream", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body)
+    });
+    if (!res.ok || !res.body) throw new Error("HTTP " + res.status);
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buffer = "", lastText = "", tokens = 0;
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += dec.decode(value, {stream: true});
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop();
+      for (const part of parts) {
+        const line = part.trim(); if (!line.startsWith("data:")) continue;
+        const payload = JSON.parse(line.slice(5).trim());
+        if (payload.done) {
+          const ms = performance.now() - t0;
+          stats.textContent = `${payload.tokens} توكن · ${(ms/1000).toFixed(1)} ثانية · ${Math.round(payload.tokens/(ms/1000))} توكن/ث`;
+        } else if (payload.text !== lastText) {
+          out.insertBefore(document.createTextNode(payload.text.slice(lastText.length)), cursor);
+          lastText = payload.text; tokens = payload.tokens;
+        }
+      }
+    }
+  } catch (e) {
+    stats.textContent = "تعذر الاتصال بالخادم: " + e.message;
+  }
+  cursor.remove(); busy = false; go.disabled = false; go.textContent = "توليد";
+}
+
+go.onclick = generate;
+promptBox.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generate(); }
+});
+</script>
+</body>
+</html>

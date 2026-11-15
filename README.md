@@ -2,96 +2,165 @@
 
 # Ryko
 
-### منظومة هندسية لتركيب القطع — NOVA-ONE
+### Arabic decoder-only language model — full pipeline: corpus → tokenizer → training → serving
 
-**Piece-Composition Engineering Platform — compose pieces you own into one governed system.**
+**A compact, production-grade Arabic language-model stack built on
+[`tokenizers`](https://github.com/huggingface/tokenizers) (Rust) and PyTorch —
+Byte-Level BPE, RoPE, RMSNorm, SwiGLU and GQA, trained end-to-end and served
+through a streaming API with an Arabic web playground.**
 
 [![CI](https://github.com/tibatechapp-ship-it/Ryko/actions/workflows/ci.yml/badge.svg)](https://github.com/tibatechapp-ship-it/Ryko/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/tests-600%2B%20passing-brightgreen)
-![Phase](https://img.shields.io/badge/phase-P0%20foundations-orange)
-![License](https://img.shields.io/badge/license-proprietary-red)
-[![Docs](https://img.shields.io/badge/docs-PLAN%20%7C%20ARCHITECTURE-informational)](docs/PLAN.md)
+![License](https://img.shields.io/badge/license-Apache--2.0-green)
+![Params](https://img.shields.io/badge/params-11.5M%20%7C%2052M%20%7C%20100M-informational)
+![Vocab](https://img.shields.io/badge/vocab-32%2C768%20Byte--BPE-orange)
+
+النسخة العربية: [README_AR.md](README_AR.md)
 
 </div>
 
-> **القرار المعماري الحاكم:** لا نموذج جاهزاً نضبطه، ولا نموذجاً نبنيه من الصفر. نأخذ **قطعاً** — أوزان أساس، Adapters، أدوات، بيانات، مدققات — ونركّبها في منظومة واحدة نملكها، خلف سجل قطع محكوم بعقود واجهة وتراخيص وتقييم Holdout ومراجعة مستقلة.
->
-> **القاعدة الذهبية:** لا تجعل النموذج الذي كتب الكود هو الحكم الوحيد على صحته.
-
 ---
 
-## ما هذا المستودع؟
+## What is this repository?
 
-Ryko تنفيذ هندسي لخطة **NOVA-ONE** (12–16 شهراً، 6 بوابات انتقال): منظومة تُنفّذ مهام هندسة برمجيات عبر حلقة تحقق لا تُعطَّل:
+Ryko is a **complete, reproducible pipeline for building an Arabic language
+model from scratch** — not a fine-tune of an existing checkpoint:
 
-```
-قطعة (أ) تكتب → اختبارات → إصلاح ≤3 → قطعة (ب) مستقلة تراجع → قبول/رفض بأدلة
-```
+| stage | module | what it does |
+|---|---|---|
+| 1. Corpus | `ryko_lm.data.collect_corpus` | pulls contemporary MSA (Arabic Wikipedia) + classical heritage text (Tashkeela) from free public APIs |
+| 2. Cleaning | `ryko_lm.data.clean_corpus` | NFKC folding, tatweel/diacritics removal, line filters, paragraph dedup, train/val split |
+| 3. Tokenizer | `ryko_lm.tokenizer` | trains a **Byte-Level BPE (32,768)** with an Arabic-aware normalizer — no `[unk]` is ever possible |
+| 4. Binarization | `ryko_lm.data.binarize` | corpus → flat `uint16` memmap arrays (nanoGPT-style data path) |
+| 5. Model | `ryko_lm.model.ryko_model` | decoder-only transformer: RoPE, RMSNorm, SwiGLU, GQA, KV-cache decoding |
+| 6. Training | `ryko_lm.training.train` | AdamW + cosine schedule + warmup, resumable checkpoints, JSONL metrics |
+| 7. Evaluation | `ryko_lm.training.evaluate` | perplexity + generation samples |
+| 8. Serving | `ryko_lm.serving.api` | FastAPI: `/generate`, SSE `/generate/stream`, and an RTL Arabic playground |
 
-كل قرار مسجَّل في Evidence Log قابل لإعادة التشغيل، وكل قطعة في Piece Registry بعقد واجهة وترخيص ونتيجة Holdout، وكل أمر في سجل تدقيق بسلسلة تجزئة غير قابلة للتعديل.
+The reference model, **Ryko-Tiny (11.5M parameters)**, was trained end-to-end
+on CPU inside this repository's CI budget. Two larger presets (`small`, `base`)
+ship as ready-to-run GPU configs.
 
-## الحالة الحالية
+## Results (reference run — Ryko-Tiny)
 
-| المرحلة | الوسم | الحالة | الأدلة |
-|---|---|---|---|
-| P0 — البنية والوثائق | `v0.1.0` | منجز | CI أخضر + أرشيف حي 529 اختباراً |
-| P0 — سجل القطع + التدقيق | `v0.2.0` | منجز | tamper-detection + حوكمة اعتماد |
-| P0 — حلقة التحقق MVP | `v0.3.0` | منجز | بوابة 0: 3 مهام بأدلة كاملة |
-| P1 — الحلقة على نموذج حقيقي (20 مهمة، ≥60%) | — | قادم | — |
+| metric | value |
+|---|---|
+| Parameters | **11,536,640** (3.15M non-embedding) |
+| Architecture | 4 layers · d=256 · 8 heads / 4 KV heads (GQA) · SwiGLU 768 · RoPE θ=10⁴ · ctx 256 |
+| Vocabulary | 32,768 Byte-Level BPE, trained in 10.4 s |
+| Tokenizer fertility | **1.325 tokens/word** · 4.23 chars/token (Arabic validation text) |
+| Training corpus | 24,098 documents · 22.7M chars · **5.38M tokens** (train) + 41.6K (val) |
+| Training | 2,400 steps · batch 8×256 · **4.9M tokens** · ~42 min on 2 CPU cores |
+| Final loss | train **6.39** · val **7.28** · PPL ≈ 1,445 |
+| Inference | ~5 ms/token (CPU, KV cache) · SSE streaming |
 
-الخطة الكاملة: [docs/PLAN.md](docs/PLAN.md) · المعمارية: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+> **Honest engineering note:** at 11.5M parameters and 4.9M training tokens the
+> model produces *locally* coherent, correctly-spelled Arabic with plausible
+> morphology, but it is **not** semantically reliable — perplexity is high and
+> that is expected at this scale. Ryko is a **reference pipeline** whose value
+> is the full reproducible stack, not frontier text quality. Scale with
+> `ryko-small` (52M) / `ryko-base` (100M) configs and a larger corpus.
+> Details: [docs/TRAINING.md](docs/TRAINING.md).
 
-## البدء السريع
+Artifacts committed in-tree: `artifacts/tokenizer/ryko-tokenizer.json`,
+`artifacts/training/final.pt` (fp16), training curve and samples in
+`docs/results/`.
+
+## Quickstart
 
 ```bash
 git clone https://github.com/tibatechapp-ship-it/Ryko.git && cd Ryko
-pip install -r requirements.txt
+pip install -r requirements.txt          # torch (CPU wheels fine) + tokenizers + fastapi
 
-make test            # اختبارات المنصة
-make medical-tests   # اختبارات أرشيف MEDICAL-AI (529)
-make registry-validate registry-list   # سجل القطع
-make demo-loop       # بوابة 0: 3 مهام بحلقة التحقق الكاملة
+# 1) use the trained artifact directly (no training needed)
+python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt \
+    --prompts "اللغة العربية" "كان يا ما كان"
+
+# 2) launch the Arabic web playground
+make serve                               # http://localhost:8000
+
+# 3) reproduce the full pipeline from scratch
+make collect && make clean-corpus && make tokenizer && make binarize && make train
 ```
 
-تشغيل حلقة مهام عبر vLLM (أو أي نقطة نهاية OpenAI-Compatible) — بلا أي تغيير كود:
+Python API:
 
-```bash
-export RYKO_LLM_BASE_URL="http://localhost:8000/v1"
-export RYKO_LLM_API_KEY="none"
-export RYKO_LLM_MODEL="Qwen/Qwen2.5-7B-Instruct"
-python3 -m ryko.runner run --tasks tasks/demo --registry registry/registry.yaml
+```python
+import torch
+from ryko_lm.model.ryko_model import RykoLM
+from ryko_lm.tokenizer.loader import RykoTokenizer
+
+model = RykoLM.load("artifacts/training/final.pt")
+tok   = RykoTokenizer.from_dir("artifacts/tokenizer")
+
+ids  = tok.encode("اللغة العربية", add_bos=True)
+out  = model.generate(torch.tensor([ids]), max_new_tokens=48, temperature=0.8)
+print(tok.decode(out[0].tolist()))
 ```
 
-## بنية المستودع
+## Architecture at a glance
+
+```
+Byte input ──► Byte-Level BPE (32,768, Arabic normalizer)
+        ──► 4 × [ RMSNorm ─► GQA attention (RoPE, SDPA) ─► +residual
+                  RMSNorm ─► SwiGLU(768)                    ─► +residual ]
+        ──► RMSNorm ─► tied LM head ──► next-token distribution
+```
+
+Why these choices for Arabic — Byte-Level BPE over WordPiece/Unigram, 32K
+vocabulary, no aggressive letter unification — is analyzed in
+[docs/ARABIC_TOKENIZATION.md](docs/ARABIC_TOKENIZATION.md).  The tokenizer
+fertility of 1.325 tokens/word (e.g. `فسأكتبها → فس|أ|كتب|ها`,
+`فاستخدمناها → ف|است|خد|منا|ها`) shows the BPE learning Arabic clitic
+structure instead of fragmenting words.
+
+## Repository layout
 
 ```
 Ryko/
-├── ryko/                    # المنصة: registry, audit, tasks, providers, runner, evidence
-├── registry/                # سجل القطع — قلب الحوكمة
-├── tasks/                   # مواصفات المهام + fixtures
-├── corpus/style/            # Style & Standards Corpus — أول أصل مملوك
-├── evidence/                # أدلة البوابات (قابلة لإعادة التشغيل)
-├── docs/                    # PLAN + ARCHITECTURE + ADRs
-├── archive/medical-ai-v0/   # أول workload حقيقي — بواباته تعمل في CI
-├── tests/                   # اختبارات المنصة
-└── .github/                 # CI + قوالب PR/Issues
+├── src/ryko_lm/            # the package (data, tokenizer, model, training, serving)
+├── configs/models/         # ryko-tiny / ryko-small / ryko-base
+├── data/sample/            # committed corpus sample for CI smoke tests
+├── artifacts/              # trained tokenizer + final fp16 checkpoint (committed)
+├── docs/                   # ARCHITECTURE, ARABIC_TOKENIZATION, TRAINING, results/
+├── tests/                  # 30 pytest tests (tokenizer, model, data, serving)
+├── archive/                # previous platform iterations (kept for history)
+└── .github/workflows/      # CI: unit tests + end-to-end smoke pipeline
 ```
 
-## الحوكمة في سطر واحد
+## Sizing presets
 
-| القاعدة | الأداة التي تفرضها |
-|---|---|
-| لا قطعة بلا عقد واجهة وترخيص وHoldout | `ryko.registry` — الاعتماد يرفض تلقائياً `compositional_delta < +0.10` |
-| المراجع مستقل عن المنفذ | الحلقة ترفض `family` متطابقاً قبل أي توليد |
-| لا فشل صامت | `ryko.audit` سلسلة تجزئة + كشف تلاعب |
-| لا قبول بلا أدلة | `ryko.evidence` + Evidence Gate |
-| لا مفاتيح في المستودع | مزودات تقرأ البيئة فقط، فحص gitleaks في CI |
+| preset | params | layers | d_model | heads/KV | ffn | context | target hardware |
+|---|---|---|---|---|---|---|---|
+| `ryko-tiny` | 11.5M | 4 | 256 | 8 / 4 | 768 | 256 | CPU (CI-trained) |
+| `ryko-small` | 52.2M | 12 | 512 | 8 / 4 | 1,408 | 512 | 1 consumer GPU |
+| `ryko-base` | 100.7M | 12 | 768 | 12 / 4 | 2,048 | 1,024 | 8× GPU (torchrun) |
 
-## المساهمة
+## Serving
 
-اقرأ [CONTRIBUTING.md](CONTRIBUTING.md) — تلتزم فيها بقواعد الانضباط الخمس و[Style Corpus](corpus/style/README.md). الأمان: [SECURITY.md](SECURITY.md). سلوك المجتمع: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+```bash
+make serve                                                # http://localhost:8000
+curl -s -X POST localhost:8000/generate -H 'Content-Type: application/json' \
+     -d '{"prompt": "اللغة العربية", "max_new_tokens": 40, "seed": 7}'
+```
 
-## الترخيص
+Endpoints: `GET /` (RTL Arabic playground) · `GET /health` · `GET /model` ·
+`POST /generate` · `POST /generate/stream` (SSE).  All generation knobs are
+exposed: temperature, top-k, top-p, repetition penalty, seed.
 
-**ملكية خاصة — جميع الحقوق محفوظة © 2026 Vixona Technologies (tibatechapp-ship-it).** الاستخدام أو إعادة التوزيع تتطلب إذناً كتابياً.
+## Roadmap
+
+- [ ] More training tokens (Chinchilla-optimal for 11.5M ≈ 230M tokens)
+- [ ] Dialect coverage: add social-media corpora (LABR, MSAC) beside MSA
+- [ ] `ryko-small` GPU reference training run with published metrics
+- [ ] HuggingFace `transformers`-compatible export (safetensors)
+- [ ] Instruction-tuning stage (small Arabic SFT corpus)
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).  Security policy:
+[SECURITY.md](SECURITY.md).  Community: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## License
+
+[Apache-2.0](LICENSE) — © 2026 Ryko contributors (tibatechapp-ship-it).

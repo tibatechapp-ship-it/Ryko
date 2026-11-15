@@ -1,13 +1,55 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "ryko"
-version = "0.3.0"
-description = "Ryko — منظومة هندسية لتركيب القطع (NOVA-ONE): سجل قطع محكوم، حلقة تحقق مستقلة، وأدلة قابلة لإعادة التشغيل"
+name = "ryko-lm"
+version = "1.0.0"
+description = "Ryko — Arabic decoder-only language model: Byte-Level BPE tokenizer (tokenizers), RoPE + RMSNorm + SwiGLU + GQA transformer, full training / evaluation / serving pipeline."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Proprietary" }
-authors = [{ name = "Vixona Technologies", email = "tibatechapp-ship-it@users.noreply.github.com" }]
-dependencies = ["PyYAML>=6.0"]
+license = { file = "LICENSE" }
+authors = [{ name = "Ryko Team", email = "tibatechapp-ship-it@users.noreply.github.com" }]
+keywords = ["arabic", "nlp", "language-model", "tokenizer", "bpe", "transformer", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: Arabic",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "tokenizers>=0.20",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+train = ["torch>=2.2"]
+serve = ["fastapi>=0.110", "uvicorn>=0.29", "pydantic>=2.6"]
+plot = ["matplotlib>=3.7"]
+dev = ["pytest>=8.0", "httpx>=0.27"]
+
+[project.urls]
+Homepage = "https://github.com/tibatechapp-ship-it/Ryko"
+Documentation = "https://github.com/tibatechapp-ship-it/Ryko/tree/main/docs"
+Changelog = "https://github.com/tibatechapp-ship-it/Ryko/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"ryko_lm.serving" = ["static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

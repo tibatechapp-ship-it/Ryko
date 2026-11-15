@@ -1,0 +1,16 @@
+{
+  "algo": "ByteLevelBPE",
+  "vocab_size": 32768,
+  "min_frequency": 2,
+  "special_tokens": [
+    "<pad>",
+    "<bos>",
+    "<eos>",
+    "<unk>"
+  ],
+  "normalizer": "NFKC + strip(tatweel|harakat|dagger-alif|quran-marks)",
+  "corpus_files": [
+    "train.txt"
+  ],
+  "train_seconds": 10.4
+}

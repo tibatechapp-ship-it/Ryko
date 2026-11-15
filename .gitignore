@@ -5,20 +5,21 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-
-# مخارج البناء والبوابات (تُرفع كـ artifacts في CI)
-evals/results.json
-evals/parity_report.json
-audit_report.md
-var/
-
-# Flutter / Dart (W4+)
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
 build/
+dist/
 
-# IDE والنظام
+# Raw and processed data (large) — the sample + stats ARE committed
+data/raw/
+data/processed/*.bin
+data/processed/*.txt
+data/processed/*.json
+
+# Training checkpoints (heavy) — final fp16 artifact IS committed
+artifacts/training/last.pt
+artifacts/training/best.pt
+artifacts/smoke/
+
+# Environments / IDE / OS
 .idea/
 .vscode/
 .DS_Store

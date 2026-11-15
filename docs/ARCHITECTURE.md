@@ -1,97 +1,95 @@
-# المعمارية الحاكمة — Ryko (NOVA-ONE): منظومة تركيب القطع
+# Ryko architecture
 
-> **القرار المعماري الحاكم:** لا نأخذ نموذجاً جاهزاً كاملاً ونضبطه، ولا نبنيه من الصفر. نأخذ **قطعاً** من مصادر متعددة — أوزان أساس، طبقات وخبراء، Adapters متخصصة، أدوات، بيانات، مدققات — ونركّبها في منظومة واحدة نملكها. التفوق يأتي من **جودة التركيب**، لا من جودة أي قطعة منفردة.
->
-> هذا المستوى الثالث من النضج: الأول «استدعاء الجاهز»، الثاني «تخصيص الجاهز»، والثالث **«تركيب القطع»** — تمايز كامل + ملكية كاملة + مرونة كاملة.
+## Model family
 
-**قاعدة التأسيس:** لا قطعة تدخل المنظومة بلا عقد واجهة، وترخيص واضح، وتقييم على Holdout، ومراجعة مستقلة. التركيب بلا حوكمة يصنع فرانكشتاين، لا منظومة.
+Ryko is a decoder-only autoregressive transformer in the Llama/Jais design
+line, adapted for Arabic at small scale:
 
----
+```
+tokens (B, T)
+   │
+   ├─ token embedding  32,768 × 256            (tied with the LM head)
+   │
+   ├─ 4 × block:
+   │     x += GQA-attention( RMSNorm(x) )       8 query heads, 4 KV heads
+   │     x += SwiGLU( RMSNorm(x) )              hidden 768, no biases
+   │
+   ├─ RMSNorm
+   └─ LM head (tied) → logits (B, T, 32,768)
+```
 
-## 1. الهدف — Pareto على سبعة محاور
+### Component rationale
 
-1. تنفيذ مهام طويلة متعددة المراحل
-2. فهم مستودعات ضخمة وسياق طويل
-3. تعديل عدة ملفات دون فقدان السياق
-4. تشغيل الطرفية والاختبارات وإصلاح الأخطاء ذاتياً
-5. التكلفة لكل مهمة ناجحة
-6. الأمان والصلاحيات والمراجعة
-7. الأداء عبر مزودين ونماذج متعددة
-
-**القاعدة الذهبية:** لا تجعل النموذج الذي كتب الكود هو الحكم الوحيد على صحته. ولا تجعل القطعة التي ركّبتها حَكَماً على تركيبها، ولا النموذج الذي دربتَه حَكَماً على تدريبه.
-
-## 2. أنواع القطع الخمس
-
-| نوع القطعة | ما نأخذه | لماذا |
+| component | choice | why |
 |---|---|---|
-| **أوزان أساس** | نماذج مفتوحة بأحجام وعائلات مختلفة (Qwen، DeepSeek، GLM، Llama…) | نقطة انطلاق قوية بلا كلفة تدريب أساسي |
-| **طبقات وخبراء** | دمج أوزان (SLERP/TIES/DARE) وتكوين MoE من خبراء | نموذج مركّب يضم أفضل ما في كل أساس |
-| **Adapters** | LoRA/QLoRA: كود، مراجعة، تخطيط، عربية، تحقق، أمان | كل قدرة قطعة قابلة للتبديل والتطوير المستقل |
-| **أدوات وHarness** | OpenCode، مدققات، مشغّلات اختبارات، ماسحات، vLLM | لا نعيد اختراع ما أُثبت |
-| **بيانات ومدققات** | Engineering/Style/Failure/Decision Corpora مملوكة | الأصول التي تصنع «أسلوبنا» |
+| Normalization | **RMSNorm** (pre-norm) | stable without bias terms; cheaper than LayerNorm |
+| Position | **RoPE** θ=10⁴ | relative encoding, extrapolates past the trained window; cache built on demand |
+| Attention | **GQA** 8Q/4KV | KV cache and parameters shrink ~2× with negligible quality loss at this scale |
+| FFN | **SwiGLU** (gate × up, down) | the modern standard (Llama/Jais); hidden sized 3× d rounded to 64 |
+| Masking | `scaled_dot_product_attention(is_causal=True)` | no materialized T×T mask; uses PyTorch's fused kernel |
+| Embedding | **tied** input/output | saves 8.4M parameters — decisive at 11.5M total |
+| Init | N(0, 0.02); residual out-projections scaled by 1/√(2L) | GPT-2 recipe; verified: initial loss = ln(32,768) ≈ 10.4 |
+| Decoding | KV-cache decode, `generate_iter` streaming sampler | temperature, top-k, top-p (nucleus), repetition penalty, seeded RNG |
 
-**قاعدة القطع الثلاثية:** (1) الجودة المنفردة، (2) توافق عقد الواجهة، (3) القيمة التركيبية على Holdout — القطعة الجيدة التي لا تُحسّن التركيب تُرفض.
+### Configurations
 
-**ما لا نأخذه:** أوزان مغلقة (تُستخدم عبر API كقطعة خارجية موجهة فقط)، تراخيص تمنع التركيب التجاري، قطع بلا تقييم أو بلا عقد واجهة.
+| preset | params | layers | d_model | heads / KV | ffn | context | trained? |
+|---|---|---|---|---|---|---|---|
+| `ryko-tiny` | 11,536,640 | 4 | 256 | 8 / 4 | 768 | 256 | yes — CPU, 2,400 steps |
+| `ryko-small` | 52,179,456 | 12 | 512 | 8 / 4 | 1,408 | 512 | config only (GPU) |
+| `ryko-base` | 100,682,496 | 12 | 768 | 12 / 4 | 2,048 | 1,024 | config only (8× GPU) |
 
-## 3. طبقات التركيب
+Configs live in `configs/models/*.yaml` (`model:` = architecture, `train:` =
+optimization).  `RykoLM.save()` serializes config + state dict in one file;
+`RykoLM.load()` reconstructs without any external registry.
 
-```
-┌─────────────────────────────────────────────────┐
-│  Router (يختار القطعة الأنسب لكل مهمة)           │
-├─────────────────────────────────────────────────┤
-│  نموذج مركّب A   │  نموذج مركّب B   │ API خارجي   │
-│  (دمج + Adapters)│ (MoE + Adapters)│ (للمراجعة   │
-│                  │                 │  المستقلة)  │
-└─────────────────────────────────────────────────┘
-```
+## Data path
 
-- **الدمج:** ندمج أوزاناً متخصصة في نموذج واحد مركّب — كل أساس قطعة.
-- **MoE التركيبي:** خبراء متخصصون + Router يوجّه.
-- **Adapters:** تُركَّب وتُفك بلا إعادة تدريب الأساس.
-- **API خارجي:** احتياط للمهام الحرجة والمراجعة المستقلة — لا أكثر.
-- **طبقة الأدوات:** قراءة/بحث، تعديل متعدد الملفات، طرفية، اختبارات، Sandbox، صلاحيات، Checkpoints، تدقيق، MCP، وكلاء فرعيون — كلها خلف واجهة موحدة.
+* corpus → `train.bin` / `val.bin`: flat `uint16` token arrays (32K vocab fits
+  in 16 bits), read via `numpy.memmap`;
+* the trainer samples random windows of `block_size` — **no padding, no
+  attention masks**; documents start with `<bos>` and every paragraph ends
+  with `<eos>`;
+* this is the nanoGPT-style path: zero-copy, CPU-friendly, trivially
+  shardable on GPU clusters.
 
-## 4. المعمارية الكاملة
+## Training loop
 
-```
-طبقة النماذج   : أساس مفتوح + دمج أوزان + MoE تركيبي + Adapters + Router
-الطبقة 1 — Cognitive Core         : التخطيط، الاستدلال، القرار
-الطبقة 2 — Repository Intelligence: فهم المستودع وتأثير التغيير   ← P0
-الطبقة 3 — Engineering Agents     : التصميم، التنفيذ، الاختبار     ← P0
-الطبقة 4 — Verification Engine    : التحقق المستقل وبوابة الأدلة   ← P0
-الطبقة 5 — Learning Engine        : تعلم على مستوى القطع والنظام والتركيب
-                    ↓
-        Verified Engineering Output
-```
+* AdamW (β = 0.9/0.95), weight decay 0.1 on ≥2-D tensors only;
+* cosine schedule with linear warmup (100 steps for tiny);
+* gradient clipping 1.0, gradient accumulation supported;
+* every `eval_every` steps: validation loss → `log.jsonl`, best/fp16 +
+  last/resumable checkpoints (`last.pt` carries optimizer + RNG state);
+* `--time-budget` enables graceful stop/resume — the full reference run was
+  produced across resumable chunks on a 2-core CPU.
 
-**طبقة التحقق — قطعة لا تُعطَّل:** Static + Unit/Integration + Behavioral + Security + Independent Review + Regression + **Evidence Gate**.
+## Serving stack
 
-## 5. سجل القطع (Piece Registry) — قلب الحوكمة
+FastAPI app (`src/ryko_lm/serving/api.py`):
 
-كل قطعة مسجلة في `registry/registry.yaml` ولا تدخل الإنتاج بدونه. الحقول: المعرّف والإصدار (SemVer)، المصدر، الترخيص، عقد الواجهة (مدخلات/مخرجات/قيود)، تقييم Holdout (منفرد + قيمة تركيبية)، التكلفة، حالة الاعتماد (`draft/candidate/tested/approved/rejected/suspended`)، سجل التغييرات، المراجعة المستقلة.
+* `POST /generate` — JSON in / JSON out (batch = 1);
+* `POST /generate/stream` — **SSE**, one event per token with the cumulative
+  decoded text (byte-safe full-decode-per-step), `done` event carries latency;
+* `GET /model` — architecture + training metadata for the UI badges;
+* `GET /` — RTL Arabic playground (single self-contained HTML file, no CDN);
+* env knobs: `RYKO_MODEL_PATH`, `RYKO_TOKENIZER_DIR`, `RYKO_DEVICE`,
+  `RYKO_THREADS`.
 
-**قاعدة الاعتماد:** `compositional_delta < +0.10` → رفض تلقائي. القطع القابلة للتبديل تجعل التراجع ممكناً دائماً.
+Measured on 2 CPU cores: ~5 ms/token decode with KV cache; the 12-token
+round-trip `/generate` call completes in ~136 ms.
 
-## 6. التعلم — ثلاثة مستويات
+## Testing strategy
 
-| المستوى | المحتوى |
-|---|---|
-| **القطع (محكوم)** | LoRA/QLoRA متخصصة، Model Merging، MoE، Distillation، Adapter Composition — كل Adapter مرقّم قابل للتراجع، لا تحديث تلقائي في الإنتاج |
-| **النظام (مستمر)** | الذاكرة تُثري القرارات، Router يتحسن، ضغط سياق أفضل، قواعد تحقق من كل فشل |
-| **التركيب نفسه** | سجل أداء كل قطعة في كل سياق؛ نعدّل التركيب بالأدلة لا بالانطباع |
+30 tests in `tests/`:
 
-## 7. إدارة الفشل
-
-- **Failure Memory:** كل فشل بالمهمة والخطة والخطوة والخطأ وقرار الإصلاح، مصنفاً: قطعة / تركيب / سياق / أداة / صلاحية / اختبار خاطئ.
-- تحليل جذري إلزامي قبل الانتقال. Rollback تلقائي لأي قطعة تخفض مقياساً رئيسياً. موافقة بشرية للأوامر الحساسة. عزل القطعة المشكوك فيها فوراً.
-
-## 8. القاعدة الذهبية — مطبقة هيكلياً
-
-1. Reviewer مستقل تماماً — قطعة مختلفة، سياق مختلف (يفرضه فحص `family` في الحلقة).
-2. Evidence Gate إلزامية — لا قبول بلا أدلة قابلة لإعادة التشغيل.
-3. الاختبارات هي الحكم الأول.
-4. مراجعة أمنية آلية + بشرية.
-5. سجل تدقيق غير قابل للتعديل (hash-chain) لكل أمر وتعديل.
-6. لا تعديل تلقائي لأوزان أي قطعة في الإنتاج.
-7. القطع القابلة للتبديل تجعل التراجع ممكناً دائماً — وهذا وحده ميزة تنافسية.
+* **tokenizer** — special ids stable, roundtrip on hard inputs, no `unk` ever,
+  diacritized input ≡ clean input, compression sanity band;
+* **normalizer** — Python reference ≡ data-pipeline semantics, NFKC folding,
+  tatweel/harakat removal, opt-in unifications;
+* **model** — shapes, causality (future tokens cannot change past logits),
+  KV-cache ≡ full forward (max Δ < 1e-4), tied weights, save/load determinism,
+  preset sizing monotonicity;
+* **serving** — health/model/generate/determinism-with-seed, SSE event count,
+  playground HTML served;
+* **data** — dedup, fingerprint stability, normalization semantics, binarize
+  roundtrip.

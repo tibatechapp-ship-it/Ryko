@@ -1,64 +1,58 @@
-# Ryko — نظام البناء والتحقق (NOVA-ONE) — v0.3.0: حلقة التحقق وبوابة 0
-.PHONY: all test medical-tests medical-gates registry-validate registry-list audit-verify demo-loop gate0 clean help
-
-PYTHON := python3
-export PYTHONPATH := .
-
-# === الكل: سجل → تدقيق → اختبارات المنصة → اختبارات الأرشيف ===
-
-all: registry-validate audit-verify test medical-tests
-
-# 1. اختبارات المنصة
-test:
-	$(PYTHON) -m pytest tests/ -q
-
-# 2. اختبارات أرشيف MEDICAL-AI (529) — لا تُكسر أبداً
-medical-tests:
-	$(PYTHON) -m pytest archive/medical-ai-v0/tests -q
-
-# 3. بوابات أرشيف MEDICAL-AI كاملة (ذهبية + تكافؤ + سلامة)
-medical-gates:
-	$(MAKE) -C archive/medical-ai-v0 all
-
-# 4. سجل القطع
-registry-validate:
-	$(PYTHON) -m ryko.registry validate --registry registry/registry.yaml
-
-registry-list:
-	$(PYTHON) -m ryko.registry list --registry registry/registry.yaml
-
-# 5. سلامة سلسلة التدقيق والأدلة
-audit-verify:
-	@if [ -f var/audit.jsonl ]; then $(PYTHON) -m ryko.audit verify var/audit.jsonl; else echo "[SKIP] لا سجل تدقيق بعد"; fi
-	@if [ -f evidence/gate0/gate0.jsonl ]; then $(PYTHON) -m ryko.audit verify evidence/gate0/gate0.jsonl; fi
-
-# 6. حلقة التحقق على مهام بوابة 0 (صارمة: كل المهام يجب أن تُقبل)
-demo-loop:
-	$(PYTHON) -m ryko.runner run --tasks tasks --registry registry/registry.yaml \
-		--evidence var/evidence/gate0.jsonl --audit var/audit.jsonl --actor gate0 --strict
-
-# 7. ختم بوابة 0: نسخ الأدلة إلى موضعها الملتزم
-gate0: demo-loop
-	@mkdir -p evidence/gate0
-	cp var/evidence/gate0.jsonl evidence/gate0/gate0.jsonl
-	$(PYTHON) -m ryko.audit verify evidence/gate0/gate0.jsonl
-	@echo "[OK] بوابة 0 مختومة — أدلة قابلة لإعادة التشغيل"
-
-# 8. تنظيف مخارج التشغيل (غير الملتزمة)
-clean:
-	rm -rf var /tmp/triage_500_check.jsonl
-	@find . -type d -name "__pycache__" -prune -exec rm -rf {} + 2>/dev/null || true
-	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
-	@echo "[OK] نظّف"
+# Ryko — Arabic Language Model
+.PHONY: help collect clean-corpus tokenizer binarize train train-smoke eval samples \
+	    plot serve test pipeline clean
 
 help:
-	@echo "make all              - كل البوابات (سجل + تدقيق + اختباران)"
-	@echo "make test             - اختبارات المنصة"
-	@echo "make medical-tests    - اختبارات أرشيف MEDICAL-AI"
-	@echo "make medical-gates    - بوابات الأرشيف الكاملة"
-	@echo "make registry-validate- صلاحية سجل القطع"
-	@echo "make registry-list    - عرض القطع"
-	@echo "make audit-verify     - سلامة سلاسل التدقيق والأدلة"
-	@echo "make demo-loop        - حلقة التحقق على مهام بوابة 0"
-	@echo "make gate0            - ختم بوابة 0 بالأدلة"
-	@echo "make clean            - تنظيف"
+	    @echo "Ryko — Arabic decoder-only language model"
+	    @echo "  make collect        Collect raw Arabic corpus (Wikipedia + Tashkeela)"
+	    @echo "  make clean-corpus   Clean/normalize/deduplicate the corpus"
+	    @echo "  make tokenizer      Train the Byte-Level BPE tokenizer (32,768)"
+	    @echo "  make binarize       Encode corpus to uint16 token arrays"
+	    @echo "  make train          Train Ryko-Tiny (resumable; full 2,400 steps)"
+	    @echo "  make train-smoke    30-step end-to-end pipeline proof"
+	    @echo "  make eval           Perplexity + samples from the final checkpoint"
+	    @echo "  make samples        Save generation samples to docs/results/"
+	    @echo "  make plot           Plot the training curve"
+	    @echo "  make serve          Start the FastAPI playground on :8000"
+	    @echo "  make test           Run the test suite"
+
+collect:
+	    python -m ryko_lm.data.collect_corpus --source wikipedia --target-mb 19 --out data/raw/wiki.jsonl
+	    python -m ryko_lm.data.collect_corpus --source tashkeela --target-mb 10 --page-delay 0.4 --out data/raw/tashkeela.jsonl
+
+clean-corpus:
+	    python -m ryko_lm.data.clean_corpus --inputs data/raw/wiki.jsonl data/raw/tashkeela.jsonl --out-dir data/processed
+
+tokenizer:
+	    python -m ryko_lm.tokenizer.train_tokenizer --corpus data/processed/train.txt --out artifacts/tokenizer
+
+binarize:
+	    python -m ryko_lm.data.binarize --tokenizer artifacts/tokenizer/ryko-tokenizer.json --in-dir data/processed --out-dir data/processed
+
+train:
+	    python -m ryko_lm.training.train --config configs/models/ryko-tiny.yaml --data-dir data/processed --out-dir artifacts/training
+
+train-smoke:
+	    python -m ryko_lm.tokenizer.train_tokenizer --corpus data/sample/train.txt --out artifacts/smoke/tokenizer --vocab-size 4096
+	    python -m ryko_lm.data.binarize --tokenizer artifacts/smoke/tokenizer/ryko-tokenizer.json --in-dir data/sample --out-dir artifacts/smoke
+	    python -m ryko_lm.training.train --config configs/models/ryko-tiny.yaml --data-dir artifacts/smoke --out-dir artifacts/smoke/training --total-steps 30 --eval-batches 4 --reset
+	    python -m ryko_lm.training.evaluate --checkpoint artifacts/smoke/training/final.pt --tokenizer artifacts/smoke/tokenizer/ryko-tokenizer.json --data-dir artifacts/smoke --max-batches 4 --max-new-tokens 24
+
+eval:
+	    python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt
+
+samples:
+	    python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt --out docs/results/samples.json
+
+plot:
+	    python -m ryko_lm.training.plot_loss --log artifacts/training/log.jsonl --out docs/results/loss_curve.png
+
+serve:
+	    uvicorn ryko_lm.serving.api:app --host 0.0.0.0 --port 8000
+
+test:
+	    pytest -q
+
+clean:
+	    rm -rf data/raw data/processed artifacts/smoke
+	    find . -name __pycache__ -type d -exec rm -rf {} +

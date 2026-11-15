@@ -1,0 +1,25 @@
+# Ryko-Tiny — the reference CPU-trainable configuration.
+# Trained end-to-end inside the repository CI budget (~40 min on 2 CPU cores).
+name: ryko-tiny
+model:
+  vocab_size: 32768
+  block_size: 256
+  n_layer: 4
+  n_head: 8
+  n_kv_head: 4
+  n_embd: 256
+  ffn_hidden: 768
+  dropout: 0.0
+  rope_theta: 10000.0
+  tie_embeddings: true
+train:
+  batch_size: 8
+  grad_accum: 1
+  lr: 3.0e-4
+  min_lr: 3.0e-5
+  warmup_steps: 100
+  weight_decay: 0.1
+  grad_clip: 1.0
+  total_steps: 2400
+  eval_every: 200
+  seed: 1337

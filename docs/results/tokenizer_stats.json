@@ -1,0 +1,7 @@
+{
+  "vocab_size": 32768,
+  "total_tokens_on_20k_words": 26494,
+  "fertility_tokens_per_word": 1.325,
+  "chars_total": 112008,
+  "chars_per_token": 4.228
+}

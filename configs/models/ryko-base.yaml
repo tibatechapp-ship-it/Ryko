@@ -1,0 +1,26 @@
+# Ryko-Base — multi-GPU configuration (~100M parameters), Jais-class depth.
+# Scale tokens/params per Chinchilla (~2B tokens); use torchrun for sharding:
+#   torchrun --nproc_per_node=8 -m ryko_lm.training.train --config configs/models/ryko-base.yaml
+name: ryko-base
+model:
+  vocab_size: 32768
+  block_size: 1024
+  n_layer: 12
+  n_head: 12
+  n_kv_head: 4
+  n_embd: 768
+  ffn_hidden: 2048
+  dropout: 0.0
+  rope_theta: 10000.0
+  tie_embeddings: true
+train:
+  batch_size: 64
+  grad_accum: 4
+  lr: 3.0e-4
+  min_lr: 3.0e-5
+  warmup_steps: 1000
+  weight_decay: 0.1
+  grad_clip: 1.0
+  total_steps: 100000
+  eval_every: 1000
+  seed: 1337

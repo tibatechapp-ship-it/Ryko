@@ -1,0 +1,9 @@
+# Binary artifacts
+*.pt binary
+*.bin binary
+artifacts/tokenizer/ryko-tokenizer.json -diff
+docs/results/*.png binary
+
+# Language stats
+*.md linguist-documentation
+src/ryko_lm/serving/static/index.html linguist-language=HTML

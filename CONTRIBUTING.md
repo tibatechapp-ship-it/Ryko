@@ -1,47 +1,43 @@
 # دليل المساهمة في Ryko
 
-شكراً لاهتمامك. Ryko منظومة حوكمة صارمة — المساهمة تعني الالتزام بقواعد الانضباط الخمس:
+شكراً لاهتمامك. Ryko خط إنتاج لبناء نموذج لغة عربي من الصفر، والمساهمة تعني
+الالتزام بقواعد الانضباط التالية:
 
-1. **لا قطعة تدخل الإنتاج بلا Registry + Holdout + مراجعة مستقلة.**
-2. **المراجع لا يشارك في كتابة ما يراجعه، ولا يرى سجل المنفذ.**
-3. **كل فشل يُصنَّف ويُسجَّل قبل الانتقال** — لا فشل صامت.
-4. **أي قطعة تخفض أي مقياس رئيسي → Rollback تلقائي** — بلا نقاش.
-5. **Holdout مجمّد ومحمي** — لا يُلمس إلا بقرار موثق من Evaluation Lead + Owner.
+1. **كل مرحلة قابلة لإعادة الإنتاج** — كوربوس، رمزنة، تدريب، تقييم: أي تغيير
+   يغيّر المخرجات يجب أن يوثّق في `CHANGELOG.md` مع الأرقام الجديدة.
+2. **لا أرقام بلا مصدر** — كل مقياس في التوثيق يجب أن يصدر من
+   `artifacts/training/summary.json` أو من تشغيل `make eval` فعلي.
+3. **الاختبارات خضراء دائماً** — `make test` شرط لدمج أي PR.
+4. **لا مفاتيح ولا توكنات في الكود** — الإعدادات تُقرأ من البيئة فقط، وgitleaks
+   يفحص كل commit في CI.
+5. **النموذج ليس المنتج الوحيد** — قرارات المعمارية توثق في `docs/ARCHITECTURE.md`
+   وقرارات الرمزنة العربية في `docs/ARABIC_TOKENIZATION.md`.
 
 ## بيئة التطوير
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-make test            # اختبارات المنصة
-make medical-tests   # اختبارات الأرشيف — يجب أن تبقى خضراء دائماً
+make test            # 30 اختباراً: رمزنة + نموذج + بيانات + خدمة
+make train-smoke     # خط كامل على عينة مخفضة — دليل سلامة سريع
 ```
 
 ## معايير الكود
 
-كل ما هو «جيد» هنا موثق في [corpus/style/](corpus/style/README.md) — وهو الجزء الملزم من أي مراجعة:
+* Python 3.10+، تلميحات أنواع على الدوال العامة.
+* وحدة واحدة مسؤولية واحدة: البيانات في `ryko_lm.data`، الرمزنة في
+  `ryko_lm.tokenizer`، المعمارية في `ryko_lm.model`، حلقة التدريب في
+  `ryko_lm.training`، الخدمة في `ryko_lm.serving`.
+* أي سلوك جديد يأتي معه اختبار في `tests/`.
+* النصوص العربية في الكود والتوثيق بالفصحى القياسية.
 
-- [01-naming.md](corpus/style/01-naming.md) — التسمية
-- [02-project-structure.md](corpus/style/02-project-structure.md) — بنية المشروع
-- [03-testing-standards.md](corpus/style/03-testing-standards.md) — الاختبارات
-- [04-review-checklist.md](corpus/style/04-review-checklist.md) — قائمة المراجعة
-- [05-commit-and-tags.md](corpus/style/05-commit-and-tags.md) — الالتزامات والوسوم
-- [06-docs-standards.md](corpus/style/06-docs-standards.md) — التوثيق
-- [07-security-basics.md](corpus/style/07-security-basics.md) — أمنيات أساس
-- [08-arabic-content-rules.md](corpus/style/08-arabic-content-rules.md) — المحتوى العربي
+## سير العمل
 
-## عملية تقديم تغيير
+1. افتح Issue describing the change (قالب جاهز في `.github/ISSUE_TEMPLATE/`).
+2. فرّع من `main` باسم واضح (`feat/tokenizer-...`، `fix/serving-...`).
+3. تأكد من `make test` و`make train-smoke`.
+4. PR بعنوان واضح يربط الـIssue — المراجعة خلال أيام عمل قليلة.
 
-1. افتح Issue أولاً (إلا الإصلاحات الطفيفة) — استخدم القالب المناسب.
-2. فرع من `main` باسم: `feat/…`, `fix/…`, `docs/…`.
-3. **كل PR يمر بقائمة [Evidence Gate](.github/PULL_REQUEST_TEMPLATE.md)**: اختبارات جديدة تغطي التغيير، `make test` + `make medical-tests` أخضر، بلا أسرار، والتحقق من أثر التغيير موثق.
-4. الالتزامات بصيغة Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`).
-5. البوابات المهمة تُختم بوسم (`v0.x.y` أو `gate-N`) بعد موافقة Owner فقط.
+## الترخيص
 
-## ما يُرفض فوراً في المراجعة
-
-- كود بلا اختبارات، أو اختبارات تُخفى فشلاً.
-- قطعة جديدة غير مسجلة في `registry/registry.yaml`.
-- مفتاح/توكن/رابط بنقطة نهاية خاصة في أي ملف.
-- تفسير نتائج بلا أدلة قابلة لإعادة التشغيل.
-- تعديل ملفات `holdout/` (عند إنشائها) — محمية بالكامل.
+بالمساهمة أنت توافق على نشر مساهماتك تحت رخصة Apache-2.0 المرفقة.
