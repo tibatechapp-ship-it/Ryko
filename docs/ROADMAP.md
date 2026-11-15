@@ -21,7 +21,8 @@ Ryko اليوم **أنبوب كامل قابل لإعادة الإنتاج** (ك
 |---|---|---|
 | v1.0.0 | `v0.3.0`→`v1.0.0` | الأنبوب الكامل من الصفر: ويكيبيديا + تشكيلة، BPE 32K بخصوبة 1.325، Ryko-Tiny على 4.9M توكن، خادم FastAPI + ساحة RTL، 30 اختباراً |
 | v1.1.0 | `2d0f386` | توسيع 6.8× (36.65M توكن)، PPL 1,782 ← 432، تدريب 4,000 خطوة |
-| **v1.2.0 (هذا)** | `v1.2.0` | المدونة **246.1M توكن** (+ OpenITI 2023.1.8 شظايا 0–1 = 1,782 كتاباً، + Shamela v4 = 144 كتاباً من 41 تصنيفاً بإثبات صفحة)، إزالة 1.43M فقرة مكررة، **PPL 504.7 ← 160.4** على نفس البروتوكول، تقييم حتمي نوافذ متتالية، **إيصالات provenance موقعة** و**حارس توليد** (مستلهمان من ZYKO)، 39 اختباراً |
+| v1.2.0 | `v1.2.0` | المدونة **246.1M توكن** (OpenITI + Shamela)، PPL 504.7 ← 160.4، إيصالات provenance + حارس توليد (نمط ZYKO)، 39 اختباراً |
+| **v1.3.0 (هذا)** | `v1.3.0` | **نواة المعرفة (المرحلة 6)**: مخطط SQLite للجداول الستة، استيراد بإسناد صفحي، بذرة حقيقية 10 كتب / 11,674 مقطعاً / 3.85M حرف، استرجاع هجين حتمي (BM25 + hashing-embeddings + RRF)، مدقق اقتباس `ryko-cite/1`، تصنيف خطاب 12 نوعاً، بوابة أسرار محلية، 71 اختباراً |
 
 **مصادر المدونة الحالية (كلها مجانية وموثقة المصدر):**
 
@@ -82,6 +83,10 @@ Ryko اليوم **أنبوب كامل قابل لإعادة الإنتاج** (ك
   pgvector للبحث الدلالي وBM25 نصي.
 - **بوابة القبول:** كل مقطع يمكن إرجاعه إلى كتاب + صفحة + بصمة sha256؛
   إيصال provenance لكل دفعة استيراد.
+- **الحالة:** ✅ **v1.3.0 سلّم الأساس المحلي** — مخطط SQLite للجداول الستة
+  (`ryko_lm.knowledge`)، استرجاع هجين حتمي (BM25 + hashing-embeddings + RRF)،
+  مدقق اقتباس، بذرة 10 كتب / 11,674 مقطعاً بإسناد صفحي وإيصال متحقق.  الباقي:
+  خادم PostgreSQL + pgvector عند التوسع، وتضمينات دلالية عربية حقيقية.
 - **هذا هو الأساس للـ RAG الموثق قبل أي ضبط دقيق.**
 
 ### المرحلة 7 — بوابات التقييم العلمي
@@ -118,7 +123,26 @@ Ryko اليوم **أنبوب كامل قابل لإعادة الإنتاج** (ك
 
 ---
 
-## 4) كيف تساهم في المرحلة 3 الآن (سطران)
+## 4) أوامر نواة المعرفة (المرحلة 6 — v1.3.0)
+
+```bash
+python -m ryko_lm.data.collect_shamela --per-cat 1 --max-books 12 --max-file-mb 3 \
+    --keep-pages --out data/raw/shamela_knowledge.jsonl          # جلب بإسناد صفحي
+python -m ryko_lm.knowledge ingest --format shamela \
+    --jsonl data/raw/shamela_knowledge.jsonl --db data/knowledge/ryko.sqlite
+python -m ryko_lm.knowledge search --db data/knowledge/ryko.sqlite "استعلامك" -k 5
+python -m ryko_lm.knowledge cite   --db data/knowledge/ryko.sqlite "نص الاقتباس"
+python -m ryko_lm.knowledge receipt --db data/knowledge/ryko.sqlite
+python -m ryko_lm.security.secret_scan --tree .                   # بوابة الأسرار
+```
+
+أو عبر Makefile: `make knowledge-ingest` · `make knowledge-search Q="..."`
+· `make knowledge-cite Q="..."` · `make knowledge-receipt` · `make secret-scan`.
+التفصيل الكامل في `docs/KNOWLEDGE_CORE.md`.
+
+---
+
+## 5) كيف تساهم في المرحلة 3 الآن (سطران)
 
 ```bash
 python -m ryko_lm.training.train --config configs/models/ryko-tiny.yaml \

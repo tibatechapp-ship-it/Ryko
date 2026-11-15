@@ -158,8 +158,22 @@ curl -s -X POST localhost:8000/generate -H 'Content-Type: application/json' \
 `POST /generate` · `POST /generate/stream` (بث SSE).  كل مفاتيح التوليد
 متاحة: الحرارة، top-k، top-p، عقوبة التكرار، البذرة.
 
+## نواة المعرفة (v1.3.0)
+
+كل مقطع تراثي الآن مُسنَد إلى كتابه وصفحته: مخطط SQLite للجداول الستة،
+بذرة حقيقية (10 كتب / 11,674 مقطعاً)، استرجاع هجين حتمي (BM25 + متجهات
+hashing + RRF)، ومدقق اقتباس يعيد حكماً موقّعاً (`verified / partial /
+not_found`).  التفاصيل في [docs/KNOWLEDGE_CORE.md](docs/KNOWLEDGE_CORE.md)
+والخطة في [docs/ROADMAP.md](docs/ROADMAP.md).
+
+```bash
+make knowledge-search Q="الإسناد المتصل شرط صحة الحديث"
+make knowledge-cite Q="نص الاقتباس المراد تدقيقه"
+```
+
 ## خطة الطريق
 
+- [x] v1.3: نواة المعرفة المُسنَدة — استرجاع هجين + مدقق اقتباس + بذرة 10 كتب
 - [ ] مزيد من توكنات التدريب (الأمثل تشينشيلا لـ11.5M ≈ 230 مليون توكن)
 - [ ] تغطية اللهجات: إضافة كوربوسات وسائل التواصل (LABR وMSAC) بجانب الفصحى
 - [ ] تشغيل مرجعي على GPU لتكوين `ryko-small` بمقاييس منشورة

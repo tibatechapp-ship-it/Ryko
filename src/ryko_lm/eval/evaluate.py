@@ -80,10 +80,10 @@ def sample_prompts(model: RykoLM, tok: RykoTokenizer, prompts: list[str],
         for t in model.generate_iter(idx, max_new_tokens=max_new_tokens,
                                      temperature=temperature, top_k=top_k,
                                      eos_id=eos_id, generator=gen):
-            token = int(t.item()) if torch.is_tensor(t) else int(t)
-            if eos_id is not None and token == eos_id:
+            tok_id = int(t.item()) if torch.is_tensor(t) else int(t)
+            if eos_id is not None and tok_id == eos_id:
                 break
-            out_ids.append(token)
+            out_ids.append(tok_id)
         text = tok.decode(out_ids)
         results.append({"prompt": prompt, "generation": text, "tokens": len(out_ids)})
     return results

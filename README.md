@@ -160,9 +160,25 @@ Endpoints: `GET /` (RTL Arabic playground) · `GET /health` · `GET /model` ·
 `POST /generate` · `POST /generate/stream` (SSE).  All generation knobs are
 exposed: temperature, top-k, top-p, repetition penalty, seed.
 
+## Knowledge Core (v1.3.0)
+
+Every heritage passage now carries provenance: a service-free SQLite schema
+(`sources / books / passages / claims / argument_relations`), a real seed
+(10 books / 11,674 passages with page numbers), deterministic hybrid
+retrieval (BM25 + blake2b hashing embeddings + RRF fusion) and a citation
+validator returning a signed verdict (`verified / partial / not_found`).
+See [docs/KNOWLEDGE_CORE.md](docs/KNOWLEDGE_CORE.md) and
+[docs/ROADMAP.md](docs/ROADMAP.md).
+
+```bash
+make knowledge-search Q="الإسناد المتصل شرط صحة الحديث"
+make knowledge-cite Q="paste the quote to verify"
+```
+
 ## Roadmap
 
 - [x] v1.1: 6.8× corpus (36.65M tokens), PPL 1,782 → 432 on the same val split
+- [x] v1.3: provenance-backed Knowledge Core — hybrid retrieval + citation gate + 10-book seed
 - [ ] More training tokens (Chinchilla-optimal for 11.5M ≈ 230M tokens)
 - [ ] Dialect coverage: add social-media corpora (LABR, MSAC) beside MSA
 - [ ] `ryko-small` GPU reference training run with published metrics

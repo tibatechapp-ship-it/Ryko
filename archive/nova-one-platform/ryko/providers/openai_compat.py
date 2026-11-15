@@ -31,7 +31,7 @@ class OpenAICompatProvider(Provider):
         self.family = family
         self.role = role
         self.base_url = base_url.rstrip("/")
-        self.api_key = api_key
+        self.api_key = api_key  # ryko:secret-ok (archived constructor, not a secret)
         self.model = model
         self.timeout = timeout
         self.retries = retries

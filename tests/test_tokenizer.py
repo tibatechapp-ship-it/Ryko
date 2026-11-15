@@ -66,7 +66,7 @@ def test_compression_ratio_reasonable(tok):
     ) * 10
     chars, tokens = len(text), tok.token_count(text)
     ratio = chars / tokens
-    assert 1.5 < ratio < 8.0, f"unrealistic chars/token: {ratio}"
+    assert 1.5 < ratio < 8.0, f"unrealistic ratio chars per token {ratio}"
 
 
 @requires_tokenizer

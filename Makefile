@@ -56,3 +56,18 @@ test:
 clean:
 	    rm -rf data/raw data/processed artifacts/smoke
 	    find . -name __pycache__ -type d -exec rm -rf {} +
+
+secret-scan:
+	python -m ryko_lm.security.secret_scan --tree .
+
+knowledge-ingest:
+	python -m ryko_lm.knowledge ingest --format shamela --jsonl data/raw/shamela_knowledge.jsonl --db data/knowledge/ryko.sqlite
+
+knowledge-search:
+	python -m ryko_lm.knowledge search --db data/knowledge/ryko.sqlite "$(Q)" -k 5
+
+knowledge-cite:
+	python -m ryko_lm.knowledge cite --db data/knowledge/ryko.sqlite "$(Q)"
+
+knowledge-receipt:
+	python -m ryko_lm.knowledge receipt --db data/knowledge/ryko.sqlite --out data/knowledge/ryko.receipt.json

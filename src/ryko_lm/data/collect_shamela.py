@@ -84,7 +84,7 @@ def select_books(paths: list[str], per_cat: int, max_books: int) -> list[str]:
     return chosen[:max_books]
 
 
-def fetch_book(path: str, max_bytes: int) -> dict | None:
+def fetch_book(path: str, max_bytes: int, keep_pages: bool = False) -> dict | None:
     try:
         blob = _safe_get(RESOLVE_BASE + _quote(path), timeout=90)
     except Exception as exc:  # noqa: BLE001
@@ -92,25 +92,37 @@ def fetch_book(path: str, max_bytes: int) -> dict | None:
     if len(blob) > max_bytes:
         return None
     pages: list[str] = []
-    for line in blob.decode("utf-8", "replace").splitlines():
+    page_records: list[dict] = []
+    for idx, line in enumerate(blob.decode("utf-8", "replace").splitlines(), 1):
         try:
             rec = json.loads(line)
         except json.JSONDecodeError:
             continue
         body = (rec.get("body") or "").strip()
-        if body:
-            pages.append(body)
+        if not body:
+            continue
+        pages.append(body)
+        page_num = rec.get("page_num", idx)
+        try:
+            page_num = int(page_num)
+        except (TypeError, ValueError):
+            page_num = idx
+        page_records.append({"page_num": page_num, "body": body})
     text = "\n".join(pages).replace("\r", "\n")
     if len(text) < 3000:
         return None
     parts = path.split("/")
-    return {
+    out = {
         "id": f"shamela-{parts[1].split('__')[0]}",
         "book": parts[1].split("__", 1)[1] if "__" in parts[1] else parts[1],
         "cat": parts[0],
         "pages": len(pages),
-        "text": text,
     }
+    if keep_pages:
+        out["page_records"] = page_records
+    else:
+        out["text"] = text
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -121,6 +133,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-books", type=int, default=200)
     parser.add_argument("--max-file-mb", type=float, default=15.0)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--keep-pages", action="store_true",
+                        help="emit page_records (page_num+body) for the Knowledge Core "
+                             "instead of the joined text used by the corpus pipeline")
     args = parser.parse_args(argv)
 
     paths = list_page_files()
@@ -142,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
 
     with args.out.open("a", encoding="utf-8") as sink, \
             ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = {pool.submit(fetch_book, b, max_bytes): b for b in todo}
+        futures = {pool.submit(fetch_book, b, max_bytes, args.keep_pages): b for b in todo}
         for n, fut in enumerate(as_completed(futures), 1):
             book_path = futures[fut]
             try:
@@ -152,7 +167,9 @@ def main(argv: list[str] | None = None) -> int:
             if rec and "error" not in rec:
                 sink.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 total_books += 1
-                total_chars += len(rec["text"])
+                body_chars = (sum(len(p["body"]) for p in rec["page_records"])
+                              if "page_records" in rec else len(rec["text"]))
+                total_chars += body_chars
             elif rec:
                 errors += 1
             done.add(book_path)
