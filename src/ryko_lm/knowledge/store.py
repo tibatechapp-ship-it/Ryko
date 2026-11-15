@@ -67,7 +67,13 @@ class KnowledgeStore:
 
     def __init__(self, path: str | Path = ":memory:") -> None:
         self.path = Path(path) if path != ":memory:" else None
-        self.conn = sqlite3.connect(str(path) if path != ":memory:" else ":memory:")
+        # check_same_thread=False: the store may be created in a lifespan
+        # thread and used from FastAPI worker threads; access is serialized
+        # at the SQL level and the CLI/tests are single-threaded anyway.
+        self.conn = sqlite3.connect(
+            str(path) if path != ":memory:" else ":memory:",
+            check_same_thread=False,
+        )
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(sch.SCHEMA_SQL)
         self.conn.execute(

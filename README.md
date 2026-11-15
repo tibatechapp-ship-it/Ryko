@@ -180,6 +180,7 @@ make knowledge-cite Q="paste the quote to verify"
 - [x] v1.1: 6.8× corpus (36.65M tokens), PPL 1,782 → 432 on the same val split
 - [x] v1.3: provenance-backed Knowledge Core — hybrid retrieval + citation gate + 10-book seed
 - [x] v1.4: evaluation gates — closed ryko-bench contract, deterministic MCQ, abstention, self-checked seed
+- [x] v1.5: grounded RAG API — /knowledge/{search,cite,ask} with lexical-grounding ratio + guard
 - [ ] More training tokens (Chinchilla-optimal for 11.5M ≈ 230M tokens)
 - [ ] Dialect coverage: add social-media corpora (LABR, MSAC) beside MSA
 - [ ] `ryko-small` GPU reference training run with published metrics
