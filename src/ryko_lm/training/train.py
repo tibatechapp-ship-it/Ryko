@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -102,6 +103,8 @@ def train(args: argparse.Namespace) -> int:
     tcfg = dict(full.get("train", {}))
 
     batch_size = int(tcfg.get("batch_size", 8))
+    if args.batch_size:
+        batch_size = int(args.batch_size)
     grad_accum = int(tcfg.get("grad_accum", 1))
     lr = float(tcfg.get("lr", 3e-4))
     min_lr = float(tcfg.get("min_lr", 3e-5))
@@ -129,23 +132,57 @@ def train(args: argparse.Namespace) -> int:
     optimizer = make_optimizer(model, lr, weight_decay)
 
     step, best_val = 0, float("inf")
+    tokens_seen_resume = None
     last_path, best_path = out_dir / "last.pt", out_dir / "best.pt"
     if last_path.exists() and not args.reset:
-        blob = torch.load(last_path, map_location="cpu", weights_only=False)
+        try:
+            blob = torch.load(last_path, map_location="cpu", weights_only=False)
+        except Exception as exc:
+            print(
+                f"[error] checkpoint '{last_path}' is unreadable ({type(exc).__name__}: {exc}). "
+                f"Restore weights from best.pt / final.pt or delete the file to start fresh.",
+                flush=True,
+            )
+            return 2
         model.load_state_dict(blob["model"])
         optimizer.load_state_dict(blob["optimizer"])
         step = blob["step"]
+        # Derive the sampling stream from the resumed step: re-seeding with the
+        # bare seed would replay the SAME windows the model already saw in
+        # earlier sessions — with frequent restarts this trains the model to
+        # memorise a fixed prefix of the data (train loss drops, real quality
+        # collapses). seed + step guarantees a fresh stream every session.
+        rng = np.random.default_rng(seed + step)
         best_val = blob.get("best_val", float("inf"))
+        tokens_seen_resume = blob.get("tokens_seen")
+        if args.fresh_best:  # dataset changed: old best is not comparable
+            best_val = float("inf")
+            print("[resume] best_val reset (--fresh-best)", flush=True)
         print(f"[resume] step={step} best_val={best_val:.4f}", flush=True)
 
     model.train()
     deadline = time.time() + args.time_budget if args.time_budget else None
     t0 = time.time()
     start_step = step
-    tokens_seen = step * batch_size * grad_accum * model_cfg.block_size
+    eval_every = int(args.eval_every or eval_every)
+    # tokens_seen is persisted in the checkpoint so that changing batch size
+    # mid-run keeps the accounting exact; the fallback covers older checkpoints.
+    tokens_seen = tokens_seen_resume if tokens_seen_resume is not None else \
+        step * batch_size * grad_accum * model_cfg.block_size
+
+    def save_last() -> None:
+        """Persist model + optimizer so interrupted sessions resume exactly."""
+        blob = {"model": model.state_dict(), "optimizer": optimizer.state_dict(),
+                "step": step, "best_val": best_val, "total_steps": total_steps,
+                "tokens_seen": tokens_seen}
+        # atomic write: a kill mid-save must never truncate the destination
+        tmp = last_path.with_suffix(".pt.tmp")
+        torch.save(blob, tmp)
+        os.replace(tmp, last_path)
 
     while step < total_steps:
         if deadline and time.time() > deadline:
+            save_last()  # checkpoint on graceful stop, even between evals
             print(f"[budget] time budget reached at step {step}", flush=True)
             break
 
@@ -186,11 +223,7 @@ def train(args: argparse.Namespace) -> int:
             if val_loss < best_val:
                 best_val = val_loss
                 model.save(best_path, half=True)
-            torch.save(
-                {"model": model.state_dict(), "optimizer": optimizer.state_dict(),
-                 "step": step, "best_val": best_val, "total_steps": total_steps},
-                last_path,
-            )
+            save_last()
 
     finished = step >= total_steps
     if finished:
@@ -212,11 +245,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--data-dir", type=Path, default=Path("data/processed"))
     parser.add_argument("--out-dir", type=Path, default=Path("artifacts/training"))
     parser.add_argument("--total-steps", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=None,
+                        help="override batch_size from the config (experiments)")
     parser.add_argument("--time-budget", type=int, default=None,
                         help="stop gracefully after N seconds (checkpoint is kept)")
     parser.add_argument("--eval-batches", type=int, default=16)
+    parser.add_argument("--eval-every", type=int, default=None,
+                        help="override eval_every from the config")
     parser.add_argument("--threads", type=int, default=0, help="torch threads (0 = default)")
     parser.add_argument("--reset", action="store_true", help="ignore existing checkpoint")
+    parser.add_argument("--fresh-best", action="store_true",
+                        help="reset best_val on resume (use when the dataset changed)")
     args = parser.parse_args(argv)
     return train(args)
 

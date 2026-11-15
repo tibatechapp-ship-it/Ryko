@@ -141,6 +141,19 @@ def collect(
             if page_delay > 0:
                 time.sleep(page_delay)
 
+            # periodic progress sidecar so interrupted runs can resume safely
+            progress_path = out_path.with_suffix(".progress.json")
+            try:
+                progress_path.write_text(
+                    json.dumps(
+                        {"offset": offset, "records": collected, "text_bytes": text_bytes},
+                        ensure_ascii=False,
+                    ),
+                    encoding="utf-8",
+                )
+            except OSError:
+                pass
+
             if collected % 1000 == 0:
                 rate = collected / max(time.time() - t0, 1e-9)
                 print(

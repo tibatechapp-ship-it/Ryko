@@ -41,7 +41,7 @@ The reference model, **Ryko-Tiny (11.5M parameters)**, was trained end-to-end
 on CPU inside this repository's CI budget. Two larger presets (`small`, `base`)
 ship as ready-to-run GPU configs.
 
-## Results (reference run — Ryko-Tiny)
+## Results (reference run — Ryko-Tiny v1.1)
 
 | metric | value |
 |---|---|
@@ -49,18 +49,29 @@ ship as ready-to-run GPU configs.
 | Architecture | 4 layers · d=256 · 8 heads / 4 KV heads (GQA) · SwiGLU 768 · RoPE θ=10⁴ · ctx 256 |
 | Vocabulary | 32,768 Byte-Level BPE, trained in 10.4 s |
 | Tokenizer fertility | **1.325 tokens/word** · 4.23 chars/token (Arabic validation text) |
-| Training corpus | 24,098 documents · 22.7M chars · **5.38M tokens** (train) + 41.6K (val) |
-| Training | 2,400 steps · batch 8×256 · **4.9M tokens** · ~42 min on 2 CPU cores |
-| Final loss | train **6.39** · val **7.28** · PPL ≈ 1,445 |
+| Training corpus | **116,395 documents** · 151.8M chars · **36.65M tokens** (train) + 341K (val) — Arabic Wikipedia (deep slices) + Tashkeela, NFKC + diacritics stripped, 59.7K duplicate paragraphs removed |
+| Training | 4,000 steps · batch 16×256 · **16.4M tokens seen** (0.45 epoch) · ~55 min on 2 CPU cores |
+| Final loss | train **6.11** · val **6.07** · **PPL ≈ 432** |
+| vs v1.0 (same val set) | val 7.49 → **6.07** nats — PPL 1,782 → **432 (−76%)** |
 | Inference | ~5 ms/token (CPU, KV cache) · SSE streaming |
 
-> **Honest engineering note:** at 11.5M parameters and 4.9M training tokens the
+**Generation quality, before → after (temperature 0.8):**
+
+| prompt | v1.0 (PPL 1,502) | v1.1 (PPL 432) |
+|---|---|---|
+| `كان يا ما كان` | "هو هو الأول أن يقال له ذلك وإن كان لهم أنه لا يجوز في رواية ابن عمر..." (rambling) | "في منطقة سكنية تقع على بعد 40 كم شمال غرب مدينة... يقدر عدد سكانها بـ 203 نسمة حسب إحصاء عام 2010..." (coherent city-stub paragraph) |
+| `اللغة العربية` | "، هي مدينة في 15 يوليو 2010. ومن خلال العام عام 2007، كانت هي شركة هيميس..." | "، هي إحدى الدوائر الانتخابية في المملكة المتحدة الممثلة في مجلس العموم في برلمان المملكة المتحدة." |
+
+Full curves and raw samples: [docs/results/](docs/results/).
+
+> **Honest engineering note:** at 11.5M parameters and 16.4M training tokens the
 > model produces *locally* coherent, correctly-spelled Arabic with plausible
-> morphology, but it is **not** semantically reliable — perplexity is high and
-> that is expected at this scale. Ryko is a **reference pipeline** whose value
-> is the full reproducible stack, not frontier text quality. Scale with
-> `ryko-small` (52M) / `ryko-base` (100M) configs and a larger corpus.
-> Details: [docs/TRAINING.md](docs/TRAINING.md).
+> Wikipedia-style register (it learned the corpus's article-opening and
+> city-stub templates), but it is still **not** semantically reliable —
+> perplexity ≈ 432 is high and expected at this scale. Ryko is a **reference
+> pipeline** whose value is the full reproducible stack, not frontier text
+> quality. Scale with `ryko-small` (52M) / `ryko-base` (100M) configs and a
+> larger corpus. Details: [docs/TRAINING.md](docs/TRAINING.md).
 
 Artifacts committed in-tree: `artifacts/tokenizer/ryko-tokenizer.json`,
 `artifacts/training/final.pt` (fp16), training curve and samples in
@@ -150,6 +161,7 @@ exposed: temperature, top-k, top-p, repetition penalty, seed.
 
 ## Roadmap
 
+- [x] v1.1: 6.8× corpus (36.65M tokens), PPL 1,782 → 432 on the same val split
 - [ ] More training tokens (Chinchilla-optimal for 11.5M ≈ 230M tokens)
 - [ ] Dialect coverage: add social-media corpora (LABR, MSAC) beside MSA
 - [ ] `ryko-small` GPU reference training run with published metrics

@@ -17,6 +17,7 @@ Modern GPT-style transformer, tuned for Arabic morphology:
 from __future__ import annotations
 
 import math
+import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -325,7 +326,10 @@ class RykoLM(nn.Module):
         }
         if self.cfg.tie_embeddings:
             state.pop("lm_head.weight")  # tied to tok_emb.weight — do not duplicate
-        torch.save({"config": self.cfg.to_dict(), "state_dict": state}, path)
+        # atomic write: a kill mid-save must never truncate the destination
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        torch.save({"config": self.cfg.to_dict(), "state_dict": state}, tmp)
+        os.replace(tmp, path)
 
     @classmethod
     def load(cls, path: str | Path, device: str = "cpu") -> "RykoLM":

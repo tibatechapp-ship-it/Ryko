@@ -24,3 +24,7 @@ artifacts/smoke/
 .vscode/
 .DS_Store
 *.log
+
+# v1.1 working data (large) — release artifacts live in artifacts/training/
+data/processed_v2/
+artifacts/training_v2/
