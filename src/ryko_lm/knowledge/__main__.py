@@ -36,7 +36,8 @@ def main(argv: list[str] | None = None) -> int:
     p_ing = sub.add_parser("ingest", help="ingest a collector JSONL into the store")
     p_ing.add_argument("--db", required=True)
     p_ing.add_argument("--jsonl", type=Path, required=True)
-    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr"], default="shamela")
+    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr", "econom"],
+                       default="shamela")
     p_ing.add_argument("--no-classify", action="store_true",
                        help="skip rule-based discourse labelling")
 
@@ -60,25 +61,30 @@ def main(argv: list[str] | None = None) -> int:
     p_rec.add_argument("--out", type=Path, default=None)
 
     p_seed = sub.add_parser("ideas-seed",
-                            help="seed the claims table from the fikr manifest")
+                            help="seed the claims table from a curated manifest "
+                                 "(fikr | econom)")
     p_seed.add_argument("--db", required=True)
     p_seed.add_argument("--manifest", type=Path,
                         default=Path("data/knowledge/fikr_manifest.json"))
     p_seed.add_argument("--replace", action="store_true",
-                        help="drop all manifest-sourced claims first (تنقيح switch)")
+                        help="drop this layer's manifest-sourced claims first")
 
     p_prune = sub.add_parser("fikr-prune",
-                             help="remove fikr books outside the منقحة scope")
+                             help="remove books that fell outside the manifest's "
+                                  "curated scope (layer-scoped)")
     p_prune.add_argument("--db", required=True)
     p_prune.add_argument("--manifest", type=Path,
                         default=Path("data/knowledge/fikr_manifest.json"))
 
-    p_ideas = sub.add_parser("ideas", help="search the idea layer (claims)")
+    p_ideas = sub.add_parser("ideas", help="search the idea layers (claims)")
     p_ideas.add_argument("--db", required=True)
     p_ideas.add_argument("query")
     p_ideas.add_argument("-k", type=int, default=8)
     p_ideas.add_argument("--school", default=None,
-                         help="restrict to one school id (e.g. naqd-hanbali)")
+                         help="restrict to one school/section id (e.g. naqd-hanbali, "
+                              "econom-adawat)")
+    p_ideas.add_argument("--layer", default=None,
+                         help="restrict to one curated layer (fikr | econom)")
 
     args = parser.parse_args(argv)
 
@@ -86,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
         store = _open_db(args.db)
         fn = (ingest_mod.ingest_shamela_jsonl if args.format == "shamela"
               else ingest_mod.ingest_fikr_jsonl if args.format == "fikr"
+              else ingest_mod.ingest_econom_jsonl if args.format == "econom"
               else ingest_mod.ingest_openiti_jsonl)
         report = fn(store, args.jsonl, classify=not args.no_classify)
         print(json.dumps(report, ensure_ascii=False, indent=2))
@@ -146,7 +153,8 @@ def main(argv: list[str] | None = None) -> int:
 
         store = KnowledgeStore(args.db)
         hits = search_ideas(store, args.query, k=args.k,
-                            schools={args.school} if args.school else None)
+                            schools={args.school} if args.school else None,
+                            layers={args.layer} if args.layer else None)
         print(json.dumps(hits, ensure_ascii=False, indent=2))
         return 0
 

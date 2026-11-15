@@ -61,8 +61,11 @@ def list_page_files() -> list[str]:
 def resolve_paths(manifest: dict, listing: list[str]) -> tuple[list[tuple[str, dict]], list[dict]]:
     """Match every ``available`` manifest book to its mirror path.
 
-    Returns (resolved[(path, book_record)], unresolved[book_record]).
+    Returns (resolved[(path, book_record)], unresolved[book_record]); each
+    resolved book record carries the manifest's ``layer_label`` so fetched
+    records are categorized under the right curated layer.
     """
+    cat_label = manifest.get("layer_label", "فكر")
     resolved: list[tuple[str, dict]] = []
     unresolved: list[dict] = []
     for book in manifest.get("books", []):
@@ -70,6 +73,8 @@ def resolve_paths(manifest: dict, listing: list[str]) -> tuple[list[tuple[str, d
             continue
         hits = [p for p in listing if book["shamela_path"] in p]
         if hits:
+            book = dict(book)
+            book["cat_label"] = cat_label
             resolved.append((sorted(hits)[0], book))
         else:
             unresolved.append(book)
@@ -107,7 +112,7 @@ def fetch_book(path: str, book: dict, max_bytes: int) -> dict | None:
     return {
         "id": f"shamela-{parts[1].split('__')[0]}",
         "book": book.get("title") or parts[1].split("__", 1)[1],
-        "cat": f"فكر/{book['school']}" if book.get("school") else "فكر",
+        "cat": f"{book.get('cat_label', 'فكر')}/{book['school']}" if book.get("school") else book.get("cat_label", "فكر"),
         "pages": len(pages),
         "author": book.get("author"),
         "school": book.get("school"),

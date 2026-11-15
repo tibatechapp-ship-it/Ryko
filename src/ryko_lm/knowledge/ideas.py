@@ -1,9 +1,14 @@
-"""Islamic-Philosophy idea layer (العقل الفكري المنقح) over the claims table.
+"""Curated idea layers (العقل الفكري والاقتصاد والحقوق) over the claims table.
 
-The منقحة research map (4 schools, no disputed authors) is encoded in
-``data/knowledge/fikr_manifest.json``.  Manifest **v2** carries an explicit
-``policy`` block: excluded originators/books and the positioning principle
-(«الفلسفة الإسلامية منطلق النموذج وحجته»).  This module:
+Each curated domain is encoded in its own manifest:
+
+* ``data/knowledge/fikr_manifest.json`` — kind ``ryko-fikr-manifest`` →
+  the منقحة Islamic-Philosophy layer (4 schools, no disputed authors);
+* ``data/knowledge/econom_manifest.json`` — kind ``ryko-econom-manifest`` →
+  the Islamic-Economics-and-Rights layer (المال مال الله والحقوق من إرادة الشرع).
+
+Manifest **v2** carries an explicit ``policy`` block: excluded
+originators/books and the layer's positioning principle.  This module:
 
 1. **seeds** the ``claims`` table from the manifest's ``ideas`` list — every
    idea becomes a claim with deterministic id ``stable_id('c', ...)``, school
@@ -43,11 +48,25 @@ W_OVERLAP = 0.45
 
 SUPPORTED_MANIFEST_VERSIONS = (1, 2)
 
+# manifest kind -> knowledge layer (source_id prefix + claims meta.layer)
+MANIFEST_KINDS = {
+    "ryko-fikr-manifest": "fikr",
+    "ryko-econom-manifest": "econom",
+}
+
+
+def manifest_layer(manifest: dict) -> str:
+    """Knowledge layer for a manifest (``fikr`` | ``econom``)."""
+    layer = MANIFEST_KINDS.get(manifest.get("kind"))
+    if layer is None:
+        raise ValueError(f"unknown manifest kind: {manifest.get('kind')!r}")
+    return layer
+
 
 def load_manifest(path: str | Path) -> dict:
     manifest = json.loads(Path(path).read_text(encoding="utf-8"))
-    if manifest.get("kind") != "ryko-fikr-manifest":
-        raise ValueError(f"not a fikr manifest: {manifest.get('kind')!r}")
+    if manifest.get("kind") not in MANIFEST_KINDS:
+        raise ValueError(f"not a curated manifest: {manifest.get('kind')!r}")
     if manifest.get("version") not in SUPPORTED_MANIFEST_VERSIONS:
         raise ValueError(f"unsupported manifest version: {manifest.get('version')!r}")
     for school in manifest["schools"]:
@@ -69,6 +88,8 @@ def load_manifest(path: str | Path) -> dict:
         if not policy.get("principle"):
             raise ValueError("manifest v2 requires policy.principle")
         # تنقيح guarantee: no excluded originator sneaks back into the ideas
+        # (policies are layer-scoped — the fikr ban list does not apply to
+        # the econom layer and vice versa)
         banned = policy.get("excluded_originators", [])
         for idea in manifest["ideas"]:
             for name in banned:
@@ -89,14 +110,17 @@ def load_manifest(path: str | Path) -> dict:
 def seed_ideas(store: KnowledgeStore, manifest: dict, replace: bool = False) -> dict:
     """Insert manifest ideas as claims (idempotent) + link available authors.
 
-    With ``replace=True`` every claim sourced from an earlier manifest is
-    deleted first — the v1 → v2 تنقيح switch (old ideas belong to schools
-    outside the منقحة scope).
+    With ``replace=True`` every claim sourced from *this layer's* earlier
+    manifest is deleted first (e.g. the fikr v1 → v2 تنقيح switch) — claims
+    of other layers (econom, …) are never touched.
     """
+    layer = manifest_layer(manifest)
+    source_marker = f"{layer}_manifest"
     seeded = linked_authors = removed = 0
     if replace:
         cur = store.conn.execute(
-            "DELETE FROM claims WHERE json_extract(meta, '$.source') = 'fikr_manifest'")
+            "DELETE FROM claims WHERE json_extract(meta, '$.source') = ?",
+            (source_marker,))
         removed = cur.rowcount
         store.conn.commit()
     for idea in manifest["ideas"]:
@@ -105,9 +129,10 @@ def seed_ideas(store: KnowledgeStore, manifest: dict, replace: bool = False) -> 
             claim_type=idea.get("type"),
             confidence=1.0,  # attribution taken verbatim from the research map
             meta={
+                "layer": layer,
                 "school": idea["school"],
                 "originator": idea["originator"],
-                "source": "fikr_manifest",
+                "source": source_marker,
                 "manifest_version": manifest["version"],
             },
         )
@@ -142,16 +167,19 @@ _SCHOOL_RENAME = {
 
 
 def prune_fikr(store: KnowledgeStore, manifest: dict) -> dict:
-    """Remove fikr-layer books that fell out of the منقحة scope.
+    """Remove this layer's books that fell out of the curated scope.
 
-    Deletes (source_id='fikr') books listed in ``policy.excluded_books`` with
-    their passages, then any authors left with no books, then renames v1
-    school categories to their v2 ids.  Idempotent.
+    Deletes books with ``source_id == layer`` listed in
+    ``policy.excluded_books`` with their passages, then any authors left
+    with no books, then renames v1 school categories to their v2 ids.
+    Idempotent, and scoped to the manifest's own layer (fikr pruning never
+    touches econom books and vice versa).
     """
+    layer = manifest_layer(manifest)
     titles = set(manifest.get("policy", {}).get("excluded_books", []))
     books = [dict(r) for r in store.conn.execute(
-        "SELECT book_id FROM books WHERE source_id='fikr' AND title_ar IN (%s)"
-        % ",".join("?" * len(titles)), tuple(titles))] if titles else []
+        "SELECT book_id FROM books WHERE source_id=? AND title_ar IN (%s)"
+        % ",".join("?" * len(titles)), (layer, *titles))] if titles else []
     removed_books = removed_passages = 0
     for b in books:
         bid = b["book_id"]
@@ -179,18 +207,34 @@ def _jaccard(a: list[str], b: list[str]) -> float:
     return len(sa & sb) / len(sa | sb)
 
 
+def _claim_layer(meta: dict) -> str | None:
+    """Resolve the knowledge layer of a claim (meta.layer, with a fallback
+    to the legacy fikr v2 source marker for claims seeded before layers)."""
+    if meta.get("layer"):
+        return meta["layer"]
+    src = str(meta.get("source", ""))
+    return src[:-9] if src.endswith("_manifest") else None
+
+
 def search_ideas(store: KnowledgeStore, query: str, k: int = 8,
-                 schools: set[str] | None = None) -> list[dict]:
+                 schools: set[str] | None = None,
+                 layers: set[str] | None = None) -> list[dict]:
     """Deterministic hybrid ranking over the claims table.
 
-    ``schools`` optionally restricts the result to a subset of school ids
-    (e.g. ``{"naqd-hanbali", "kalam-sunni"}``).
+    ``schools`` optionally restricts the result to a subset of school/section
+    ids (e.g. ``{"naqd-hanbali", "econom-adawat"}``); ``layers`` restricts to
+    a curated layer (``{"fikr"}``, ``{"econom"}``).
     """
     rows = [dict(r) for r in store.conn.execute(
         "SELECT claim_id, claim_text, claim_type, confidence, meta FROM claims")]
+    metas = [json.loads(r["meta"]) if r["meta"] else {} for r in rows]
+    if layers:
+        rows = [r for r, m in zip(rows, metas) if _claim_layer(m) in layers]
+        metas = [m for m in metas if _claim_layer(m) in layers]
     if schools:
-        rows = [r for r in rows
-                if (json.loads(r["meta"]) if r["meta"] else {}).get("school") in schools]
+        keep = [i for i, m in enumerate(metas) if m.get("school") in schools]
+        rows = [rows[i] for i in keep]
+        metas = [metas[i] for i in keep]
     q_vec: array = embed(query)
     q_toks = ar_tokens(query)
     scored = []
@@ -205,6 +249,7 @@ def search_ideas(store: KnowledgeStore, query: str, k: int = 8,
             "claim_type": row["claim_type"],
             "originator": meta.get("originator"),
             "school": meta.get("school"),
+            "layer": _claim_layer(meta),
             "score": round(score, 6),
         })
     scored.sort(key=lambda r: (-r["score"], r["claim_id"]))

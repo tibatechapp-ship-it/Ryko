@@ -17,6 +17,7 @@ re-running the same file is a no-op that reports the same counts.
 from __future__ import annotations
 
 import json
+from contextlib import closing
 from pathlib import Path
 
 from ryko_lm.knowledge import schema as sch
@@ -45,6 +46,14 @@ OPENITI_SOURCE = {
 FIKR_SOURCE = {
     "source_id": "fikr",
     "name": "الفكر الإسلامي — مجموعة مختارة من كتب الفكر (مرآة الشاملة على HuggingFace، قائمة مُنَسَّقة)",
+    "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
+    "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
+    "rights_status": sch.RIGHTS_DECLARED_OPEN,
+}
+
+ECONOM_SOURCE = {
+    "source_id": "econom",
+    "name": "الاقتصاد الإسلامي والحقوق — كتب المال والحق (مرآة الشاملة على HuggingFace، قائمة مُنَسَّقة)",
     "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
     "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
     "rights_status": sch.RIGHTS_DECLARED_OPEN,
@@ -133,18 +142,45 @@ def ingest_shamela_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
 def ingest_fikr_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
                       classify: bool = True,
                       register_source: bool = True) -> dict:
-    """Ingest the curated Islamic-Thought collection (``collect_fikr`` output).
+    """Ingest the curated Islamic-Thought collection (``collect_fikr`` output)."""
+    return _ingest_curated_jsonl(store, jsonl_path, FIKR_SOURCE, classify,
+                                 register_source)
 
-    Same page-level provenance as the shamela format, but books register under
-    the dedicated ``fikr`` source with ``category=فكر/<school>`` and author /
-    school metadata so the thought layer stays queryable as one domain.
+
+def ingest_econom_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
+                        classify: bool = True,
+                        register_source: bool = True) -> dict:
+    """Ingest the curated Economics-and-Rights collection
+    (``collect_fikr --manifest data/knowledge/econom_manifest.json`` output).
+
+    Same page-level provenance as the fikr format, but books register under
+    the dedicated ``econom`` source with ``category=اقتصاد-حقوق/<section>``
+    so the money-and-rights layer stays queryable as one domain.
     """
-    src = FIKR_SOURCE
+    return _ingest_curated_jsonl(store, jsonl_path, ECONOM_SOURCE, classify,
+                                 register_source)
+
+
+def _ingest_curated_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
+                          src: dict, classify: bool = True,
+                          register_source: bool = True) -> dict:
+    """Shared ingest for curated layers (fikr / econom): page-level
+    provenance, dedicated source, author / school metadata so each layer
+    stays queryable as one domain.
+
+    ``jsonl_path`` may be a JSONL file path or an in-memory list of already
+    parsed records (the ``build_*_db.py`` pipelines pass filtered records
+    directly to avoid a re-read of the raw file).
+    """
     if register_source:
         store.add_source(src["source_id"], src["name"], src["license"],
                          src["rights_status"], src["homepage"])
     books = passages = dups = chars = 0
-    with Path(jsonl_path).open(encoding="utf-8") as fh:
+    if isinstance(jsonl_path, (list, tuple)):
+        lines = (json.dumps(r, ensure_ascii=False) for r in jsonl_path)
+    else:
+        lines = Path(jsonl_path).open(encoding="utf-8")
+    with closing(lines) as fh:
         for line in fh:
             line = line.strip()
             if not line:
@@ -181,7 +217,7 @@ def ingest_fikr_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
                         chars += len(chunk)
                     else:
                         dups += 1
-    return {"format": "fikr", "books": books, "passages": passages,
+    return {"format": src["source_id"], "books": books, "passages": passages,
             "duplicates_skipped": dups, "chars": chars}
 
 
