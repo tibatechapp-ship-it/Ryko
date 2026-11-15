@@ -159,13 +159,17 @@ curl -s -X POST localhost:8000/generate -H 'Content-Type: application/json' \
 `POST /generate` · `POST /generate/stream` (بث SSE).  كل مفاتيح التوليد
 متاحة: الحرارة، top-k، top-p، عقوبة التكرار، البذرة.
 
-## نواة المعرفة (v1.3.0)
+## نواة المعرفة (v1.3.0 → v1.7.0 العقل الفكري)
 
 كل مقطع تراثي الآن مُسنَد إلى كتابه وصفحته: مخطط SQLite للجداول الستة،
-بذرة حقيقية (10 كتب / 11,674 مقطعاً)، استرجاع هجين حتمي (BM25 + متجهات
-hashing + RRF)، ومدقق اقتباس يعيد حكماً موقّعاً (`verified / partial /
-not_found`).  التفاصيل في [docs/KNOWLEDGE_CORE.md](docs/KNOWLEDGE_CORE.md)
-والخطة في [docs/ROADMAP.md](docs/ROADMAP.md).
+بذرة حقيقية (**22 كتاباً / 66,027 مقطعاً** بعد إضافة كتب الفكر الإسلامي في
+v1.7.0 — منها طبائع الاستبداد وشروط النهضة ورسالة التوحيد وتفسير المنار
+والأحكام السلطانية)، استرجاع هجين حتمي (BM25 + متجهات hashing + RRF)،
+مدقق اقتباس يعيد حكماً موقّعاً (`verified / partial / not_found`)، و**طبقة
+الأفكار** (32 فكرة محورية منسوبة لمدارسها الـ12 قابلة للاسترجاع عبر
+`GET /knowledge/ideas`).  التفاصيل في [docs/KNOWLEDGE_CORE.md](docs/KNOWLEDGE_CORE.md)
+و[docs/ISLAMIC_THOUGHT.md](docs/ISLAMIC_THOUGHT.md)
+والتقييم الشامل والخطة في [docs/REVIEW.md](docs/REVIEW.md) و[docs/ROADMAP.md](docs/ROADMAP.md).
 
 ```bash
 make knowledge-search Q="الإسناد المتصل شرط صحة الحديث"

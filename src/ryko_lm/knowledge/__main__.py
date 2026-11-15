@@ -36,7 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     p_ing = sub.add_parser("ingest", help="ingest a collector JSONL into the store")
     p_ing.add_argument("--db", required=True)
     p_ing.add_argument("--jsonl", type=Path, required=True)
-    p_ing.add_argument("--format", choices=["shamela", "openiti"], default="shamela")
+    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr"], default="shamela")
     p_ing.add_argument("--no-classify", action="store_true",
                        help="skip rule-based discourse labelling")
 
@@ -59,11 +59,23 @@ def main(argv: list[str] | None = None) -> int:
     p_rec.add_argument("--db", required=True)
     p_rec.add_argument("--out", type=Path, default=None)
 
+    p_seed = sub.add_parser("ideas-seed",
+                            help="seed the claims table from the fikr manifest")
+    p_seed.add_argument("--db", required=True)
+    p_seed.add_argument("--manifest", type=Path,
+                        default=Path("data/knowledge/fikr_manifest.json"))
+
+    p_ideas = sub.add_parser("ideas", help="search the idea layer (claims)")
+    p_ideas.add_argument("--db", required=True)
+    p_ideas.add_argument("query")
+    p_ideas.add_argument("-k", type=int, default=8)
+
     args = parser.parse_args(argv)
 
     if args.cmd == "ingest":
         store = _open_db(args.db)
         fn = (ingest_mod.ingest_shamela_jsonl if args.format == "shamela"
+              else ingest_mod.ingest_fikr_jsonl if args.format == "fikr"
               else ingest_mod.ingest_openiti_jsonl)
         report = fn(store, args.jsonl, classify=not args.no_classify)
         print(json.dumps(report, ensure_ascii=False, indent=2))
@@ -97,6 +109,24 @@ def main(argv: list[str] | None = None) -> int:
         out.write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"[receipt] {meta} -> {out}")
         print(f"[receipt] sha256={receipt['receipt_sha256'][:16]}...")
+        return 0
+
+    if args.cmd == "ideas-seed":
+        from ryko_lm.knowledge.ideas import load_manifest, seed_ideas
+
+        store = _open_db(args.db)
+        manifest = load_manifest(args.manifest)
+        report = seed_ideas(store, manifest)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        print(f"[knowledge] stats: {json.dumps(store.stats(), ensure_ascii=False)}")
+        return 0
+
+    if args.cmd == "ideas":
+        from ryko_lm.knowledge.ideas import search_ideas
+
+        store = KnowledgeStore(args.db)
+        hits = search_ideas(store, args.query, k=args.k)
+        print(json.dumps(hits, ensure_ascii=False, indent=2))
         return 0
 
     return 2

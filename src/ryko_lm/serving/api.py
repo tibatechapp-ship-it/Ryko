@@ -8,6 +8,7 @@ GET  /model               — architecture + training metadata
 POST /generate            — JSON generation
 POST /generate/stream     — Server-Sent-Events streaming generation
 GET  /knowledge/search    — hybrid retrieval over the Knowledge Core (provenance)
+GET  /knowledge/ideas     — idea layer (العقل الفكري): school-attributed claims
 POST /knowledge/cite      — citation verification (ryko-cite/1 verdict)
 POST /knowledge/ask       — grounded generation: retrieve → generate → guard
                             → lexical-grounding ratio + source list
@@ -207,6 +208,22 @@ def knowledge_search(q: str, k: int = 5, mode: str = "hybrid",
     k = max(1, min(k, 20))
     hits = store.search(q, k=k, mode=mode, book_id=book)
     return {"query": q, "mode": mode, "hits": [h.as_dict() for h in hits]}
+
+
+@app.get("/knowledge/ideas")
+def knowledge_ideas(q: str, k: int = 8) -> dict:
+    """Idea layer (العقل الفكري): deterministic hybrid ranking over claims.
+
+    Returns school-attributed ideas (originator + school in meta) seeded from
+    ``data/knowledge/fikr_manifest.json`` — the map of Islamic-Thought
+    concepts the knowledge core is expected to reason about.
+    """
+    from ..knowledge.ideas import search_ideas
+
+    store = _require_store()
+    k = max(1, min(k, 20))
+    return {"query": q, "protocol": "ryko-ideas/1",
+            "ideas": search_ideas(store, q, k=k)}
 
 
 class CiteRequest(BaseModel):

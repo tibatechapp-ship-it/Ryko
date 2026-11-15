@@ -42,6 +42,14 @@ OPENITI_SOURCE = {
     "rights_status": sch.RIGHTS_PUBLIC_DOMAIN,
 }
 
+FIKR_SOURCE = {
+    "source_id": "fikr",
+    "name": "الفكر الإسلامي — مجموعة مختارة من كتب الفكر (مرآة الشاملة على HuggingFace، قائمة مُنَسَّقة)",
+    "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
+    "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
+    "rights_status": sch.RIGHTS_DECLARED_OPEN,
+}
+
 
 def chunk_text(text: str, target: int = TARGET_CHUNK, min_len: int = MIN_CHUNK,
                max_len: int = MAX_CHUNK) -> list[str]:
@@ -119,6 +127,61 @@ def ingest_shamela_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
                     else:
                         dups += 1
     return {"format": "shamela", "books": books, "passages": passages,
+            "duplicates_skipped": dups, "chars": chars}
+
+
+def ingest_fikr_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
+                      classify: bool = True,
+                      register_source: bool = True) -> dict:
+    """Ingest the curated Islamic-Thought collection (``collect_fikr`` output).
+
+    Same page-level provenance as the shamela format, but books register under
+    the dedicated ``fikr`` source with ``category=فكر/<school>`` and author /
+    school metadata so the thought layer stays queryable as one domain.
+    """
+    src = FIKR_SOURCE
+    if register_source:
+        store.add_source(src["source_id"], src["name"], src["license"],
+                         src["rights_status"], src["homepage"])
+    books = passages = dups = chars = 0
+    with Path(jsonl_path).open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            book_id = rec["id"]
+            author = rec.get("author")
+            author_id = None
+            if author:
+                author_id = sch.stable_id("a", author)
+                store.add_author(author_id, author,
+                                 meta={"school": rec.get("school")})
+            store.add_book(book_id, src["source_id"], rec.get("book") or book_id,
+                           author_id=author_id,
+                           category=rec.get("cat") or "فكر",
+                           rights_status=src["rights_status"],
+                           meta={"raw_pages": rec.get("pages"),
+                                 "author": author, "school": rec.get("school")})
+            books += 1
+            page_records = rec.get("page_records") or [{"page_num": None,
+                                                        "body": rec.get("text", "")}]
+            for page in page_records:
+                body = (page.get("body") or "").strip()
+                if not body:
+                    continue
+                page_num = page.get("page_num")
+                base = store.next_seq(book_id, page_num)
+                for i, chunk in enumerate(chunk_text(body)):
+                    pid, created = store.add_passage(
+                        book_id, chunk, page_num=page_num,
+                        seq=base + i, classify=classify)
+                    if created:
+                        passages += 1
+                        chars += len(chunk)
+                    else:
+                        dups += 1
+    return {"format": "fikr", "books": books, "passages": passages,
             "duplicates_skipped": dups, "chars": chars}
 
 
