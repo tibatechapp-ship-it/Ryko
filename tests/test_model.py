@@ -21,6 +21,23 @@ def test_forward_shapes_and_loss():
     assert abs(loss.item() - torch.log(torch.tensor(512.0)).item()) < 1.0
 
 
+def test_rope_extends_beyond_block_size():
+    """Regression: runtime RoPE extension must actually extend (v1.11.0).
+
+    `_maybe_extend_rope` used to compare the position count against
+    ``numel()`` (positions x head_dim // 2), which always won — so any
+    sequence longer than ``block_size`` crashed with a shape mismatch in
+    apply_rope instead of extending the cache.
+    """
+    model = tiny()  # block_size = 64
+    assert model.rope_cos.size(0) == 64
+    idx = torch.randint(0, 512, (1, 100))  # 100 positions > 64
+    with torch.no_grad():
+        logits, _ = model(idx)
+    assert logits.shape == (1, 100, 512)
+    assert model.rope_cos.size(0) >= 100
+
+
 def test_causal_masking_hides_the_future():
     model = tiny().eval()
     idx = torch.randint(0, 512, (1, 16))

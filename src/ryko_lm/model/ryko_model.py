@@ -186,7 +186,11 @@ class RykoLM(nn.Module):
             nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     def _maybe_extend_rope(self, needed: int) -> None:
-        current = int(self.rope_cos.numel())
+        # `needed` is a POSITION count; rope_cos is laid out [positions,
+        # head_dim // 2] — so the current capacity is size(0), NOT numel()
+        # (numel over-counts by head_dim//2 and silently disabled every
+        # runtime extension, crashing scoring beyond block_size).
+        current = int(self.rope_cos.size(0))
         if needed > current:
             target = max(needed, self.cfg.block_size)
             cos, sin = build_rope_cache(target, self.head_dim, self.cfg.rope_theta)

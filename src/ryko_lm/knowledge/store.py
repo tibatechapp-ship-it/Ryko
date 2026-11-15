@@ -253,6 +253,22 @@ class KnowledgeStore:
         for row in self.conn.execute(sql, (book_id, book_id)):
             yield dict(row)
 
+    def iter_claims(self, layer: str | None = None):
+        """Deterministic claim listing (read-only) with resolved book + author.
+
+        ``layer`` filters by ``meta.layer`` when provided (e.g. fikr/econom).
+        Ordering is fixed by ``claim_id`` — no RNG anywhere.
+        """
+        sql = ("SELECT c.claim_id, c.book_id, c.passage_id, c.claim_text, "
+               "c.claim_type, c.stance, c.meta, b.title_ar, b.author_id, "
+               "a.name_ar AS author_name_ar "
+               "FROM claims c LEFT JOIN books b ON b.book_id = c.book_id "
+               "LEFT JOIN authors a ON a.author_id = b.author_id "
+               "WHERE (? IS NULL OR json_extract(c.meta, '$.layer') = ?) "
+               "ORDER BY c.claim_id")
+        for row in self.conn.execute(sql, (layer, layer)):
+            yield dict(row)
+
     def set_verification(self, passage_id: str, status: str) -> None:
         if status not in {sch.VERIFICATION_UNVERIFIED, sch.VERIFICATION_VERIFIED,
                           sch.VERIFICATION_PARTIAL}:

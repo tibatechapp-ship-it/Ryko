@@ -3,7 +3,9 @@
 Every case is **self-checked at build time**: verified-quote cases only ship
 if ``verify_quote`` actually returns ``verified``; negatives only ship if the
 verdict is ``not_found``; MCQ positives must out-score the distractors with a
-plain-text criterion (longest-common-token overlap) before being included.
+plain-text criterion (longest-common-token overlap) before being included;
+attribution MCQs reuse the curated ``claims.meta.originator``; relation MCQs
+come only from documented ``argument_relations`` rows (v1.10.0 manifest).
 Deterministic: fixed RNG seed, stable sort — same store, same benchmark.
 
 The result is a *seed*, not a headline metric: auto-generated cases still
@@ -24,15 +26,27 @@ import random
 import sys
 from pathlib import Path
 
+from ryko_lm.knowledge import schema as _schema
 from ryko_lm.knowledge.citation import verify_quote
+from ryko_lm.knowledge.relations import RELATION_AR, list_relations
 from ryko_lm.knowledge.store import KnowledgeStore
 from ryko_lm.knowledge.textproc import ar_tokens
 
 SEED = 20261115
-N_CITE_VERIFIED = 20
-N_CITE_NEGATIVE = 10
-N_MCQ = 18
-N_ABSTAIN = 8
+N_CITE_VERIFIED = 48
+N_CITE_NEGATIVE = 16
+N_MCQ = 48
+N_CLAIM_MCQ = 40
+N_RELATION_MCQ = 30
+N_ABSTAIN = 16
+
+# Closed Arabic labels for the argument_relations verbs — derived from the
+# canonical schema vocabulary (single source of truth). Order is part of the
+# contract: option list and answer index are derived from this fixed tuple,
+# never shuffled.
+RELATION_LABELS: tuple[tuple[str, str], ...] = tuple(
+    (verb, RELATION_AR[verb]) for verb in _schema.RELATIONS)
+_RELATION_LABEL_MAP = dict(RELATION_LABELS)
 
 # Questions the heritage corpus cannot answer — correct behaviour is abstain.
 ABSTAIN_CASES = (
@@ -44,6 +58,14 @@ ABSTAIN_CASES = (
     ("كم عدد محطات مترو أنقرة بحسب كتب التاريخ القديمة؟", "معاصر"),
     ("ما رأي فقهاء المذاهب الأربعة في خوارزميات الذكاء الاصطناعي التوليدي؟", "معاصر"),
     ("ما هي كلفة تذكرة الطيران بين جدة والقاهرة في مصنف اللغة؟", "معاصر"),
+    ("ما موقف أئمة الحديث من سرعة المعالجات الكمومية ومعدل نقل البيانات؟", "معاصر"),
+    ("كم عدد أقمار زحل الطبيعية وفق كتب أصول الفقه المقارنة؟", "معاصر"),
+    ("ما رأي ابن تيمية في تحديثات برمجيات أنظمة التشغيل الحديثة؟", "معاصر"),
+    ("كيف تُحتسب رسوم الشحن الدولي في مصنفات كتاب الخراج؟", "معاصر"),
+    ("ما حكم فقهاء الحسبة على تشفير الاتصالات عبر شبكة الجوال؟", "معاصر"),
+    ("ما رأي أصحاب الموافقات في خوارزميات محركات البحث الحديثة؟", "معاصر"),
+    ("ما رأي أصوليي الشافعية في أسعار أسهم البورصة الإلكترونية اليوم؟", "معاصر"),
+    ("كم عدد لافتات الطرق السريعة في بغداد وفق كتب الحسبة القديمة؟", "تقنية"),
 )
 
 
@@ -60,6 +82,10 @@ def _continuation_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]
         cut = 100
         prefix, tail = text[:cut].rsplit(" ", 1)[0], text[cut:].strip()
         if len(prefix) < 60 or len(tail) < 30 or prefix in used_prefixes:
+            continue
+        if len(tail) > 220:  # keep options inside the trained context window
+            tail = tail[:220].rsplit(" ", 1)[0]
+        if len(tail) < 30:
             continue
         distractors = []
         for other in pool:
@@ -86,6 +112,102 @@ def _continuation_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]
                      "page_num": passage["page_num"]},
         })
         used_prefixes.add(prefix)
+    return out
+
+
+def _claim_attribution_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
+    """Attribution MCQ from curated claims (v1.7.0+ layers).
+
+    Each case asks which *originator* (school or author, as curated in
+    ``claims.meta``) the idea belongs to. Self-checked: the correct answer is
+    the stored originator itself; distractors are distinct real originators
+    from other claims. Claims without an originator or from stores with fewer
+    than two distinct originators are skipped — never guessed.
+    """
+    rows = [c for c in store.iter_claims()
+            if (c.get("meta") or "") and _originator_of(c)]
+    originators = sorted({_originator_of(c) for c in rows})
+    if len(originators) < 2:
+        return []
+    rows.sort(key=lambda c: c["claim_id"])
+    rng.shuffle(rows)
+    out: list[dict] = []
+    for claim in rows:
+        if len(out) >= N_CLAIM_MCQ:
+            break
+        correct = _originator_of(claim)
+        distractors = [o for o in originators if o != correct]
+        rng.shuffle(distractors)
+        if len(distractors) < 3:
+            continue
+        options = distractors[:3] + [correct]
+        rng.shuffle(options)
+        text = " ".join(claim["claim_text"].split())
+        if len(text) < 25:
+            continue
+        out.append({
+            "case_id": f"rb-claim-{len(out) + 1:03d}",
+            "kind": "mcq",
+            "source": "ryko-bench-seed",
+            "domain": "نسبة-المسألة",
+            "question": ("لأي منطلق/مدرسة يُنسب هذا القول كما هو مثبت في "
+                         "نواة المعرفة؟\n«" + text[:150] + "»"),
+            "options": options,
+            "answer": options.index(correct),
+            "meta": {"claim_id": claim["claim_id"], "book_id": claim["book_id"],
+                     "originator": correct},
+        })
+    return out
+
+
+def _originator_of(claim: dict) -> str | None:
+    """Curated originator (school/author) from claim meta — None if absent."""
+    try:
+        raw = json.loads(claim.get("meta") or "{}")
+    except (json.JSONDecodeError, TypeError):
+        return None
+    originator = raw.get("originator")
+    if isinstance(originator, str) and originator.strip():
+        return originator.strip()
+    return None
+
+
+def _relation_cases(store: KnowledgeStore) -> list[dict]:
+    """Argument-relation MCQ from documented relations (v1.10.0 manifest).
+
+    Only relations whose both endpoints resolve to claim texts become cases;
+    the option list is the fixed ``RELATION_LABELS`` tuple (never shuffled)
+    so the answer index is stable across builds. Self-checked by refusing
+    any relation verb outside the closed label map.
+    """
+    out: list[dict] = []
+    for rel in list_relations(store):
+        if len(out) >= N_RELATION_MCQ:
+            break
+        verb = rel.get("relation")
+        label = _RELATION_LABEL_MAP.get(verb)
+        src_raw = (rel.get("src") or {}).get("text") or ""
+        dst_raw = (rel.get("dst") or {}).get("text") or ""
+        src = " ".join(src_raw.split())
+        dst = " ".join(dst_raw.split())
+        if label is None or len(src) < 20 or len(dst) < 20:
+            continue
+        options = [lbl for _, lbl in RELATION_LABELS]
+        out.append({
+            "case_id": f"rb-rel-{len(out) + 1:03d}",
+            "kind": "mcq",
+            "source": "ryko-bench-seed",
+            "domain": "علاقة-حجاج",
+            "question": ("القول الأول: «" + src[:110] + "»\n"
+                         "القول الثاني: «" + dst[:110] + "»\n"
+                         "ما علاقة القول الأول بالثاني كما هي موثقة في "
+                         "مزرعة العلاقات؟"),
+            "options": options,
+            "answer": options.index(label),
+            "meta": {"relation_id": rel["relation_id"], "relation": verb,
+                     "src_claim": rel["src"]["claim_id"],
+                     "dst_claim": rel["dst"]["claim_id"]},
+        })
     return out
 
 
@@ -128,8 +250,12 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
 
 
 def build(store: KnowledgeStore) -> list[dict]:
+    if len(ABSTAIN_CASES) != N_ABSTAIN:
+        raise ValueError(
+            f"abstain contract broken: {len(ABSTAIN_CASES)} cases vs N_ABSTAIN={N_ABSTAIN}")
     rng = random.Random(SEED)
-    cases = _cite_cases(store, rng) + _continuation_cases(store, rng)
+    cases = (_cite_cases(store, rng) + _continuation_cases(store, rng)
+             + _claim_attribution_cases(store, rng) + _relation_cases(store))
     for i, (question, domain) in enumerate(ABSTAIN_CASES, 1):
         cases.append({
             "case_id": f"rb-abstain-{i:03d}", "kind": "abstain",
