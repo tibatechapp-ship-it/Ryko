@@ -106,8 +106,8 @@ def train(args: argparse.Namespace) -> int:
     if args.batch_size:
         batch_size = int(args.batch_size)
     grad_accum = int(tcfg.get("grad_accum", 1))
-    lr = float(tcfg.get("lr", 3e-4))
-    min_lr = float(tcfg.get("min_lr", 3e-5))
+    lr = float(args.lr if args.lr is not None else tcfg.get("lr", 3e-4))
+    min_lr = float(args.min_lr if args.min_lr is not None else tcfg.get("min_lr", 3e-5))
     warmup = int(tcfg.get("warmup_steps", 100))
     weight_decay = float(tcfg.get("weight_decay", 0.1))
     grad_clip = float(tcfg.get("grad_clip", 1.0))
@@ -133,6 +133,26 @@ def train(args: argparse.Namespace) -> int:
 
     step, best_val = 0, float("inf")
     tokens_seen_resume = None
+    if args.init_from and not (Path(args.out_dir) / "last.pt").exists():
+        # Warm start: seed the fresh model with weights exported from an earlier
+        # training run (e.g. artifacts/training_v3/final.pt) and continue
+        # pretraining on a NEW corpus. Optimizer state cannot be transferred
+        # (export blobs carry weights only), so AdamW moments restart and the
+        # warmup window is re-run — documented in the run log.
+        blob = torch.load(args.init_from, map_location="cpu", weights_only=False)
+        sd = blob.get("state_dict", blob.get("model", blob))
+        sd = {k: v.float() for k, v in sd.items()}
+        # Exported blobs drop the tied lm_head (it shares storage with tok_emb);
+        # loading tok_emb back into the live model restores the tie.
+        missing, unexpected = model.load_state_dict(sd, strict=False)
+        missing = [k for k in missing if not (model_cfg.tie_embeddings and k == "lm_head.weight")]
+        if unexpected or missing:
+            raise RuntimeError(
+                f"[init] incompatible checkpoint: missing={missing} unexpected={list(unexpected)}")
+        if model_cfg.tie_embeddings and model.lm_head.weight.data_ptr() != model.tok_emb.weight.data_ptr():
+            model.lm_head.weight = model.tok_emb.weight  # re-tie after strict load
+        print(f"[init] warm start from {args.init_from} "
+              f"({len(sd)} tensors, fp16->fp32, missing={missing or 'none'})", flush=True)
     last_path, best_path = out_dir / "last.pt", out_dir / "best.pt"
     if last_path.exists() and not args.reset:
         try:
@@ -254,8 +274,14 @@ def main(argv: list[str] | None = None) -> int:
                         help="override eval_every from the config")
     parser.add_argument("--threads", type=int, default=0, help="torch threads (0 = default)")
     parser.add_argument("--reset", action="store_true", help="ignore existing checkpoint")
+    parser.add_argument("--init-from", type=Path, default=None,
+                        help="warm-start weights from an exported checkpoint "
+                             "(ignored when out-dir already has last.pt)")
     parser.add_argument("--fresh-best", action="store_true",
                         help="reset best_val on resume (use when the dataset changed)")
+    parser.add_argument("--lr", type=float, default=None,
+                        help="override peak lr (e.g. continuation of a converged run)")
+    parser.add_argument("--min-lr", type=float, default=None, help="override cosine floor lr")
     args = parser.parse_args(argv)
     return train(args)
 

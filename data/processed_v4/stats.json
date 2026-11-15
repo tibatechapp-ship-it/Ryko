@@ -1,0 +1,18 @@
+{
+  "mode": "streaming",
+  "inputs": {
+    "wiki.jsonl": 2437,
+    "tashkeela.jsonl": 30488,
+    "shamela.jsonl": 144,
+    "openiti.jsonl": 1782
+  },
+  "documents_total": 34851,
+  "paragraphs_kept": 10376687,
+  "paragraphs_dropped_duplicate": 1458904,
+  "chars_kept": 782122282,
+  "seconds": 213.8,
+  "documents_train": 34503,
+  "documents_val": 348,
+  "chars_train": 784023297,
+  "chars_val": 8475672
+}

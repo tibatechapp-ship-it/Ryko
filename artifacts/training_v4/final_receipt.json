@@ -1,0 +1,21 @@
+{
+  "kind": "ryko-serving-receipt",
+  "created_utc": "2026-11-15T16:27:10Z",
+  "artifacts": [
+    {
+      "path": "artifacts/training_v4/final.pt",
+      "sha256": "51cce88e3bf8794305c28690f8952e5b73f262e41156af7853d4d7137de20f72",
+      "bytes": 23085725
+    }
+  ],
+  "meta": {
+    "step": 1750,
+    "tokens_seen_v4": 7168000,
+    "tokens_total_incl_v3": 28467200,
+    "val_loss": 4.7386,
+    "perplexity": 114.27,
+    "best_val_loss": 4.6451,
+    "warm_start_from": "artifacts/training_v3/final.pt"
+  },
+  "receipt_sha256": "5f105c891b5a2b23cfa92ffa6a92134c6583a4f39c30cb601e146e38ac0c724b"
+}

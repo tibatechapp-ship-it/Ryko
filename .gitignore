@@ -34,3 +34,9 @@ data/processed_v3/
 artifacts/training_v3/last.pt
 artifacts/training_v3/best.pt
 artifacts/training_v3/*.tmp
+
+# v1.4/v1.5/v1.6 working data (large) — release artifacts live in artifacts/training_v4/
+data/processed_v4/
+artifacts/training_v4/last.pt
+artifacts/training_v4/best.pt
+artifacts/training_v4/*.tmp

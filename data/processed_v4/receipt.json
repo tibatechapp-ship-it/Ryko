@@ -1,0 +1,45 @@
+{
+  "kind": "ryko-corpus-receipt",
+  "created_utc": "2026-11-15T16:27:10Z",
+  "artifacts": [
+    {
+      "path": "data/processed_v4/train.bin",
+      "sha256": "e021fa07a0a07b09f85063e7d7f291400256654c7e2c6b58f550d4beb6534646",
+      "bytes": 435413370
+    },
+    {
+      "path": "data/processed_v4/val.bin",
+      "sha256": "3fa1f785f1f9df65b69734a52784be0c5707d982852e5b53dd65ccbfe0b04f3c",
+      "bytes": 4509228
+    },
+    {
+      "path": "data/processed_v4/train.txt",
+      "sha256": "ac07a32ac8fa67c743582b7dd98a88767622e96e9f72af38092e141911bb74cc",
+      "bytes": 1408069761
+    },
+    {
+      "path": "data/processed_v4/val.txt",
+      "sha256": "d8365fef264dab64c1425dc027605cf938b7f582a2cf7c3e7567834ae0031101",
+      "bytes": 15195771
+    },
+    {
+      "path": "data/processed_v4/binarize_stats.json",
+      "sha256": "6e37aff8f0513653c3d0cc756b25007c4fcc57405ba813f15893e75ae5d16b68",
+      "bytes": 189
+    },
+    {
+      "path": "data/processed_v4/stats.json",
+      "sha256": "26149af237d2a5943d1390557a95997ba55dbc8ea045ec6215b43e6601627173",
+      "bytes": 403
+    }
+  ],
+  "meta": {
+    "pipeline": "wiki 2437 + tashkeela 24400 + shamela 144 books + openiti 2023.1.8 shards 0-1 (1783 books), streaming clean v1.6.0",
+    "tokens_train": 217706685,
+    "tokens_val": 2254614,
+    "documents": 34851,
+    "chars_kept": 782100000,
+    "paragraphs_dropped_duplicate": 1458904
+  },
+  "receipt_sha256": "7bd243411c0183863b38faa6afb6c94f81eb8163b494d54f9fb9d277f1b37227"
+}
