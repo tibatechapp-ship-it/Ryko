@@ -64,11 +64,21 @@ def main(argv: list[str] | None = None) -> int:
     p_seed.add_argument("--db", required=True)
     p_seed.add_argument("--manifest", type=Path,
                         default=Path("data/knowledge/fikr_manifest.json"))
+    p_seed.add_argument("--replace", action="store_true",
+                        help="drop all manifest-sourced claims first (تنقيح switch)")
+
+    p_prune = sub.add_parser("fikr-prune",
+                             help="remove fikr books outside the منقحة scope")
+    p_prune.add_argument("--db", required=True)
+    p_prune.add_argument("--manifest", type=Path,
+                        default=Path("data/knowledge/fikr_manifest.json"))
 
     p_ideas = sub.add_parser("ideas", help="search the idea layer (claims)")
     p_ideas.add_argument("--db", required=True)
     p_ideas.add_argument("query")
     p_ideas.add_argument("-k", type=int, default=8)
+    p_ideas.add_argument("--school", default=None,
+                         help="restrict to one school id (e.g. naqd-hanbali)")
 
     args = parser.parse_args(argv)
 
@@ -116,7 +126,17 @@ def main(argv: list[str] | None = None) -> int:
 
         store = _open_db(args.db)
         manifest = load_manifest(args.manifest)
-        report = seed_ideas(store, manifest)
+        report = seed_ideas(store, manifest, replace=args.replace)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        print(f"[knowledge] stats: {json.dumps(store.stats(), ensure_ascii=False)}")
+        return 0
+
+    if args.cmd == "fikr-prune":
+        from ryko_lm.knowledge.ideas import load_manifest, prune_fikr
+
+        store = _open_db(args.db)
+        manifest = load_manifest(args.manifest)
+        report = prune_fikr(store, manifest)
         print(json.dumps(report, ensure_ascii=False, indent=2))
         print(f"[knowledge] stats: {json.dumps(store.stats(), ensure_ascii=False)}")
         return 0
@@ -125,7 +145,8 @@ def main(argv: list[str] | None = None) -> int:
         from ryko_lm.knowledge.ideas import search_ideas
 
         store = KnowledgeStore(args.db)
-        hits = search_ideas(store, args.query, k=args.k)
+        hits = search_ideas(store, args.query, k=args.k,
+                            schools={args.school} if args.school else None)
         print(json.dumps(hits, ensure_ascii=False, indent=2))
         return 0
 

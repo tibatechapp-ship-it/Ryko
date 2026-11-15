@@ -211,19 +211,21 @@ def knowledge_search(q: str, k: int = 5, mode: str = "hybrid",
 
 
 @app.get("/knowledge/ideas")
-def knowledge_ideas(q: str, k: int = 8) -> dict:
-    """Idea layer (العقل الفكري): deterministic hybrid ranking over claims.
+def knowledge_ideas(q: str, k: int = 8, school: str | None = None) -> dict:
+    """Idea layer (العقل الفكري المنقح): hybrid ranking over claims.
 
     Returns school-attributed ideas (originator + school in meta) seeded from
-    ``data/knowledge/fikr_manifest.json`` — the map of Islamic-Thought
-    concepts the knowledge core is expected to reason about.
+    ``data/knowledge/fikr_manifest.json`` (v2 — منقحة: 4 schools, no disputed
+    authors).  ``school`` optionally restricts to one curated school id.
     """
     from ..knowledge.ideas import search_ideas
 
     store = _require_store()
     k = max(1, min(k, 20))
     return {"query": q, "protocol": "ryko-ideas/1",
-            "ideas": search_ideas(store, q, k=k)}
+            "school": school,
+            "ideas": search_ideas(store, q, k=k,
+                                  schools={school} if school else None)}
 
 
 class CiteRequest(BaseModel):

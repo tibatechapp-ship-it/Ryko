@@ -40,3 +40,7 @@ data/processed_v4/
 artifacts/training_v4/last.pt
 artifacts/training_v4/best.pt
 artifacts/training_v4/*.tmp
+
+# منقحة fikr layer: the full (non-core) knowledge DB stays local
+data/knowledge/ryko-full.sqlite
+data/knowledge/ryko-full.receipt.json

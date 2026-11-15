@@ -159,12 +159,16 @@ def main(argv: list[str] | None = None) -> int:
                 rec = None
             if rec and "error" not in rec:
                 sink.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                sink.flush()
                 total_books += 1
                 total_chars += sum(len(p["body"]) for p in rec["page_records"])
             elif rec:
                 errors += 1
                 print(f"[fikr] ERROR {rec['path']}: {rec['error']}", flush=True)
             done.add(path)
+            # incremental checkpoint: a killed run resumes without re-downloads
+            args.progress.write_text(json.dumps({"done": sorted(done)}),
+                                     encoding="utf-8")
             print(f"[fikr] +{total_books}/{len(todo)} books, "
                   f"{total_chars / 1e6:.1f}M chars, err={errors} "
                   f"({time.time() - t0:.0f}s)", flush=True)

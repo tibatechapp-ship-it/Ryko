@@ -77,3 +77,12 @@ bench-build:
 
 bench-run:
 	python -m ryko_lm.eval.benchmarks run --benchmark docs/benchmarks/ryko_bench_seed.jsonl --checkpoint artifacts/training_v3/final.pt --tokenizer artifacts/tokenizer/ryko-tokenizer.json --store data/knowledge/ryko.sqlite --out docs/results/benchmarks_seed
+
+fikr-collect:
+	python -m ryko_lm.data.collect_fikr --manifest data/knowledge/fikr_manifest.json --out data/raw/fikr_shamela.jsonl --progress data/raw/fikr.progress.json --max-file-mb 250
+
+fikr-build:
+	python scripts/build_fikr_db.py
+
+fikr-build-full:
+	python scripts/build_fikr_db.py --no-core --db data/knowledge/ryko-full.sqlite
