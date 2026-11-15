@@ -242,7 +242,7 @@ class KnowledgeStore:
         return d
 
     def iter_passages(self, book_id: str | None = None):
-        sql = ("SELECT p.passage_id, p.text, p.page_num, p.seq FROM passages p "
+        sql = ("SELECT p.passage_id, p.book_id, p.text, p.page_num, p.seq FROM passages p "
                "WHERE (? IS NULL OR p.book_id = ?) ORDER BY p.book_id, p.page_num, p.seq")
         for row in self.conn.execute(sql, (book_id, book_id)):
             yield dict(row)

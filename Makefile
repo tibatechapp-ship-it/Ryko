@@ -71,3 +71,9 @@ knowledge-cite:
 
 knowledge-receipt:
 	python -m ryko_lm.knowledge receipt --db data/knowledge/ryko.sqlite --out data/knowledge/ryko.receipt.json
+
+bench-build:
+	python -m ryko_lm.eval.build_bench --store data/knowledge/ryko.sqlite --out docs/benchmarks/ryko_bench_seed.jsonl
+
+bench-run:
+	python -m ryko_lm.eval.benchmarks run --benchmark docs/benchmarks/ryko_bench_seed.jsonl --checkpoint artifacts/training_v3/final.pt --tokenizer artifacts/tokenizer/ryko-tokenizer.json --store data/knowledge/ryko.sqlite --out docs/results/benchmarks_seed

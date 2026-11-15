@@ -1,0 +1,34 @@
+{
+  "model": {
+    "checkpoint": "artifacts/training_v3/final.pt",
+    "params_M": 11.54,
+    "abstain_threshold": 0.34,
+    "cases": 56
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 18,
+      "accuracy": 0.1111,
+      "per_domain": {
+        "استكمال-نص": {
+          "n": 18,
+          "rate": 0.1111
+        }
+      }
+    },
+    "abstain": {
+      "n": 8,
+      "correct_abstain_rate": 0.125,
+      "wrong_abstain_rate": null
+    },
+    "cite": {
+      "n": 30,
+      "match_rate": 1.0,
+      "verdict_counts": {
+        "not_found": 10,
+        "verified": 20
+      }
+    }
+  }
+}
