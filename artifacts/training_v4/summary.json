@@ -1,8 +1,11 @@
 {
-  "status": "completed",
-  "steps": 1750,
-  "final_val_loss": 4.7386,
-  "perplexity": 114.27,
+  "status": "continuation-shard",
+  "steps": 2094,
+  "final_val_loss": 4.7083,
+  "perplexity": 110.86,
+  "best_val_loss": 4.6451,
   "params": 11536640,
-  "tokens": 7168000
+  "tokens": 8577024,
+  "eval_source": "docs/results/eval_v4_cont.json (held-out v4, 8807 windows)",
+  "note": "resumed from step 1750 (PPL 114.27); +344 steps on 2 CPUs in two 460s shards"
 }

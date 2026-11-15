@@ -1,0 +1,5 @@
+{
+  "checkpoint": "artifacts/training_v4/last.pt",
+  "out": "artifacts/training_v4/final.pt",
+  "params": 11536640
+}
