@@ -35,8 +35,10 @@ def test_binarize_file_roundtrip(tmp_path):
     tok = RykoTokenizer.from_file(TOKENIZER_JSON)
     src = tmp_path / "train.txt"
     src.write_text("اللغة العربية جميلة\n\nوثانية تماما\n", encoding="utf-8")
-    tokens = _encode_file(tok, src, )
-    arr = np.asarray(tokens, dtype=np.uint16)
+    out = tmp_path / "train.bin"
+    n_tokens = _encode_file(tok, src, out)
+    arr = np.fromfile(out, dtype=np.uint16)
+    assert n_tokens == arr.size
     assert arr.size >= 8
     # first paragraph starts with BOS, ends with EOS
     assert arr[0] == tok.bos_id

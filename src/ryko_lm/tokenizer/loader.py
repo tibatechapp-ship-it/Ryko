@@ -61,6 +61,11 @@ class RykoTokenizer:
             ids = ids + [EOS_ID]
         return ids
 
+    def encode_batch(self, texts: list[str]) -> list[list[int]]:
+        """Encode many lines at once (Rust-side multi-threading)."""
+        encs = self.tokenizer.encode_batch(list(texts), add_special_tokens=False)
+        return [e.ids for e in encs]
+
     def decode(self, ids, skip_special: bool = True) -> str:
         if skip_special:
             specials = {PAD_ID, BOS_ID, EOS_ID, UNK_ID}

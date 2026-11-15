@@ -28,3 +28,9 @@ artifacts/smoke/
 # v1.1 working data (large) — release artifacts live in artifacts/training/
 data/processed_v2/
 artifacts/training_v2/
+
+# v1.2 working data (large) — release artifacts live in artifacts/training_v3/
+data/processed_v3/
+artifacts/training_v3/last.pt
+artifacts/training_v3/best.pt
+artifacts/training_v3/*.tmp

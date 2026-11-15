@@ -26,26 +26,51 @@ from pathlib import Path
 
 import numpy as np
 
-from ..tokenizer.loader import RykoTokenizer
+from ..tokenizer.loader import BOS_ID, EOS_ID, RykoTokenizer
 
 
-def _encode_file(tok: RykoTokenizer, path: Path) -> np.ndarray:
-    chunks: list[list[int]] = []
+def _encode_file(tok: RykoTokenizer, path: Path, out_path: Path,
+                 batch_lines: int = 2000) -> int:
+    """Encode ``path`` and stream uint16 tokens to ``out_path`` (memory-safe).
+
+    Uses Rust-side batch encoding; BOS marks the first line of each document
+    (blank-line separated), every line ends with EOS.  Returns token count.
+    """
     t0 = time.time()
-    with path.open(encoding="utf-8") as src:
-        in_document = False
-        for line in src:
-            if not line.strip():  # document separator
+    total = 0
+    in_document = False
+    batch: list[str] = []
+    first_flags: list[bool] = []
+
+    def flush_batch() -> None:
+        nonlocal total
+        if not batch:
+            return
+        buf: list[int] = []
+        for ids, is_first in zip(tok.encode_batch(batch), first_flags):
+            if is_first:
+                buf.append(BOS_ID)
+            buf.extend(ids)
+            buf.append(EOS_ID)
+        if buf:
+            sink.write(np.asarray(buf, dtype=np.uint16).tobytes())
+            total += len(buf)
+        batch.clear()
+        first_flags.clear()
+
+    with path.open(encoding="utf-8") as src, out_path.open("wb") as sink:
+        for raw in src:
+            if not raw.strip():  # document separator
                 in_document = False
                 continue
-            text = line.rstrip("\n")
-            ids = tok.encode(text, add_bos=not in_document, add_eos=True)
-            if ids:
-                chunks.append(ids)
-                in_document = True
-    tokens = np.concatenate([np.asarray(c, dtype=np.uint16) for c in chunks])
-    print(f"[binarize] {path.name}: {len(tokens):,} tokens in {time.time() - t0:.1f}s", flush=True)
-    return tokens
+            first_flags.append(not in_document)
+            batch.append(raw.rstrip("\n"))
+            in_document = True
+            if len(batch) >= batch_lines:
+                flush_batch()
+        flush_batch()
+    print(f"[binarize] {path.name}: {total:,} tokens in {time.time() - t0:.1f}s", flush=True)
+    return total
 
 
 def binarize(tokenizer_path: Path, in_dir: Path, out_dir: Path) -> dict:
@@ -57,10 +82,9 @@ def binarize(tokenizer_path: Path, in_dir: Path, out_dir: Path) -> dict:
         src = in_dir / f"{split}.txt"
         if not src.exists():
             continue
-        tokens = _encode_file(tok, src)
         out = out_dir / f"{split}.bin"
-        tokens.tofile(out)
-        stats[split] = {"tokens": int(len(tokens)), "file": str(out)}
+        n_tokens = _encode_file(tok, src, out)
+        stats[split] = {"tokens": int(n_tokens), "file": str(out)}
 
     (out_dir / "binarize_stats.json").write_text(
         json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8"

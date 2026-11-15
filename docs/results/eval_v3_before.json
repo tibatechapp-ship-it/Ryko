@@ -1,0 +1,37 @@
+{
+  "checkpoint": "artifacts/training_v2/last.pt",
+  "val_bin": "data/processed_v3/val.bin",
+  "tag": "before-full-split",
+  "heldout_loss": 6.224,
+  "perplexity": 504.72,
+  "windows": 5319,
+  "window_size": 256,
+  "eval_seconds": 247.5,
+  "samples": [
+    {
+      "prompt": "قال رسول الله صلى الله عليه وسلم",
+      "generation": " قال الله تعالى يا رسول الله تعالى قال",
+      "tokens": 8
+    },
+    {
+      "prompt": "قال الإمام الشافعي في كتابه",
+      "generation": " عن كتاب الشيخ محمد بن الحسن بن أبي",
+      "tokens": 8
+    },
+    {
+      "prompt": "ومن فوائد هذا الباب",
+      "generation": " هو أنه من المفترض أن يكون له وجود",
+      "tokens": 8
+    },
+    {
+      "prompt": "معنى هذه الكلمة في اللغة",
+      "generation": " العربية، والذي يظهر في هذه المرحلة بعد",
+      "tokens": 8
+    },
+    {
+      "prompt": "وذهب الحنفية إلى أن",
+      "generation": " يكون في هذا الحديث هو أحد أشهر هذه",
+      "tokens": 8
+    }
+  ]
+}

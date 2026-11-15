@@ -28,20 +28,21 @@ model from scratch** — not a fine-tune of an existing checkpoint:
 
 | stage | module | what it does |
 |---|---|---|
-| 1. Corpus | `ryko_lm.data.collect_corpus` | pulls contemporary MSA (Arabic Wikipedia) + classical heritage text (Tashkeela) from free public APIs |
-| 2. Cleaning | `ryko_lm.data.clean_corpus` | NFKC folding, tatweel/diacritics removal, line filters, paragraph dedup, train/val split |
+| 1. Corpus | `ryko_lm.data.collect_corpus`, `collect_openiti`, `collect_shamela` | contemporary MSA (Arabic Wikipedia) + classical heritage: **Tashkeela, OpenITI 2023.1.8 (mARkdown → plain), Shamela v4 (page-level provenance)** |
+| 2. Cleaning | `ryko_lm.data.clean_corpus`, `augment_corpus` | NFKC folding, tatweel/diacritics removal, mARkdown stripping, line filters, streaming global dedup, incremental train/val split |
 | 3. Tokenizer | `ryko_lm.tokenizer` | trains a **Byte-Level BPE (32,768)** with an Arabic-aware normalizer — no `[unk]` is ever possible |
-| 4. Binarization | `ryko_lm.data.binarize` | corpus → flat `uint16` memmap arrays (nanoGPT-style data path) |
+| 4. Binarization | `ryko_lm.data.binarize` | corpus → flat `uint16` memmap arrays (nanoGPT-style data path), Rust-side batch encoding |
 | 5. Model | `ryko_lm.model.ryko_model` | decoder-only transformer: RoPE, RMSNorm, SwiGLU, GQA, KV-cache decoding |
 | 6. Training | `ryko_lm.training.train` | AdamW + cosine schedule + warmup, resumable checkpoints, JSONL metrics |
-| 7. Evaluation | `ryko_lm.training.evaluate` | perplexity + generation samples |
+| 7. Evaluation | `ryko_lm.eval.evaluate` | deterministic sequential-window perplexity + seeded generation samples |
 | 8. Serving | `ryko_lm.serving.api` | FastAPI: `/generate`, SSE `/generate/stream`, and an RTL Arabic playground |
+| 9. Assurance | `ryko_lm.provenance`, `ryko_lm.serving.guard` | signed sha256 provenance receipts (offline-verifiable) + pre-delivery generation guard (ZYKO pattern) |
 
 The reference model, **Ryko-Tiny (11.5M parameters)**, was trained end-to-end
 on CPU inside this repository's CI budget. Two larger presets (`small`, `base`)
 ship as ready-to-run GPU configs.
 
-## Results (reference run — Ryko-Tiny v1.1)
+## Results (reference run — Ryko-Tiny v1.2, heritage corpus)
 
 | metric | value |
 |---|---|
@@ -49,29 +50,29 @@ ship as ready-to-run GPU configs.
 | Architecture | 4 layers · d=256 · 8 heads / 4 KV heads (GQA) · SwiGLU 768 · RoPE θ=10⁴ · ctx 256 |
 | Vocabulary | 32,768 Byte-Level BPE, trained in 10.4 s |
 | Tokenizer fertility | **1.325 tokens/word** · 4.23 chars/token (Arabic validation text) |
-| Training corpus | **116,395 documents** · 151.8M chars · **36.65M tokens** (train) + 341K (val) — Arabic Wikipedia (deep slices) + Tashkeela, NFKC + diacritics stripped, 59.7K duplicate paragraphs removed |
-| Training | 4,000 steps · batch 16×256 · **16.4M tokens seen** (0.45 epoch) · ~55 min on 2 CPU cores |
-| Final loss | train **6.11** · val **6.07** · **PPL ≈ 432** |
-| vs v1.0 (same val set) | val 7.49 → **6.07** nats — PPL 1,782 → **432 (−76%)** |
+| Training corpus (v3) | **246.1M tokens** (train) + 1.36M (val) — Arabic Wikipedia + Tashkeela + **OpenITI 2023.1.8** (2 parquet shards, 1,782 books) + **Shamela v4** (144 books, 41 categories, page-level provenance); 1.43M duplicate paragraphs dropped (cross-edition dedup) |
+| Chinchilla check | 11.5M params × 20 → corpus now **exceeds** the ~230M-token optimal ratio for Ryko-Tiny |
+| Training | 5,349 steps · batch 16×256 · **21.9M tokens seen** (resumable; schedule targets 20K steps / 82M tokens) |
+| Held-out loss (full-split, same protocol) | before **6.224 (PPL 504.7)** → after **5.078 (PPL 160.4)** — **3.15× better** |
 | Inference | ~5 ms/token (CPU, KV cache) · SSE streaming |
 
-**Generation quality, before → after (temperature 0.8):**
+**Generation quality (v1.2, heritage domain, temperature 0.85):**
 
-| prompt | v1.0 (PPL 1,502) | v1.1 (PPL 432) |
-|---|---|---|
-| `كان يا ما كان` | "هو هو الأول أن يقال له ذلك وإن كان لهم أنه لا يجوز في رواية ابن عمر..." (rambling) | "في منطقة سكنية تقع على بعد 40 كم شمال غرب مدينة... يقدر عدد سكانها بـ 203 نسمة حسب إحصاء عام 2010..." (coherent city-stub paragraph) |
-| `اللغة العربية` | "، هي مدينة في 15 يوليو 2010. ومن خلال العام عام 2007، كانت هي شركة هيميس..." | "، هي إحدى الدوائر الانتخابية في المملكة المتحدة الممثلة في مجلس العموم في برلمان المملكة المتحدة." |
+| prompt | sample (abridged) |
+|---|---|
+| `قال رسول الله صلى الله عليه وسلم` | "...أخبرنا محمد بن هارون ثنا سعيد عن يحيى بن أبي كثير عن عكرمة عن ابن عباس..." — the model now emits **isnad-chain structure** it never saw in v1.1 |
+| `فأجاب أهل المذهب بأن` | "...في البيع أو غيره ولا يعتق فيه على بيعها وإنما ي..." — fiqh-discussion register |
 
-Full curves and raw samples: [docs/results/](docs/results/).
+Full curves, eval JSONs and raw samples: [docs/results/](docs/results/).
 
-> **Honest engineering note:** at 11.5M parameters and 16.4M training tokens the
-> model produces *locally* coherent, correctly-spelled Arabic with plausible
-> Wikipedia-style register (it learned the corpus's article-opening and
-> city-stub templates), but it is still **not** semantically reliable —
-> perplexity ≈ 432 is high and expected at this scale. Ryko is a **reference
-> pipeline** whose value is the full reproducible stack, not frontier text
-> quality. Scale with `ryko-small` (52M) / `ryko-base` (100M) configs and a
-> larger corpus. Details: [docs/TRAINING.md](docs/TRAINING.md).
+> **Honest engineering note:** at 11.5M parameters and 21.9M training tokens the
+> model produces locally coherent classical-register Arabic (isnad patterns,
+> fiqh phrasing) but is still **not** semantically reliable — PPL ≈ 160 is a
+> 3.15× improvement over v1.1 yet far from production quality. Ryko is a
+> **reference pipeline** whose value is the full reproducible stack. The
+> resumable trainer + 246M-token corpus mean quality now scales by re-running
+> the same command (`docs/ROADMAP.md` phase 3) or switching to `ryko-small`
+> (52M). Details: [docs/TRAINING.md](docs/TRAINING.md).
 
 Artifacts committed in-tree: `artifacts/tokenizer/ryko-tokenizer.json`,
 `artifacts/training/final.pt` (fp16), training curve and samples in

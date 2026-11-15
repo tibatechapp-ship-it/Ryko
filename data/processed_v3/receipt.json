@@ -1,0 +1,42 @@
+{
+  "kind": "ryko-corpus-receipt",
+  "created_utc": "2026-11-15T10:08:11Z",
+  "artifacts": [
+    {
+      "path": "data/processed_v3/train.bin",
+      "sha256": "0d8e6a39b1ef00cd0c1f94af995a6c3b68e8ae99ed95da8ce734b76cb38c9fda",
+      "bytes": 492279920
+    },
+    {
+      "path": "data/processed_v3/val.bin",
+      "sha256": "b6c23aad1abdbacebc2760755152d64857a942d6ede45971585179da5f2b86e4",
+      "bytes": 2723810
+    },
+    {
+      "path": "data/processed_v3/train.txt",
+      "sha256": "b7918876274fa09112d06b1190d81903a9e4ff54f203e64efac9063a21699c96",
+      "bytes": 1616141582
+    },
+    {
+      "path": "data/processed_v3/val.txt",
+      "sha256": "0bc86fc3c9157b0663d3233080021c9bd0b1852ef90ed0ec4ea18652dc36b2f1",
+      "bytes": 8943191
+    },
+    {
+      "path": "data/processed_v3/binarize_stats.json",
+      "sha256": "2ea4b52100c550d459ce025aa5f95f468a94cf7bf158969edd2d24d725d7a830",
+      "bytes": 189
+    },
+    {
+      "path": "data/processed_v3/stats.json",
+      "sha256": "b200a2bf65860e3ad1f0fee7dd2c036b55697eac1b9d3a1f0a6aa1f43378cf9e",
+      "bytes": 373
+    }
+  ],
+  "meta": {
+    "pipeline": "wiki+tashkeela (v2) + openiti 2023.1.8 (shards 0-1) + shamela v4 selected",
+    "tokens_train": 246139960,
+    "tokens_val": 1361905
+  },
+  "receipt_sha256": "916c18d47912eed00ac896cd4c4356da19070ba8c14947f3c8b8bff067b8a3e7"
+}

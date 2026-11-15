@@ -1,0 +1,37 @@
+{
+  "checkpoint": "artifacts/training_v3/last.pt",
+  "val_bin": "data/processed_v3/val.bin",
+  "tag": "after-full-split-step5349",
+  "heldout_loss": 5.0778,
+  "perplexity": 160.43,
+  "windows": 5319,
+  "window_size": 256,
+  "eval_seconds": 241.7,
+  "samples": [
+    {
+      "prompt": "قال رسول الله صلى الله عليه وسلم",
+      "generation": " قال لا يطيء",
+      "tokens": 5
+    },
+    {
+      "prompt": "قال الإمام الشافعي في كتابه",
+      "generation": " هذا الحديث كان له أيضا أن قول الشافعي في قوله إن الله لا بأس به أن",
+      "tokens": 16
+    },
+    {
+      "prompt": "ومن فوائد هذا الباب",
+      "generation": " الأول من حديث رجل قال في كتاب كذا قوله عز وجل ففرق بين",
+      "tokens": 14
+    },
+    {
+      "prompt": "معنى هذه الكلمة في اللغة",
+      "generation": " العربية هو من جنس الاخرز.",
+      "tokens": 8
+    },
+    {
+      "prompt": "وذهب الحنفية إلى أن",
+      "generation": " الذي لا يقل عن النبي صلى الله عليه وسلم إذا كان له ما",
+      "tokens": 13
+    }
+  ]
+}

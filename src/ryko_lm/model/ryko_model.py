@@ -332,10 +332,19 @@ class RykoLM(nn.Module):
         os.replace(tmp, path)
 
     @classmethod
-    def load(cls, path: str | Path, device: str = "cpu") -> "RykoLM":
+    def load(cls, path: str | Path, device: str = "cpu",
+             config: "RykoConfig | None" = None) -> "RykoLM":
+        """Load a model saved via :meth:`save`, or a training checkpoint.
+
+        Training checkpoints (``last.pt``) store ``{"model": state_dict, ...}``
+        without an embedded config — pass ``config=`` explicitly for those.
+        """
         blob = torch.load(Path(path), map_location=device, weights_only=True)
-        model = cls(RykoConfig.from_dict(blob["config"]))
-        missing, unexpected = model.load_state_dict(blob["state_dict"], strict=False)
+        if config is None:
+            config = RykoConfig.from_dict(blob["config"])
+        state = blob["state_dict"] if "state_dict" in blob else blob["model"]
+        model = cls(config)
+        missing, unexpected = model.load_state_dict(state, strict=False)
         allowed_missing = {"lm_head.weight"} if model.cfg.tie_embeddings else set()
         if set(missing) - allowed_missing or unexpected:
             raise RuntimeError(f"checkpoint mismatch: missing={missing} unexpected={unexpected}")
