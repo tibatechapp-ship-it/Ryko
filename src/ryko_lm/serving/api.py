@@ -9,6 +9,7 @@ POST /generate            — JSON generation
 POST /generate/stream     — Server-Sent-Events streaming generation
 GET  /knowledge/search    — hybrid retrieval over the Knowledge Core (provenance)
 GET  /knowledge/ideas     — idea layer (العقل الفكري): school-attributed claims
+GET  /knowledge/relations — argument-relations graph (علاقات الحجاج)
 POST /knowledge/cite      — citation verification (ryko-cite/1 verdict)
 POST /knowledge/ask       — grounded generation: retrieve → generate → guard
                             → lexical-grounding ratio + source list
@@ -73,7 +74,7 @@ async def lifespan(_app: FastAPI):
     state["store"] = None
 
 
-app = FastAPI(title="Ryko Arabic LM", version="1.5.0", lifespan=lifespan)
+app = FastAPI(title="Ryko Arabic LM", version="1.10.0", lifespan=lifespan)
 
 
 class GenerateRequest(BaseModel):
@@ -229,6 +230,29 @@ def knowledge_ideas(q: str, k: int = 8, school: str | None = None,
             "ideas": search_ideas(store, q, k=k,
                                   schools={school} if school else None,
                                   layers={layer} if layer else None)}
+
+
+@app.get("/knowledge/relations")
+def knowledge_relations(claim_id: str | None = None, layer: str | None = None,
+                        relation: str | None = None, k: int = 100) -> dict:
+    """Argument-relations graph (علاقات الحجاج) — ryko-relations/1.
+
+    Lists seeded support/opposition relations between curated claims with
+    both endpoints fully resolved and a documented evidence line each.
+    ``claim_id`` traverses from any node (matches either endpoint); ``layer``
+    restricts to one curated layer and ``relation`` to one closed-vocabulary
+    verb (supports / responds / summarizes / …).
+    """
+    from ..knowledge.relations import list_relations, relations_stats
+
+    store = _require_store()
+    k = max(1, min(k, 200))
+    return {"protocol": "ryko-relations/1",
+            "claim_id": claim_id, "layer": layer, "relation": relation,
+            "graph": relations_stats(store),
+            "relations": list_relations(store, layer=layer,
+                                        relation=relation,
+                                        claim_id=claim_id, k=k)}
 
 
 class CiteRequest(BaseModel):

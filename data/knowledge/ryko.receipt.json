@@ -1,11 +1,11 @@
 {
   "kind": "ryko-knowledge-receipt",
-  "created_utc": "2026-11-15T18:35:36Z",
+  "created_utc": "2026-11-15T20:53:19Z",
   "artifacts": [
     {
       "path": "data/knowledge/ryko.sqlite",
-      "sha256": "2241b78eed19e9835389456ea48af3f52ef364f1cfb6053e0a951ecb7242cd30",
-      "bytes": 89206784
+      "sha256": "a590724e6737afcbcf6b94f08fe578f1065a59d12fe7c10012a9d3332ba57746",
+      "bytes": 89227264
     }
   ],
   "meta": {
@@ -15,7 +15,7 @@
     "books": 30,
     "passages": 82216,
     "claims": 87,
-    "argument_relations": 0,
+    "argument_relations": 35,
     "chars": 32026539,
     "passages_by_source": {
       "econom": 5075,
@@ -23,5 +23,5 @@
       "shamela": 11674
     }
   },
-  "receipt_sha256": "5e3f065994f50a4a95828dcbc22cffea60b67dfc170443fdfe0d9c4599e33627"
+  "receipt_sha256": "3f85f120529465fb27f619192130ca92218221750a97f2e8abdd453ec7a931b9"
 }

@@ -129,3 +129,28 @@ python -m ryko_lm.provenance verify data/knowledge/ryko.receipt.json
 * متجهات feature hashing حتمية لكنها **أعمى دلالياً** — لا ترادف.  عند
   الانتقال إلى PostgreSQL يُضاف نموذج تضمين عربي حقيقي عمود `embedding`.
 * تصنيف الخطاب سقالة قاعدية — دقته لم تُقس بعد على معيار مصنّف يدوياً.
+
+## 9) طبقة علاقات الحجاج (منذ v1.10.0)
+
+الجدول `argument_relations` (فارغ منذ v1.3.0) تُزرعه الآن طبقة مانية مخصوصة:
+`data/knowledge/relations_manifest.json` (kind `ryko-relations-manifest`) —
+35 علاقة موثقة بين أفكار الطبقتين المنقحتين، كل علاقة تحيل نصَّي طرفيها
+**حرفياً** (سلامة مرجعية مفروضة عند الزرع: أي نص غير مزروع يرفض) مع سطر
+دليل من بحثي المنقحة والاقتصاد و`evidence_sha256` في meta.
+
+```bash
+# الزرع (حتمي، idempotent؛ --replace يحذف صفوف المانيفست فقط)
+python -m ryko_lm.knowledge relations-seed --db data/knowledge/ryko.sqlite \
+    --manifest data/knowledge/relations_manifest.json --replace
+
+# الاستعلام: بالطبقة، بالفعل، أو بالاجتياز من أي فكرة
+python -m ryko_lm.knowledge relations --db data/knowledge/ryko.sqlite \
+    --layer econom --relation supports
+curl "localhost:8000/knowledge/relations?claim_id=c-…&k=20"
+```
+
+الضمانات: أفعال مغلقة فقط (`schema.RELATIONS` الثمانية، الاتجاه دائماً
+`src --verb--> dst`)، لا حلقات ذاتية ولا تكرار (يُرفض عند التحميل)،
+معرّفات حتمية `stable_id('r', src, dst, verb)`، عمليات العلاقات **قراءة فقط**
+على `claims` — لا تلمس أفكار أي طبقة. الترتيب الصحيح للبناء الكامل موثق في
+`make knowledge-build`: فكر ← اقتصاد ← علاقات ← إفراغ المتجهات.

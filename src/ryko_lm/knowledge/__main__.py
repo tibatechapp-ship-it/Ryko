@@ -86,6 +86,27 @@ def main(argv: list[str] | None = None) -> int:
     p_ideas.add_argument("--layer", default=None,
                          help="restrict to one curated layer (fikr | econom)")
 
+    p_rel_seed = sub.add_parser(
+        "relations-seed",
+        help="seed argument_relations from the relations manifest "
+             "(referential integrity enforced)")
+    p_rel_seed.add_argument("--db", required=True)
+    p_rel_seed.add_argument("--manifest", type=Path,
+                            default=Path("data/knowledge/relations_manifest.json"))
+    p_rel_seed.add_argument("--replace", action="store_true",
+                            help="drop all relations-manifest rows first")
+
+    p_rel = sub.add_parser("relations",
+                           help="list/search the argument-relations graph")
+    p_rel.add_argument("--db", required=True)
+    p_rel.add_argument("--layer", default=None,
+                       help="restrict to one layer (fikr | econom)")
+    p_rel.add_argument("--relation", default=None,
+                       help="restrict to one verb (supports, responds, …)")
+    p_rel.add_argument("--claim-id", default=None,
+                       help="relations touching this claim (either endpoint)")
+    p_rel.add_argument("-k", type=int, default=100)
+
     args = parser.parse_args(argv)
 
     if args.cmd == "ingest":
@@ -156,6 +177,34 @@ def main(argv: list[str] | None = None) -> int:
                             schools={args.school} if args.school else None,
                             layers={args.layer} if args.layer else None)
         print(json.dumps(hits, ensure_ascii=False, indent=2))
+        return 0
+
+    if args.cmd == "relations-seed":
+        from ryko_lm.knowledge.relations import (
+            load_relations_manifest,
+            relations_stats,
+            seed_relations,
+        )
+
+        store = _open_db(args.db)
+        manifest = load_relations_manifest(args.manifest)
+        report = seed_relations(store, manifest, replace=args.replace)
+        report["graph"] = relations_stats(store)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        print(f"[knowledge] stats: {json.dumps(store.stats(), ensure_ascii=False)}")
+        return 0
+
+    if args.cmd == "relations":
+        from ryko_lm.knowledge.relations import list_relations, relations_stats
+
+        store = KnowledgeStore(args.db)
+        hits = list_relations(store, layer=args.layer,
+                              relation=args.relation,
+                              claim_id=args.claim_id, k=args.k)
+        print(json.dumps({"protocol": "ryko-relations/1",
+                          "graph": relations_stats(store),
+                          "relations": hits},
+                         ensure_ascii=False, indent=2))
         return 0
 
     return 2
