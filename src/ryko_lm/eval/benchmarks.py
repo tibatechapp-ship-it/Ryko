@@ -202,6 +202,101 @@ def run_abstain(model, tok, cases: list[Case], device: str = "cpu",
     return rows
 
 
+# -------------------------------------------------------- abstain calibration
+THRESHOLD_GRID = tuple(round(0.05 + 0.05 * i, 2) for i in range(19))  # 0.05..0.95
+
+
+def sweep_abstain_thresholds(confidences: list[float], should_answer: list[bool],
+                             grid: tuple[float, ...] = THRESHOLD_GRID) -> dict:
+    """One-pass deterministic threshold sweep over pre-scored confidences.
+
+    The abstain gate fires when the best-option confidence falls under a
+    threshold. Choosing that threshold on guesswork is how the v1.12.0
+    abstain regression slipped in (0.34 never fired). The sweep scores every
+    grid point by the *balanced* criterion
+
+        balanced(t) = correct_abstain_rate(t) + (1 - wrong_abstain_rate(t))
+
+    where correct_abstain_rate covers ``should_answer=False`` cases and
+    wrong_abstain_rate covers ``should_answer=True`` cases (over-refusal).
+    Operating point = highest balanced score; ties resolve to the *lowest*
+    threshold (more answering, fewer refusals — deterministic strict-greater
+    sweep). With a one-sided set (no positives) the sweep still runs and the
+    operating point degrades to the highest correct-abstain rate.
+    """
+    if len(confidences) != len(should_answer):
+        raise BenchmarkError("calibration inputs must align")
+    n_out = sum(1 for s in should_answer if not s)
+    n_in = sum(1 for s in should_answer if s)
+    curve: list[dict] = []
+    for t in grid:
+        correct = sum(1 for c, s in zip(confidences, should_answer)
+                      if not s and c < t)
+        wrong = sum(1 for c, s in zip(confidences, should_answer)
+                    if s and c < t)
+        rate_out = round(correct / n_out, 4) if n_out else None
+        rate_in = round(wrong / n_in, 4) if n_in else None
+        balanced = (round(rate_out + 1 - rate_in, 4)
+                    if (rate_out is not None and rate_in is not None) else None)
+        curve.append({
+            "threshold": t,
+            "correct_abstain_rate": rate_out,
+            "wrong_abstain_rate": rate_in,
+            "balanced_score": balanced,
+        })
+    scored = [p for p in curve if p["balanced_score"] is not None]
+    if scored:
+        best = None
+        for p in scored:  # strict-greater sweep: lowest threshold wins ties
+            if best is None or p["balanced_score"] > best["balanced_score"]:
+                best = p
+    else:
+        by_rate = [p for p in curve if p["correct_abstain_rate"] is not None]
+        best = max(by_rate, key=lambda p: p["correct_abstain_rate"]) if by_rate else None
+    return {
+        "grid": list(grid),
+        "n_out": n_out,
+        "n_in": n_in,
+        "curve": curve,
+        "operating_point": best,
+    }
+
+
+def run_calibration(model, tok, cases: list[Case], device: str = "cpu",
+                    grid: tuple[float, ...] = THRESHOLD_GRID) -> dict:
+    """Score the abstain set once, then sweep thresholds deterministically."""
+    rows = run_mcq(model, tok, cases, device)
+    by_id = {c.case_id: c for c in cases}
+    confidences = [row["confidence"] for row in rows]
+    flags = [by_id[row["case_id"]].should_answer for row in rows]
+    return sweep_abstain_thresholds(confidences, flags, grid)
+
+
+def write_calibration_report(cal: dict, model_meta: dict, out_base: str | Path) -> tuple[Path, Path]:
+    out_base = Path(out_base)
+    out_base.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"model": model_meta, "calibration": cal}
+    json_path = out_base.with_suffix(".json")
+    json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    op = cal.get("operating_point") or {}
+    lines = ["# معايرة بوابة الامتناع — منحنى العتبة", "",
+             f"- النموذج: `{model_meta.get('checkpoint', '?')}`",
+             f"- العينة: {cal.get('n_out', 0)} خارج المتن (يجب الامتناع) + "
+             f"{cal.get('n_in', 0)} داخل المتن (يجب الإجابة)",
+             f"- نقطة التشغيل المختارة: **عتبة {op.get('threshold', '?')}** "
+             f"(امتناع صائب {op.get('correct_abstain_rate', '?')}، "
+             f"امتناع خاطئ {op.get('wrong_abstain_rate', '?')}، "
+             f"ميزان {op.get('balanced_score', '?')})", "",
+             "| العتبة | امتناع صائب | امتناع خاطئ | الميزان |",
+             "|---|---|---|---|"]
+    for p in cal.get("curve", []):
+        lines.append(f"| {p['threshold']} | {p['correct_abstain_rate']} | "
+                     f"{p['wrong_abstain_rate']} | {p['balanced_score']} |")
+    md_path = out_base.with_suffix(".md")
+    md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return json_path, md_path
+
+
 def run_cite(store, cases: list[Case]) -> list[dict]:
     from ryko_lm.knowledge.citation import verify_quote
 
@@ -335,18 +430,46 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--out", type=Path, default=Path("docs/results/benchmarks"))
     p_run.add_argument("--device", default="cpu")
 
+    p_cal = sub.add_parser("calibrate",
+                           help="sweep the abstain threshold on the abstain set")
+    p_cal.add_argument("--benchmark", type=Path, action="append", required=True)
+    p_cal.add_argument("--checkpoint", type=Path, required=True)
+    p_cal.add_argument("--tokenizer", type=Path, required=True)
+    p_cal.add_argument("--config", type=Path, default=None)
+    p_cal.add_argument("--out", type=Path,
+                       default=Path("docs/results/abstain_calibration"))
+    p_cal.add_argument("--device", default="cpu")
+
     args = parser.parse_args(argv)
 
     from ..model.ryko_model import RykoLM
     from ..tokenizer.loader import RykoTokenizer
 
-    cases: list[Case] = []
-    for path in args.benchmark:
-        cases.extend(load_benchmark(path))
-
     model = RykoLM.load(args.checkpoint, device=args.device, config=args.config)
     model.eval()
     tok = RykoTokenizer.from_file(args.tokenizer)
+
+    if args.cmd == "calibrate":
+        cases: list[Case] = []
+        for path in args.benchmark:
+            cases.extend(load_benchmark(path))
+        abstain = [c for c in cases if c.kind == "abstain"]
+        if not abstain:
+            raise BenchmarkError("calibration needs abstain cases")
+        cal = run_calibration(model, tok, abstain, args.device)
+        model_meta = {
+            "checkpoint": str(args.checkpoint),
+            "params_M": round(sum(p.numel() for p in model.parameters()) / 1e6, 2),
+            "cases": len(abstain),
+        }
+        json_path, md_path = write_calibration_report(cal, model_meta, args.out)
+        print(f"[calibrate] cases={len(abstain)} -> {json_path}")
+        print(json.dumps(cal["operating_point"], ensure_ascii=False, indent=2))
+        return 0
+
+    cases: list[Case] = []
+    for path in args.benchmark:
+        cases.extend(load_benchmark(path))
 
     mcq = [c for c in cases if c.kind == "mcq"]
     abstain = [c for c in cases if c.kind == "abstain"]

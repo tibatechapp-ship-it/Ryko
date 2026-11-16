@@ -24,10 +24,12 @@ from array import array
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
+
 from ryko_lm.knowledge import embeddings as emb
 from ryko_lm.knowledge import schema as sch
 from ryko_lm.knowledge import textproc
-from ryko_lm.knowledge.embeddings import DIM, cosine, embed, pack, unpack
+from ryko_lm.knowledge.embeddings import DIM, embed, pack, unpack
 
 BM25_K1 = 1.5
 BM25_B = 0.75
@@ -63,10 +65,22 @@ class Hit:
 
 
 class KnowledgeStore:
-    """Open (or create) a knowledge store file; ``:memory:`` for tests."""
+    """Open (or create) a knowledge store file; ``:memory:`` for tests.
 
-    def __init__(self, path: str | Path = ":memory:") -> None:
+    ``persist_vectors`` controls the derived ``passage_vec`` table (repo-copy
+    policy: derived data never belongs in the committed DB). ``True`` (the
+    production default) writes computed embeddings once for warm restarts;
+    ``False`` keeps them in-process only — for read-only sessions such as
+    tests, one-shot queries against a committed DB, or CI, where a search
+    would otherwise dirty the working tree with ~80MB of derived vectors.
+    Verification bookkeeping (``set_verification``) is unaffected — it is
+    intentional state, not a derived cache.
+    """
+
+    def __init__(self, path: str | Path = ":memory:",
+                 persist_vectors: bool = True) -> None:
         self.path = Path(path) if path != ":memory:" else None
+        self.persist_vectors = persist_vectors
         # check_same_thread=False: the store may be created in a lifespan
         # thread and used from FastAPI worker threads; access is serialized
         # at the SQL level and the CLI/tests are single-threaded anyway.
@@ -235,6 +249,17 @@ class KnowledgeStore:
             "passages_by_source": by_source,
         }
 
+    def iter_books(self):
+        """Deterministic book listing (read-only) — fixed by ``book_id``.
+
+        Read accessor used by, e.g., the benchmark builder's book-attribution
+        family (title provenance comes straight from the committed store).
+        """
+        sql = ("SELECT book_id, source_id, title_ar, author_id, category, "
+               "rights_status, meta FROM books ORDER BY book_id")
+        for row in self.conn.execute(sql):
+            yield dict(row)
+
     def passage(self, passage_id: str) -> dict | None:
         row = self.conn.execute(
             "SELECT p.*, b.title_ar, b.source_id FROM passages p "
@@ -282,7 +307,8 @@ class KnowledgeStore:
     # ------------------------------------------------------------ search
     def _ensure_index(self) -> "_Index":
         if self._index is None:
-            self._index = _Index(self.conn)
+            self._index = _Index(self.conn,
+                                 persist_vectors=self.persist_vectors)
         return self._index
 
     def search(self, query: str, k: int = 5, mode: str = "hybrid",
@@ -292,7 +318,8 @@ class KnowledgeStore:
         index = self._ensure_index()
         rows = index.rows
         if book_id is not None:
-            rows = [r for r in rows if r["book_id"] == book_id]
+            # per-book slice from the cached index — no O(n) rescan per call
+            rows = [index.rows[i] for i in index.by_book.get(book_id, [])]
             if not rows:
                 return []
         results: dict[str, dict] = {}
@@ -303,6 +330,9 @@ class KnowledgeStore:
         bm25_list: list[tuple[float, dict]] = []
         if mode in {"bm25", "hybrid"}:
             bm25_list = index.bm25_ranked(query, rows)
+            # full enumeration in hybrid: a fused top-k hit may carry a
+            # bm25_rank beyond k, and those diagnostic fields are part of
+            # the byte-equivalence contract with the historical behaviour.
             for rank, (score, row) in enumerate(bm25_list, 1):
                 put(row["passage_id"], "bm25_rank", rank)
         dense_list: list[tuple[float, dict]] = []
@@ -323,12 +353,22 @@ class KnowledgeStore:
                 fused[row["passage_id"]] = fused.get(row["passage_id"], 0.0) + 1.0 / (RRF_K + rank)
             for rank, (_s, row) in enumerate(dense_list, 1):
                 fused[row["passage_id"]] = fused.get(row["passage_id"], 0.0) + 1.0 / (RRF_K + rank)
+            # ascending tuple sort on (-score, passage_id) — no lambda key
+            fused_items = sorted((-s, pid) for pid, s in fused.items())
+            top = fused_items[:k]
+            hits: list[Hit] = []
             row_by_id = {r["passage_id"]: r for _s, r in bm25_list + dense_list}
-            ordered = sorted(
-                ((s, row_by_id[pid]) for pid, s in fused.items()),
-                key=lambda t: (-t[0], t[1]["passage_id"]),
-            )
-            score_of = lambda _s, r: fused[r["passage_id"]]  # noqa: E731
+            for neg_score, pid in top:
+                row = row_by_id[pid]
+                info = results.get(pid, {})
+                hits.append(Hit(
+                    passage_id=pid, book_id=row["book_id"],
+                    title_ar=row["title_ar"], source_id=row["source_id"],
+                    page_num=row["page_num"], seq=row["seq"], text=row["text"],
+                    score=-neg_score,
+                    bm25_rank=info.get("bm25_rank"), dense_rank=info.get("dense_rank"),
+                ))
+            return hits
 
         hits: list[Hit] = []
         for score, row in ordered[:k]:
@@ -347,9 +387,22 @@ class KnowledgeStore:
 
 
 class _Index:
-    """In-process BM25 + dense index, rebuilt lazily after writes."""
+    """In-process BM25 + dense index, rebuilt lazily after writes.
 
-    def __init__(self, conn: sqlite3.Connection) -> None:
+    v1.14.0 performance hardening (same results, same orderings — the
+    arithmetic per row is unchanged, only the iteration scheme is):
+
+    * BM25 scores via a token → ``[(row, tf)]`` postings map, so a query
+      touches only rows containing at least one query token instead of
+      scanning all rows; the per-row term accumulation keeps the query-token
+      order, so every score is bit-identical to the row-major original.
+    * Dense ranking via a lazy float64 matrix (``rows × DIM``) and one
+      matrix–vector product instead of 82K Python-level dot products.
+    * Cached row positions and per-book row slices — no per-call O(n) maps.
+    """
+
+    def __init__(self, conn: sqlite3.Connection,
+                 persist_vectors: bool = True) -> None:
         self.rows = [
             dict(r) for r in conn.execute(
                 "SELECT p.passage_id, p.book_id, p.page_num, p.seq, p.text, "
@@ -359,6 +412,12 @@ class _Index:
                 "ORDER BY p.passage_id"
             )
         ]
+        self.pos: dict[str, int] = {
+            r["passage_id"]: i for i, r in enumerate(self.rows)
+        }
+        self.by_book: dict[str, list[int]] = {}
+        for i, r in enumerate(self.rows):
+            self.by_book.setdefault(r["book_id"], []).append(i)
         self.tokens: list[list[str]] = [textproc.ar_tokens(r["text"]) for r in self.rows]
         self.tf: list[dict[str, int]] = []
         df: dict[str, int] = {}
@@ -377,6 +436,12 @@ class _Index:
             t: math.log(1.0 + (self.n - c + 0.5) / (c + 0.5))
             for t, c in df.items()
         }
+        # postings: token -> [(row_index, term_freq)] — built from the same
+        # tf maps, so BM25 arithmetic is untouched.
+        self.postings: dict[str, list[tuple[int, int]]] = {}
+        for i, tf in enumerate(self.tf):
+            for t, f in tf.items():
+                self.postings.setdefault(t, []).append((i, f))
         # dense vectors: compute + persist once (row-id keyed by passage_id)
         self.vecs: dict[str, array] = {}
         missing: list[tuple[str, bytes]] = []
@@ -392,48 +457,83 @@ class _Index:
                 vec = emb.embed(row["text"])
                 self.vecs[row["passage_id"]] = vec
                 missing.append((row["passage_id"], emb.pack(vec)))
-        if missing:
+        if missing and persist_vectors:
             conn.executemany(
                 "INSERT OR REPLACE INTO passage_vec VALUES(?,?)", missing
             )
             conn.commit()
+        self._mat = None  # lazy float64 matrix (see _ensure_mat)
 
-    def bm25_ranked(self, query: str, rows: list[dict]) -> list[tuple[float, dict]]:
+    def _ensure_mat(self):
+        """Lazily build the (n × DIM) float64 matrix in ``rows`` order."""
+        if self._mat is None:
+            mat = np.zeros((len(self.rows), DIM), dtype=np.float64)
+            for pid, vec in self.vecs.items():
+                mat[self.pos[pid]] = np.frombuffer(bytes(vec), dtype=np.float32)
+            self._mat = mat
+        return self._mat
+
+    def _row_indices(self, rows: list[dict] | None) -> list[int]:
+        """Row indices for a (possibly book-filtered) row list.
+
+        ``None`` means the full index — the identity fast path that skips the
+        per-call O(n) rebuild the original paid on every search.
+        """
+        if rows is self.rows or rows is None:
+            return list(range(len(self.rows)))
+        pos = self.pos
+        return [pos[r["passage_id"]] for r in rows if r["passage_id"] in pos]
+
+    def bm25_ranked(self, query: str, rows: list[dict] | None) -> list[tuple[float, dict]]:
         q = [t for t in textproc.ar_tokens(query)]
         if not q:
             return []
-        pos = {r["passage_id"]: i for i, r in enumerate(self.rows)}
-        scores: dict[str, float] = {}
-        for row in rows:
-            i = pos[row["passage_id"]]
-            tf = self.tf[i]
-            dl = len(self.tokens[i])
-            if dl == 0:
+        candidates = self._row_indices(rows)
+        wanted = set(candidates)
+        # token-major accumulation; per-row term order follows ``q`` order,
+        # so each row's score is bit-identical to the row-major original.
+        scores: dict[int, float] = {}
+        for t in q:
+            idf = self.idf.get(t)
+            if idf is None:
                 continue
-            s = 0.0
-            for t in q:
-                f = tf.get(t)
-                if not f:
+            for i, f in self.postings.get(t, ()):
+                if i not in wanted:
                     continue
-                s += self.idf.get(t, 0.0) * (f * (BM25_K1 + 1.0)) / (
+                dl = len(self.tokens[i])
+                term = idf * (f * (BM25_K1 + 1.0)) / (
                     f + BM25_K1 * (1.0 - BM25_B + BM25_B * dl / self.avgdl)
                 )
-            if s > 0:
-                scores[row["passage_id"]] = s
-        ordered = sorted(
-            ((s, r) for r in rows if (s := scores.get(r["passage_id"]))),
-            key=lambda t: (-t[0], t[1]["passage_id"]),
-        )
-        return ordered
+                scores[i] = scores.get(i, 0.0) + term
+        if not scores:
+            return []
+        # rank without a Python comparator sort: rows are ordered by
+        # passage_id, so a stable argsort on -score reproduces the exact
+        # original ``sorted(key=(-score, passage_id))`` ordering.
+        idx_arr = np.fromiter(scores.keys(), np.int64, len(scores))
+        val_arr = np.fromiter(scores.values(), np.float64, len(scores))
+        val_arr = val_arr[idx_arr.argsort()]
+        idx_arr = idx_arr[idx_arr.argsort()]
+        keep = val_arr > 0.0
+        idx_arr, val_arr = idx_arr[keep], val_arr[keep]
+        order = np.argsort(-val_arr, kind="stable")
+        return [(float(val_arr[j]), self.rows[int(idx_arr[j])]) for j in order]
 
-    def dense_ranked(self, query: str, rows: list[dict]) -> list[tuple[float, dict]]:
+    def dense_ranked(self, query: str, rows: list[dict] | None) -> list[tuple[float, dict]]:
         qv = embed(query)
-        out: list[tuple[float, dict]] = []
-        for row in rows:
-            vec = self.vecs.get(row["passage_id"])
-            if vec is None:
-                continue
-            out.append((cosine(qv, vec), row))
-        out = [t for t in out if t[0] > 0.0]
-        out.sort(key=lambda t: (-t[0], t[1]["passage_id"]))
-        return out
+        q = np.frombuffer(bytes(qv), dtype=np.float32).astype(np.float64)
+        full = rows is self.rows or rows is None
+        if not full:
+            idx = self._row_indices(rows)
+            if not idx:
+                return []
+            arr = np.fromiter(idx, dtype=np.int64, count=len(idx))
+            sims = self._ensure_mat()[arr] @ q
+            row_seq = [self.rows[i] for i in idx]
+        else:
+            # full-store fast path: one matrix–vector product, no fancy-index copy
+            sims = self._ensure_mat() @ q
+            row_seq = self.rows
+        keep = np.nonzero(sims > 0.0)[0]
+        order = keep[np.argsort(-sims[keep], kind="stable")]
+        return [(float(sims[j]), row_seq[j]) for j in order]

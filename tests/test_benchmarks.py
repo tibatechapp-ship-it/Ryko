@@ -182,7 +182,12 @@ def test_build_bench_from_fixture(store):
         if c["kind"] == "cite":
             assert c["expect"] in {"verified", "not_found"}
         if c["kind"] == "abstain":
-            assert c["should_answer"] is False
+            assert isinstance(c["should_answer"], bool)
+            # out-of-domain abstain cases keep the historical negative flag
+            if c["case_id"].startswith("rb-abstain-out-"):
+                assert c["should_answer"] is False
+            if c["case_id"].startswith("rb-abstain-in-"):
+                assert c["should_answer"] is True
     # determinism: same store, same seed -> same cases
     again = build_bench_cases(store)
     assert [json.dumps(c, sort_keys=True, ensure_ascii=False) for c in cases] == \
@@ -245,11 +250,33 @@ def test_build_bench_relation_family(store):
     assert c["meta"]["relation"] == "supports"
 
 
-def test_build_bench_abstain_contract():
-    from ryko_lm.eval.build_bench import ABSTAIN_CASES, N_ABSTAIN
+def test_build_bench_book_family(store):
+    cases = build_bench_cases(store)
+    book_cases = [c for c in cases if c["case_id"].startswith("rb-book-")]
+    assert book_cases, "book-attribution family must produce cases from fixture"
+    titles = {c["options"][c["answer"]] for c in book_cases}
+    assert len(titles) == len(book_cases)  # one case per distinct book title
+    for c in book_cases:
+        assert c["domain"] == "نسبة-الكتاب"
+        assert len(set(c["options"])) == 4  # correct + 3 distinct distractors
+        again = [x for x in build_bench_cases(store)
+                 if x["case_id"] == c["case_id"]]
+        assert again == [c]  # determinism per case
 
-    assert len(ABSTAIN_CASES) == N_ABSTAIN == 16
-    assert all(domain in {"معاصر", "تقنية"} for _, domain in ABSTAIN_CASES)
+
+def test_build_bench_abstain_contract():
+    from ryko_lm.eval.build_bench import (ABSTAIN_CASES, N_ABSTAIN_IN,
+                                          N_ABSTAIN_OUT, DOMAIN_ABSTAIN_OUT,
+                                          DOMAIN_ABSTAIN_IN)
+
+    # two-sided abstain set (v1.14.0): 32 out-of-domain + 16 in-domain positives
+    assert len(ABSTAIN_CASES) == N_ABSTAIN_OUT == 32
+    assert N_ABSTAIN_IN == 16
+    assert all(domain in DOMAIN_ABSTAIN_OUT for _, domain in ABSTAIN_CASES)
+    assert DOMAIN_ABSTAIN_IN == {"في-المتن"}
+    # the first 16 cases are the historical set, kept verbatim
+    assert ABSTAIN_CASES[0][0].startswith("ما رأي علماء التراث في سرعة المعالجات")
+    assert ABSTAIN_CASES[15][0].startswith("كم عدد لافتات الطرق السريعة")
 
 
 def test_summarize_per_domain_cite_and_abstain(tmp_path):
@@ -274,3 +301,66 @@ def test_summarize_per_domain_cite_and_abstain(tmp_path):
                               tmp_path / "b")
     md = md_path.read_text(encoding="utf-8")
     assert "مجال الامتناع" in md and "مجال الاقتباس" in md
+
+
+def test_build_bench_abstain_in_family():
+    """In-domain abstain positives: claims beyond the MCQ batch (should_answer=True)."""
+    from ryko_lm.eval.build_bench import N_ABSTAIN_IN, N_CLAIM_MCQ, _claim_families
+
+    s = KnowledgeStore(":memory:")
+    s.add_source("shamela", "Shamela", "MIT", "declared-open")
+    s.add_author("auth-x", "منسِب الاختبار", 700)
+    s.add_book("bkX", "shamela", "كتاب الاختبار الطويل في الأصول", author_id="auth-x")
+    origins = ["مدرسة أ", "مدرسة ب", "مدرسة ج", "مدرسة د"]
+    text = ("هذا قول منسوب طويل بما يكفي للتجاوز الحد الأدنى للطول "
+            "في بانية البذرة بوضوح تام دون شك أو خلاف.")
+    total = N_CLAIM_MCQ + N_ABSTAIN_IN + 2
+    for i in range(total):
+        s.add_claim(f"{text} التكرار رقم {i:03d}", book_id="bkX",
+                    meta={"layer": "fikr", "originator": origins[i % 4]})
+    import random as _random
+    mcq, abstain_in = _claim_families(s, _random.Random(1))
+    s.close()
+    assert len(mcq) == N_CLAIM_MCQ
+    assert len(abstain_in) == N_ABSTAIN_IN
+    mcq_ids = {c["meta"]["claim_id"] for c in mcq}
+    in_ids = {c["meta"]["claim_id"] for c in abstain_in}
+    assert not (mcq_ids & in_ids)  # disjoint families from one shuffled stream
+    for c in abstain_in:
+        assert c["kind"] == "abstain" and c["should_answer"] is True
+        assert c["domain"] == "في-المتن"
+        assert c["options"][3] == c["meta"]["originator"] or \
+            c["meta"]["originator"] in c["options"]
+        assert c.get("answer") is None
+
+
+def test_sweep_abstain_thresholds_deterministic():
+    """Operating point balances correct abstain against over-refusal."""
+    from ryko_lm.eval.benchmarks import sweep_abstain_thresholds
+
+    # out-of-domain low-confidence (should abstain) + in-domain high-confidence
+    confidences = [0.2, 0.3, 0.4, 0.6, 0.8, 0.9]
+    flags = [False, False, False, True, True, True]
+    cal = sweep_abstain_thresholds(confidences, flags)
+    op = cal["operating_point"]
+    assert op is not None and cal["n_out"] == 3 and cal["n_in"] == 3
+    # threshold 0.45 is the first grid point catching all 3 out-of-domain
+    # while sparing all in-domain (strict-greater sweep keeps the lowest tie)
+    assert op["threshold"] == 0.45
+    assert op["correct_abstain_rate"] == 1.0
+    assert op["wrong_abstain_rate"] == 0.0
+    assert op["balanced_score"] == 2.0
+    # determinism: identical inputs -> identical curve
+    again = sweep_abstain_thresholds(confidences, flags)
+    assert again == cal
+    # one-sided degradation still works (legacy fixture shape)
+    cal2 = sweep_abstain_thresholds([0.1, 0.9], [False, False])
+    assert cal2["operating_point"]["threshold"] == 0.95
+
+
+def test_iter_books_read_accessor(store):
+    books = list(store.iter_books())
+    assert len(books) == 4
+    ids = [b["book_id"] for b in books]
+    assert ids == sorted(ids)  # deterministic order
+    assert all("title_ar" in b and "rights_status" in b for b in books)

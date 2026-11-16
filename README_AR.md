@@ -173,6 +173,10 @@ curl -s -X POST localhost:8000/generate -H 'Content-Type: application/json' \
   مُجمَعاً منها 7 في القاعدة): [docs/ECONOMICS_RIGHTS.md](docs/ECONOMICS_RIGHTS.md)
 
 والتقييم الشامل والخطة في [docs/REVIEW.md](docs/REVIEW.md) و[docs/ROADMAP.md](docs/ROADMAP.md).
+والتحليل التنافسي وخطة المعالجة الفورية (قوة/سرعة/خفة/نقاط ضعفنا بأرقام):
+[docs/COMPETITIVE.md](docs/COMPETITIVE.md).  ومعايرة بوابة الامتناع:
+`python -m ryko_lm.eval.benchmarks calibrate --benchmark docs/benchmarks/ryko_bench_seed.jsonl \
+--checkpoint artifacts/training_v5b/final.pt --tokenizer artifacts/tokenizer/ryko-tokenizer.json`.
 
 ```bash
 make knowledge-search Q="الإسناد المتصل شرط صحة الحديث"

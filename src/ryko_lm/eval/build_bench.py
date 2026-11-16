@@ -38,7 +38,16 @@ N_CITE_NEGATIVE = 16
 N_MCQ = 48
 N_CLAIM_MCQ = 40
 N_RELATION_MCQ = 30
-N_ABSTAIN = 16
+N_BOOK_MCQ = 30
+# Abstain set is now two-sided (v1.14.0): out-of-domain questions the gate
+# MUST abstain on (should_answer=False) and in-domain questions the model
+# MUST answer (should_answer=True) — without the second half, the
+# wrong-abstain (over-refusal) rate is structurally unmeasurable, which is
+# exactly the v1.12.0/v1.13.0 blind spot (abstain 0% with no counter-metric).
+N_ABSTAIN_OUT = 32
+N_ABSTAIN_IN = 16
+DOMAIN_ABSTAIN_OUT = {"معاصر", "تقنية"}
+DOMAIN_ABSTAIN_IN = {"في-المتن"}
 
 # Closed Arabic labels for the argument_relations verbs — derived from the
 # canonical schema vocabulary (single source of truth). Order is part of the
@@ -49,6 +58,9 @@ RELATION_LABELS: tuple[tuple[str, str], ...] = tuple(
 _RELATION_LABEL_MAP = dict(RELATION_LABELS)
 
 # Questions the heritage corpus cannot answer — correct behaviour is abstain.
+# The first 16 are the historical set (v1.11.0, kept verbatim for
+# comparability); the next 16 are the v1.14.0 expansion. All are factual
+# questions about things that did not exist in classical texts.
 ABSTAIN_CASES = (
     ("ما رأي علماء التراث في سرعة المعالجات الرسومية في الحواسيب الحديثة؟", "تقنية"),
     ("كم عدد سكان مدينة الرياض في عام 2030 حسب كتب الماضي؟", "تقنية"),
@@ -66,6 +78,23 @@ ABSTAIN_CASES = (
     ("ما رأي أصحاب الموافقات في خوارزميات محركات البحث الحديثة؟", "معاصر"),
     ("ما رأي أصوليي الشافعية في أسعار أسهم البورصة الإلكترونية اليوم؟", "معاصر"),
     ("كم عدد لافتات الطرق السريعة في بغداد وفق كتب الحسبة القديمة؟", "تقنية"),
+    # ---- v1.14.0 expansion (16) ----
+    ("ما رأي علماء الحديث في دقة شبكات الاتصال الخلوية من الجيل الخامس؟", "تقنية"),
+    ("كم عدد خوادم مراكز البيانات العالمية وفق كتب الأصول القديمة؟", "تقنية"),
+    ("ما موقف فقهاء الحسبة من إشارات المرور الضوئية في التقاطعات الحديثة؟", "معاصر"),
+    ("كم عدد أنواع مضادات الفيروسات الحاسوبية في مصنفات الفقه المتأخر؟", "تقنية"),
+    ("ما رأي الأصوليين في دقة أنظمة تحديد المواقع بالأقمار الصناعية؟", "تقنية"),
+    ("كم عدد مستخدمي شبكات التواصل الاجتماعي بحسب كتب اللغة الموسمية؟", "معاصر"),
+    ("ما حكم فقهاء المال في تسعير أسهم الشركات التقنية في البورصات؟", "معاصر"),
+    ("ما رأي صاحب الموافقات في معدلات انبعاثات طائرات نقل البضائع؟", "معاصر"),
+    ("كم عدد محطات توليد الكهرباء النووية وفق كتب المعالم والآثار؟", "تقنية"),
+    ("ما موقف أصوليي الحنابلة من تطبيقات الذكاء الاصطناعي في هواتف اليوم؟", "معاصر"),
+    ("كم عدد قمر الاتصالات التجارية في مدار الأرض وفق كتب التراث؟", "تقنية"),
+    ("ما رأي فقهاء المغرب في تطبيقات المحافظ الرقمية المشفرة؟", "معاصر"),
+    ("كم عدد سرير مستشفيات الطوارئ في القاهرة وفق كتب الرحلات القديمة؟", "معاصر"),
+    ("ما رأي صاحب اقتصادنا في تقلبات العملات المشفرة في السوق الحالي؟", "معاصر"),
+    ("كم عدد مستخدمي البريد الإلكتروني وفق مصنفات الآداب والتقليد؟", "تقنية"),
+    ("ما حكم شيخ الإسلام ابن تيمية في خوارزميات التوصية بالفيديو؟", "معاصر"),
 )
 
 
@@ -115,26 +144,36 @@ def _continuation_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]
     return out
 
 
-def _claim_attribution_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
-    """Attribution MCQ from curated claims (v1.7.0+ layers).
-
-    Each case asks which *originator* (school or author, as curated in
-    ``claims.meta``) the idea belongs to. Self-checked: the correct answer is
-    the stored originator itself; distractors are distinct real originators
-    from other claims. Claims without an originator or from stores with fewer
-    than two distinct originators are skipped — never guessed.
-    """
-    rows = [c for c in store.iter_claims()
+def _claim_originator_rows(store: KnowledgeStore):
+    """Claims with a curated originator, deterministic pre-shuffle order."""
+    return [c for c in store.iter_claims()
             if (c.get("meta") or "") and _originator_of(c)]
+
+
+def _claim_families(store: KnowledgeStore, rng: random.Random):
+    """Attribution MCQ (v1.7.0+ layers) + in-domain abstain positives.
+
+    Two families share one shuffled claim stream so their case sets are
+    disjoint and deterministic: the first ``N_CLAIM_MCQ`` shippable claims
+    become accuracy MCQs; the next ``N_ABSTAIN_IN`` become *positive*
+    abstain cases (``should_answer=True``) that measure over-refusal —
+    questions the model has the curated answer in-front of it and therefore
+    must NOT abstain on.
+
+    Self-checked: the correct answer is the stored originator itself;
+    distractors are distinct real originators from other claims. Claims
+    without an originator or from stores with fewer than two distinct
+    originators are skipped — never guessed.
+    """
+    rows = _claim_originator_rows(store)
     originators = sorted({_originator_of(c) for c in rows})
     if len(originators) < 2:
-        return []
+        return [], []
     rows.sort(key=lambda c: c["claim_id"])
     rng.shuffle(rows)
-    out: list[dict] = []
+    mcq_out: list[dict] = []
+    abstain_out: list[dict] = []
     for claim in rows:
-        if len(out) >= N_CLAIM_MCQ:
-            break
         correct = _originator_of(claim)
         distractors = [o for o in originators if o != correct]
         rng.shuffle(distractors)
@@ -145,19 +184,35 @@ def _claim_attribution_cases(store: KnowledgeStore, rng: random.Random) -> list[
         text = " ".join(claim["claim_text"].split())
         if len(text) < 25:
             continue
-        out.append({
-            "case_id": f"rb-claim-{len(out) + 1:03d}",
-            "kind": "mcq",
-            "source": "ryko-bench-seed",
-            "domain": "نسبة-المسألة",
-            "question": ("لأي منطلق/مدرسة يُنسب هذا القول كما هو مثبت في "
-                         "نواة المعرفة؟\n«" + text[:150] + "»"),
-            "options": options,
-            "answer": options.index(correct),
-            "meta": {"claim_id": claim["claim_id"], "book_id": claim["book_id"],
-                     "originator": correct},
-        })
-    return out
+        meta = {"claim_id": claim["claim_id"], "book_id": claim["book_id"],
+                "originator": correct}
+        if len(mcq_out) < N_CLAIM_MCQ:
+            mcq_out.append({
+                "case_id": f"rb-claim-{len(mcq_out) + 1:03d}",
+                "kind": "mcq",
+                "source": "ryko-bench-seed",
+                "domain": "نسبة-المسألة",
+                "question": ("لأي منطلق/مدرسة يُنسب هذا القول كما هو مثبت في "
+                             "نواة المعرفة؟\n«" + text[:150] + "»"),
+                "options": options,
+                "answer": options.index(correct),
+                "meta": meta,
+            })
+        elif len(abstain_out) < N_ABSTAIN_IN:
+            abstain_out.append({
+                "case_id": f"rb-abstain-in-{len(abstain_out) + 1:03d}",
+                "kind": "abstain",
+                "source": "ryko-bench-seed",
+                "domain": "في-المتن",
+                "question": ("لأي منطلق/مدرسة يُنسب هذا القول كما هو مثبت في "
+                             "نواة المعرفة؟\n«" + text[:150] + "»"),
+                "options": options,
+                "should_answer": True,
+                "meta": meta,
+            })
+        if len(mcq_out) >= N_CLAIM_MCQ and len(abstain_out) >= N_ABSTAIN_IN:
+            break
+    return mcq_out, abstain_out
 
 
 def _originator_of(claim: dict) -> str | None:
@@ -212,7 +267,14 @@ def _relation_cases(store: KnowledgeStore) -> list[dict]:
 
 
 def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
-    """Verified quotes (positives) + cross-book splices (negatives), self-checked."""
+    """Verified quotes (positives) + cross-book splices (negatives), self-checked.
+
+    Case IDs use separate counters per polarity (``rb-cite-`` / ``rb-cite-neg-``).
+    The single shared counter shipped until v1.13.x could collide when a
+    negative was numbered while later positives kept arriving
+    (``pos + neg + 1`` vs ``pos + 1``) — latent since v1.11.0, exposed by the
+    rebuilt v1.13.0 store. Duplicate IDs are loader-fatal, hence this fix.
+    """
     pool = [p for p in store.iter_passages() if 160 <= len(p["text"]) <= 500]
     rng.shuffle(pool)
     positives: list[dict] = []
@@ -239,7 +301,7 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
             splice = text[:60] + " " + donor_text[-60:]
             if verify_quote(store, splice).status == "not_found":
                 negatives.append({
-                    "case_id": f"rb-cite-{len(positives) + len(negatives) + 1:03d}",
+                    "case_id": f"rb-cite-neg-{len(negatives) + 1:03d}",
                     "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
                     "quote": splice, "expect": "not_found",
                     "meta": {"spliced_from": donor["book_id"]},
@@ -249,21 +311,76 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     return positives + negatives
 
 
+def _book_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
+    """Book-attribution MCQ (v1.14.0): which committed book owns a passage.
+
+    Passage excerpts come straight from the store; distractors are distinct
+    real book titles from *other* books with different titles — never guessed.
+    Books sharing a title with the source book are skipped as distractors.
+    Self-checked by construction: the excerpt and the title both originate in
+    the committed store, and the answer index is derived after shuffling.
+    """
+    books = [b for b in store.iter_books() if (b.get("title_ar") or "").strip()]
+    if len(books) < 4:
+        return []
+    titles_by_id = {b["book_id"]: " ".join(b["title_ar"].split()) for b in books}
+    titles_set = set(titles_by_id.values())
+    if len(titles_set) < 4:
+        return []
+    pool = [p for p in store.iter_passages() if len(p["text"]) >= 160]
+    rng.shuffle(pool)
+    out: list[dict] = []
+    used: set[str] = set()
+    for passage in pool:
+        if len(out) >= N_BOOK_MCQ:
+            break
+        correct = titles_by_id.get(passage["book_id"])
+        if not correct or correct in used:
+            continue
+        distractors = [t for t in sorted(titles_set) if t != correct]
+        rng.shuffle(distractors)
+        if len(distractors) < 3:
+            continue
+        options = distractors[:3] + [correct]
+        rng.shuffle(options)
+        text = " ".join(passage["text"].split())
+        excerpt = text[:140].rsplit(" ", 1)[0]
+        if len(excerpt) < 80:
+            continue
+        out.append({
+            "case_id": f"rb-book-{len(out) + 1:03d}",
+            "kind": "mcq",
+            "source": "ryko-bench-seed",
+            "domain": "نسبة-الكتاب",
+            "question": ("أي الكتب المثبتة في نواة المعرفة ينتمي إليه هذا "
+                         "المقطع؟\n«" + excerpt + " …»"),
+            "options": options,
+            "answer": options.index(correct),
+            "meta": {"passage_id": passage["passage_id"],
+                     "book_id": passage["book_id"]},
+        })
+        used.add(correct)
+    return out
+
+
 def build(store: KnowledgeStore) -> list[dict]:
-    if len(ABSTAIN_CASES) != N_ABSTAIN:
+    if len(ABSTAIN_CASES) != N_ABSTAIN_OUT:
         raise ValueError(
-            f"abstain contract broken: {len(ABSTAIN_CASES)} cases vs N_ABSTAIN={N_ABSTAIN}")
+            f"abstain contract broken: {len(ABSTAIN_CASES)} cases vs "
+            f"N_ABSTAIN_OUT={N_ABSTAIN_OUT}")
     rng = random.Random(SEED)
+    claim_cases, abstain_in_cases = _claim_families(store, rng)
     cases = (_cite_cases(store, rng) + _continuation_cases(store, rng)
-             + _claim_attribution_cases(store, rng) + _relation_cases(store))
+             + claim_cases + _relation_cases(store) + _book_cases(store, rng))
     for i, (question, domain) in enumerate(ABSTAIN_CASES, 1):
         cases.append({
-            "case_id": f"rb-abstain-{i:03d}", "kind": "abstain",
+            "case_id": f"rb-abstain-out-{i:03d}", "kind": "abstain",
             "source": "ryko-bench-seed", "domain": domain,
             "question": question, "should_answer": False,
             "options": ["يجزم بجواب حاسم", "يعتذر عن الجواب لعدم السند", "يخترع إجابة"],
             "answer": None,
         })
+    cases.extend(abstain_in_cases)
     return cases
 
 
@@ -283,9 +400,15 @@ def main(argv: list[str] | None = None) -> int:
         for case in cases:
             sink.write(json.dumps(case, ensure_ascii=False, sort_keys=True) + "\n")
     kinds: dict[str, int] = {}
+    domains: dict[str, int] = {}
     for case in cases:
         kinds[case["kind"]] = kinds.get(case["kind"], 0) + 1
+        if case["kind"] == "abstain":
+            flag = "should_answer" if case.get("should_answer") else "abstain"
+            kinds[f"abstain:{flag}"] = kinds.get(f"abstain:{flag}", 0) + 1
+        domains[case["domain"]] = domains.get(case["domain"], 0) + 1
     print(f"[bench] {len(cases)} cases -> {args.out} ({kinds})")
+    print(f"[bench] domains: {domains}")
     return 0
 
 

@@ -1,0 +1,69 @@
+{
+  "model": {
+    "checkpoint": "artifacts/training_v5b/final.pt",
+    "params_M": 11.54,
+    "abstain_threshold": 0.65,
+    "cases": 259
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 147,
+      "accuracy": 0.2585,
+      "per_domain": {
+        "استكمال-نص": {
+          "n": 48,
+          "rate": 0.4375
+        },
+        "علاقة-حجاج": {
+          "n": 30,
+          "rate": 0.0333
+        },
+        "نسبة-الكتاب": {
+          "n": 29,
+          "rate": 0.1724
+        },
+        "نسبة-المسألة": {
+          "n": 40,
+          "rate": 0.275
+        }
+      }
+    },
+    "abstain": {
+      "n": 48,
+      "correct_abstain_rate": 0.9375,
+      "wrong_abstain_rate": 0.625,
+      "per_domain": {
+        "تقنية": {
+          "n": 10,
+          "correct_abstain": 10,
+          "wrong_abstain": 0
+        },
+        "معاصر": {
+          "n": 22,
+          "correct_abstain": 20,
+          "wrong_abstain": 0
+        },
+        "في-المتن": {
+          "n": 16,
+          "correct_abstain": 0,
+          "wrong_abstain": 10
+        }
+      }
+    },
+    "cite": {
+      "n": 64,
+      "match_rate": 1.0,
+      "verdict_counts": {
+        "not_found": 16,
+        "verified": 48
+      },
+      "per_domain": {
+        "توثيق-اقتباس": {
+          "n": 64,
+          "rate": 1.0
+        }
+      }
+    }
+  }
+}

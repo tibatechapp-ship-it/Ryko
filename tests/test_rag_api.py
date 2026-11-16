@@ -1,14 +1,31 @@
-"""RAG serving tests — /knowledge/* endpoints against committed artifacts."""
+"""RAG serving tests — /knowledge/* endpoints against committed artifacts.
+
+The API is pointed at a *temporary copy* of the committed knowledge DB
+(``RYKO_KNOWLEDGE_DB``): search warms the index and the cite endpoint books
+verifications, and both must never dirty the committed repo-copy DB.
+"""
+
+import os
+import shutil
+import tempfile
+from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
-
-from ryko_lm.serving.api import app
 
 from conftest import ROOT, requires_final_model
 
-
 KNOWLEDGE_DB = ROOT / "data" / "knowledge" / "ryko.sqlite"
+
+# Isolation before the app module is imported (it reads the env at import).
+_TMP_DB = None
+if KNOWLEDGE_DB.exists():
+    _TMP_DB = Path(tempfile.mkdtemp(prefix="ryko-rag-test-")) / "ryko.sqlite"
+    shutil.copyfile(KNOWLEDGE_DB, _TMP_DB)
+    os.environ["RYKO_KNOWLEDGE_DB"] = str(_TMP_DB)
+
+from fastapi.testclient import TestClient  # noqa: E402
+
+from ryko_lm.serving.api import app  # noqa: E402
 
 requires_knowledge = pytest.mark.skipif(
     not KNOWLEDGE_DB.exists(), reason="knowledge store not committed"
