@@ -1,0 +1,26 @@
+{
+  "mode": "streaming",
+  "corpus": "v5",
+  "inputs": {
+    "wiki.jsonl": 2630,
+    "tashkeela.jsonl": 46200,
+    "shamela.jsonl": 144,
+    "openiti_2023.1.8_shards": "0-6 (4496 books: 0-1 rebuild + 2-3 + 4-5 + 6)"
+  },
+  "documents_total": 53468,
+  "pipeline": "collect → clean (dedup) → augment --in-place (cross-source dedup vs fingerprints) → binarize (32K BPE, checkpointed)",
+  "chars_kept": 2315814000,
+  "paragraph_dups_dropped": 6595373,
+  "dup_breakdown": {
+    "openiti_internal_shards_0-1": 1430238,
+    "cross_shards_2-3_vs_0-1": 1258614,
+    "cross_shards_4-5_vs_0-3": 1299103,
+    "cross_shard_6_vs_0-5": 2553963,
+    "wiki_vs_all": 1731,
+    "tashkeela_vs_all": 0,
+    "shamela_vs_all": 51724
+  },
+  "tokens_train": 643781261,
+  "tokens_val": 3683960,
+  "tokenizer": "artifacts/tokenizer/ryko-tokenizer.json (32K BPE, frozen per roadmap decision #1)"
+}

@@ -1,0 +1,4 @@
+{"step": 200, "train_loss": 5.2426, "val_loss": 5.4343, "lr": 5.988407124475629e-05, "tokens": 819200, "elapsed_s": 79.7}
+{"step": 400, "train_loss": 5.3431, "val_loss": 5.4908, "lr": 5.895357525900956e-05, "tokens": 1638400, "elapsed_s": 164.1}
+{"step": 600, "train_loss": 5.0285, "val_loss": 5.4422, "lr": 5.7146324822079185e-05, "tokens": 2457600, "elapsed_s": 227.4}
+{"step": 800, "train_loss": 5.1757, "val_loss": 5.4522, "lr": 5.457587612551967e-05, "tokens": 3276800, "elapsed_s": 300.5}

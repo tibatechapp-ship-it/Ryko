@@ -118,3 +118,79 @@ def test_binarize_file_roundtrip(tmp_path):
     assert arr[0] == tok.bos_id
     decoded = tok.decode(arr.tolist())
     assert "اللغة" in decoded
+
+
+# ---------------------------------------------------------------------------
+# augment_corpus: copy mode vs in-place mode (byte-identical outputs)
+# ---------------------------------------------------------------------------
+from ryko_lm.data.augment_corpus import main as augment_main  # noqa: E402
+
+
+def _raw_jsonl(path, docs):
+    with path.open("w", encoding="utf-8") as out:
+        for i, text in enumerate(docs):
+            out.write(json.dumps({"id": f"doc-{i:04d}", "text": text},
+                                 ensure_ascii=False) + "\n")
+
+
+_AR = "في البداية كان الكلام محفوظا في الصدور ولا كتابة"
+
+
+def test_augment_copy_mode_concatenates_old_and_new(tmp_path):
+    existing = tmp_path / "existing"
+    existing.mkdir()
+    (existing / "train.txt").write_text("فقرة قديمة أولى قابلة للفهرسة تماما\n\n"
+                                        "فقرة قديمة ثانية مختلفة عن الأولى\n",
+                                        encoding="utf-8")
+    (existing / "val.txt").write_text("", encoding="utf-8")
+    raw = tmp_path / "new.jsonl"
+    _raw_jsonl(raw, [_AR + " ومعه جملة جديدة طويلة للتنظيف والتوسيع"])
+    out = tmp_path / "aug"
+    rc = augment_main(["--existing-dir", str(existing), "--inputs", str(raw),
+                       "--out-dir", str(out)])
+    assert rc == 0
+    assert "فقرة قديمة أولى" in (out / "train.txt").read_text(encoding="utf-8")
+    assert _AR.split()[0] in (out / "train.txt").read_text(encoding="utf-8")
+    stats = json.loads((out / "stats.json").read_text(encoding="utf-8"))
+    assert stats["mode"] == "copy"
+    assert stats["new_sources"]["new.jsonl"]["docs"] == 1
+
+
+def test_augment_in_place_appends_without_copy_and_matches_copy_mode(tmp_path):
+    existing = tmp_path / "corpus"
+    existing.mkdir()
+    old_train = "فقرة قديمة أولى قابلة للفهرسة تماما\n\nفقرة قديمة ثانية مختلفة عن الأولى\n"
+    (existing / "train.txt").write_text(old_train, encoding="utf-8")
+    (existing / "val.txt").write_text("", encoding="utf-8")
+    raw = tmp_path / "new.jsonl"
+    _raw_jsonl(raw, [_AR + " ومعه جملة جديدة طويلة للتنظيف والتوسيع"])
+
+    rc = augment_main(["--existing-dir", str(existing), "--inputs", str(raw),
+                       "--out-dir", str(existing), "--in-place"])
+    assert rc == 0
+    merged = (existing / "train.txt").read_text(encoding="utf-8")
+    assert "فقرة قديمة أولى" in merged          # old content intact
+    assert _AR.split()[0] in merged             # new content appended
+    assert not (existing / "train_new.txt").exists()  # temp removed
+    stats = json.loads((existing / "stats.json").read_text(encoding="utf-8"))
+    assert stats["mode"] == "in-place"
+
+    # in-place result must equal the copy-mode result for the same inputs
+    ref_old = tmp_path / "ref_old"
+    ref_old.mkdir()
+    (ref_old / "train.txt").write_text(old_train, encoding="utf-8")
+    (ref_old / "val.txt").write_text("", encoding="utf-8")
+    ref_out = tmp_path / "ref_out"
+    augment_main(["--existing-dir", str(ref_old), "--inputs", str(raw),
+                  "--out-dir", str(ref_out)])
+    assert merged == (ref_out / "train.txt").read_text(encoding="utf-8")
+
+
+def test_augment_in_place_requires_existing_files(tmp_path):
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    raw = tmp_path / "new.jsonl"
+    _raw_jsonl(raw, [_AR])
+    rc = augment_main(["--existing-dir", str(empty), "--inputs", str(raw),
+                       "--out-dir", str(empty), "--in-place"])
+    assert rc == 2

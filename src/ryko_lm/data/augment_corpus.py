@@ -12,6 +12,11 @@ script streams:
 3.  concatenate ``old + new`` into the target directory (``train.txt`` /
     ``val.txt``) and emit ``stats.json``.
 
+With ``--in-place`` the concatenation step appends the new paragraphs to the
+existing ``train.txt``/``val.txt`` files directly, so the disk peak is only
+the *new* paragraphs instead of a full second copy of the corpus — the old
+and new directories may then be the same directory.
+
 The output layout is byte-compatible with ``clean_corpus`` (paragraph per
 line, blank line between documents), so ``binarize`` works unchanged.
 
@@ -28,6 +33,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import shutil as _shutil
 import sys
 from pathlib import Path
 
@@ -46,9 +52,10 @@ def fp_int(line: str) -> int:
     return int.from_bytes(hashlib.sha256(_fold(line).encode("utf-8")).digest()[:8], "big")
 
 
-def load_existing_fingerprints(existing_dir: Path) -> tuple[set[int], int]:
+def load_existing_fingerprints(existing_dir: Path) -> tuple[set[int], int, int]:
     seen: set[int] = set()
     count = 0
+    chars = 0
     for name in ("train.txt", "val.txt"):
         path = existing_dir / name
         if not path.exists():
@@ -60,7 +67,8 @@ def load_existing_fingerprints(existing_dir: Path) -> tuple[set[int], int]:
                     continue
                 seen.add(fp_int(line))
                 count += 1
-    return seen, count
+                chars += len(line)
+    return seen, count, chars
 
 
 def doc_seed(paragraphs: list[str]) -> int:
@@ -104,11 +112,35 @@ def copy_stream(src: Path, dst_fileobj) -> None:
         shutil.copyfileobj(fsrc, dst_fileobj, length=1 << 20)
 
 
+def _require_free(inputs: list[Path], factor: float = 1.5) -> None:
+    """Abort early if the filesystem cannot hold the cleaned new content.
+
+    The cleaned output is typically <= the raw input bytes (mARkdown scaffolding
+    removed), so requiring ~1.5x the input size keeps a safety margin without
+    blocking legitimate runs.
+    """
+    need = sum(p.stat().st_size for p in inputs if p.exists()) * factor
+    usage = _shutil.disk_usage(
+        inputs[0].parent if inputs else Path(".")
+    )
+    if usage.free < need:
+        raise SystemExit(
+            f"[error] low disk: need ~{need / 1e9:.2f} GB free "
+            f"(1.5x inputs), have {usage.free / 1e9:.2f} GB — "
+            "free space first or split the inputs"
+        )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Augment a processed corpus (streaming).")
     parser.add_argument("--existing-dir", type=Path, required=True)
     parser.add_argument("--inputs", nargs="+", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--in-place", action="store_true",
+                        help="append new paragraphs to the existing train/val "
+                             "files instead of copying them into a new dir "
+                             "(disk peak = new content only); --out-dir must "
+                             "already hold train.txt/val.txt")
     parser.add_argument("--val-ratio", type=float, default=0.004,
                         help="fraction of NEW documents diverted to val")
     parser.add_argument("--min-line-len", type=int, default=40)
@@ -127,19 +159,34 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    _require_free(args.inputs)
     train_new = args.out_dir / "train_new.txt"
     val_new = args.out_dir / "val_new.txt"
 
+    # in-place mode streams the cleaned paragraphs directly into the final
+    # train/val files (append mode): no second copy of the corpus is ever
+    # written, so the disk peak equals the *new* content only.  Byte output is
+    # identical to the temp-file + append path.
+    if args.in_place and not ((args.out_dir / "train.txt").exists()
+                              and (args.out_dir / "val.txt").exists()):
+        print("[error] --in-place needs train.txt/val.txt in --out-dir", flush=True)
+        return 2
+    if args.in_place:
+        train_sink = (args.out_dir / "train.txt").open("a", encoding="utf-8")
+        val_sink = (args.out_dir / "val.txt").open("a", encoding="utf-8")
+    else:
+        train_sink = train_new.open("w", encoding="utf-8")
+        val_sink = val_new.open("w", encoding="utf-8")
+
     print("[augment] fingerprinting existing corpus ...", flush=True)
-    seen, existing_paras = load_existing_fingerprints(args.existing_dir)
+    seen, existing_paras, existing_chars = load_existing_fingerprints(args.existing_dir)
     print(f"[augment] existing paragraphs fingerprinted: {existing_paras:,}", flush=True)
 
     per_source: dict[str, dict] = {}
     val_bucket = max(1, int(1 / args.val_ratio))
-    # NOTE: both temp sinks are opened ONCE across all inputs — reopening per
+    # NOTE: both sinks are opened ONCE across all inputs — reopening per
     # input in "w" mode would wipe the previous source's data.
-    with train_new.open("w", encoding="utf-8") as tr, \
-            val_new.open("w", encoding="utf-8") as va:
+    with train_sink as tr, val_sink as va:
         for path in args.inputs:
             docs_kept, chars_kept, dup = 0, 0, 0
             for paragraphs, dropped in stream_clean_file(path, opts, seen):
@@ -159,17 +206,27 @@ def main(argv: list[str] | None = None) -> int:
     # concatenate old + new
     train_out = args.out_dir / "train.txt"
     val_out = args.out_dir / "val.txt"
-    with train_out.open("wb") as out:
-        copy_stream(args.existing_dir / "train.txt", out)
-        copy_stream(train_new, out)
-    with val_out.open("wb") as out:
-        copy_stream(args.existing_dir / "val.txt", out)
-        copy_stream(val_new, out)
-    train_new.unlink()
-    val_new.unlink()
+    old_chars = existing_chars
+    if args.in_place:
+        # appended directly during cleaning — nothing to concatenate
+        pass
+    else:
+        if not (args.existing_dir / "train.txt").exists() or \
+                not (args.existing_dir / "val.txt").exists():
+            print("[error] copy mode needs train.txt/val.txt in --existing-dir", flush=True)
+            return 2
+        with train_out.open("wb") as out:
+            copy_stream(args.existing_dir / "train.txt", out)
+            copy_stream(train_new, out)
+        with val_out.open("wb") as out:
+            copy_stream(args.existing_dir / "val.txt", out)
+            copy_stream(val_new, out)
+    if not args.in_place:
+        train_new.unlink()
+        val_new.unlink()
 
-    old_chars = sum(len(l) for l in (args.existing_dir / "train.txt").open(encoding="utf-8"))
     stats = {
+        "mode": "in-place" if args.in_place else "copy",
         "existing_dir": str(args.existing_dir),
         "existing_paragraphs": existing_paras,
         "new_sources": per_source,

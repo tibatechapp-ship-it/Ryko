@@ -44,3 +44,11 @@ artifacts/training_v4/*.tmp
 # منقحة fikr layer: the full (non-core) knowledge DB stays local
 data/knowledge/ryko-full.sqlite
 data/knowledge/ryko-full.receipt.json
+
+# v1.12 working data (large) — release artifacts live in artifacts/training_v5/
+data/processed_v5/train.bin
+data/processed_v5/val.bin
+data/processed_v5/*.binarize_state.json
+artifacts/training_v5/last.pt
+artifacts/training_v5/best.pt
+artifacts/training_v5/*.tmp

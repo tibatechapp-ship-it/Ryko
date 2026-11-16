@@ -1,0 +1,33 @@
+{
+  "kind": "ryko-ryko-corpus-receipt-receipt",
+  "created_utc": "2026-11-16T02:21:16Z",
+  "artifacts": [
+    {
+      "path": "data/processed_v5/train.bin",
+      "sha256": "b4576a2be3eceacc791e614d6f014d91ca74dac6ec4410d68e8319fddc51a52c",
+      "bytes": 1287562522
+    },
+    {
+      "path": "data/processed_v5/val.bin",
+      "sha256": "ef10b14590645c9f02bebf7ca8c5d01749995b4df2b48f3642e53b885b9408da",
+      "bytes": 7367920
+    },
+    {
+      "path": "data/processed_v5/binarize_stats.json",
+      "sha256": "01c55dc886f81f6561704821b9621b247ae160a84220d875567afa8fe4c79db7",
+      "bytes": 189
+    },
+    {
+      "path": "data/processed_v5/stats.json",
+      "sha256": "d12b12308053ce8ead14b60e2a4a549148325ce5e5504b66c1c91696a5cef2b6",
+      "bytes": 875
+    }
+  ],
+  "meta": {
+    "corpus": "v5",
+    "tokens_train": 643781261,
+    "tokens_val": 3683960,
+    "pipeline": "wiki 2630 + tashkeela 46200 + shamela 144 + openiti 2023.1.8 shards 0-6 (4496 books), streaming clean + in-place augment dedup, binarize checkpointed"
+  },
+  "receipt_sha256": "ba154e8b34aa3fb7617c22ccec2054717be2bca0b99dc9bc7904af1fbcb8ad99"
+}
