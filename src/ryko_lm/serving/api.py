@@ -74,7 +74,7 @@ async def lifespan(_app: FastAPI):
     state["store"] = None
 
 
-app = FastAPI(title="Ryko Arabic LM", version="1.12.0", lifespan=lifespan)
+app = FastAPI(title="Ryko Arabic LM", version="1.13.0", lifespan=lifespan)
 
 
 class GenerateRequest(BaseModel):

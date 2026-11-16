@@ -1,11 +1,11 @@
 {
-  "kind": "ryko-ryko-corpus-receipt-receipt",
-  "created_utc": "2026-11-16T02:21:16Z",
+  "kind": "ryko-corpus-receipt",
+  "created_utc": "2026-11-16T17:10:20Z",
   "artifacts": [
     {
       "path": "data/processed_v5/train.bin",
-      "sha256": "b4576a2be3eceacc791e614d6f014d91ca74dac6ec4410d68e8319fddc51a52c",
-      "bytes": 1287562522
+      "sha256": "96f89dd7eec5299e048b4cb4f6a65ff27deffc0858640d40f93811ebceb5d23b",
+      "bytes": 1375280842
     },
     {
       "path": "data/processed_v5/val.bin",
@@ -14,20 +14,20 @@
     },
     {
       "path": "data/processed_v5/binarize_stats.json",
-      "sha256": "01c55dc886f81f6561704821b9621b247ae160a84220d875567afa8fe4c79db7",
+      "sha256": "0509f55c38d182a7b5489894e310863e3131381fc9bd8439bd1c8fef27aab52f",
       "bytes": 189
     },
     {
       "path": "data/processed_v5/stats.json",
-      "sha256": "d12b12308053ce8ead14b60e2a4a549148325ce5e5504b66c1c91696a5cef2b6",
-      "bytes": 875
+      "sha256": "341d426a386e29778073bfe4a3ad5fe1d872418ca5f3b2cd9a45d2b1b8fa244e",
+      "bytes": 1640
     }
   ],
   "meta": {
-    "corpus": "v5",
-    "tokens_train": 643781261,
+    "corpus": "v5.1",
+    "tokens_train": 687640421,
     "tokens_val": 3683960,
-    "pipeline": "wiki 2630 + tashkeela 46200 + shamela 144 + openiti 2023.1.8 shards 0-6 (4496 books), streaming clean + in-place augment dedup, binarize checkpointed"
+    "pipeline": "wiki 2630 + tashkeela 46200 + shamela 144 + openiti shards 0-6 (4496 books), streaming clean + in-place augment dedup, binarize checkpointed; v5.1 rebuild — see stats.json rebuild_deviation_note"
   },
-  "receipt_sha256": "ba154e8b34aa3fb7617c22ccec2054717be2bca0b99dc9bc7904af1fbcb8ad99"
+  "receipt_sha256": "9476f7370765ea0d07b32257c8d6a8dd4f0ca3895c16014738089091ba32e46f"
 }

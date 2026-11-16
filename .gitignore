@@ -52,3 +52,7 @@ data/processed_v5/*.binarize_state.json
 artifacts/training_v5/last.pt
 artifacts/training_v5/best.pt
 artifacts/training_v5/*.tmp
+
+# Training checkpoints (heavy) — final fp16 artifact IS committed
+artifacts/training_v5b/last.pt
+artifacts/training_v5b/best.pt

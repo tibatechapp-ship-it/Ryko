@@ -1,0 +1,21 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-16T18:11:09Z",
+  "artifacts": [
+    {
+      "path": "artifacts/training_v5b/final.pt",
+      "sha256": "1ee334e10860968e745607b1f8a9412df234b2b7a07fd6fea883d1f57c04a6a1",
+      "bytes": 23085725
+    }
+  ],
+  "meta": {
+    "model": "ryko-tiny",
+    "params": 11536640,
+    "corpus": "v5.1",
+    "steps": 1200,
+    "warm_start_from": "artifacts/training_v5/final.pt (v5 continuation at step 849)",
+    "heldout_ppl": 225.13,
+    "eval": "docs/results/eval_v5b.json"
+  },
+  "receipt_sha256": "5a2887eafe8131d1b445267d7cf7088d187a79046c7135a069630d2a839cb483"
+}
