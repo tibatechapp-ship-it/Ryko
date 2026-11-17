@@ -1,0 +1,17 @@
+{"step": 1, "loss": 0.6931, "batch_acc": 0.0, "lr": 1e-06, "elapsed_s": 1.2}
+{"step": 25, "loss": 0.0183, "batch_acc": 1.0, "lr": 9.97e-06, "elapsed_s": 27.1}
+{"step": 50, "loss": 0.0, "batch_acc": 1.0, "lr": 9.78e-06, "elapsed_s": 56.0}
+{"step": 75, "loss": 0.0001, "batch_acc": 1.0, "lr": 9.4e-06, "elapsed_s": 84.3}
+{"step": 100, "loss": 0.0511, "batch_acc": 1.0, "lr": 8.87e-06, "elapsed_s": 111.2}
+{"step": 125, "loss": 0.0003, "batch_acc": 1.0, "lr": 8.2e-06, "elapsed_s": 139.3}
+{"step": 150, "loss": 0.0013, "batch_acc": 1.0, "lr": 7.41e-06, "elapsed_s": 167.3}
+{"step": 175, "loss": 0.0, "batch_acc": 1.0, "lr": 6.55e-06, "elapsed_s": 194.7}
+{"step": 200, "loss": 0.0001, "batch_acc": 1.0, "lr": 5.65e-06, "elapsed_s": 222.5}
+{"step": 225, "loss": 0.0004, "batch_acc": 1.0, "lr": 4.73e-06, "elapsed_s": 249.8}
+{"step": 250, "loss": 0.0018, "batch_acc": 1.0, "lr": 3.85e-06, "elapsed_s": 276.5}
+{"step": 275, "loss": 0.0, "batch_acc": 1.0, "lr": 3.04e-06, "elapsed_s": 306.1}
+{"step": 300, "loss": 0.0003, "batch_acc": 1.0, "lr": 2.33e-06, "elapsed_s": 333.2}
+{"step": 325, "loss": 0.0, "batch_acc": 1.0, "lr": 1.75e-06, "elapsed_s": 362.1}
+{"step": 350, "loss": 0.0, "batch_acc": 1.0, "lr": 1.33e-06, "elapsed_s": 391.5}
+{"step": 375, "loss": 0.0005, "batch_acc": 1.0, "lr": 1.07e-06, "elapsed_s": 422.5}
+{"step": 396, "loss": 0.0, "batch_acc": 1.0, "lr": 1e-06, "elapsed_s": 445.1}

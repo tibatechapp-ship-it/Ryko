@@ -1,0 +1,10 @@
+{
+  "accuracy": 0.9975,
+  "mean_margin": 164.1918,
+  "status": "completed",
+  "steps": 396,
+  "pairs": 792,
+  "beta": 0.1,
+  "params": 52179456,
+  "elapsed_s": 530.8
+}

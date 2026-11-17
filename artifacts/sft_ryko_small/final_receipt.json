@@ -1,0 +1,24 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-17T23:04:47Z",
+  "artifacts": [
+    {
+      "path": "artifacts/sft_ryko_small/final.pt",
+      "sha256": "56e7e1555ec356978357595108d051ebbe8fdc48778e33b059a06aefeb0c08e3",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "model": "ryko-small",
+    "params": 52179456,
+    "phase": "5 SFT",
+    "config": "configs/models/ryko-small-sft.yaml",
+    "data": "artifacts/sft_ryko_small (packed from data/training/ryko1000_sft_train.jsonl via ryko_lm.training.pack_sft)",
+    "steps": 110,
+    "tokens": 225280,
+    "val_loss": 5.0615,
+    "eval": "docs/results/ryko1000_eval_small_sft.json",
+    "trained_on": "2-core CPU, ~500 tok/s"
+  },
+  "receipt_sha256": "03cedc45bae24e2639411d7a4aea79ab3f76568a84478b50302209b23b449cfa"
+}

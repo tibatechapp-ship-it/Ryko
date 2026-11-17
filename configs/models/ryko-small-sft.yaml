@@ -1,0 +1,33 @@
+# Ryko-Small — phase-5 SFT recipe on the RYKO-1000 package.
+# Model section is IDENTICAL to ryko-small.yaml (the 52,179,456-param
+# contract test pins it); the train section is the measured CPU recipe:
+# 110 steps x (batch 1 x grad_accum 4) x block 512 = 225,280 tokens ~= 3.17 epochs of the
+# 71,683-token packed SFT stream (artifacts/sft_ryko_small/, rebuilt
+# byte-identically from data/training/ via ryko_lm.training.pack_sft).
+# Trained end-to-end on a 2-core CPU at ~500 tok/s (v1.20.0 receipt).
+# batch_size 1 + grad_accum 4: the vocab-wide logits tensor (4 x 512 x
+# 32768 fp32 = 268 MB per copy) OOMs a 3 GB host at batch 4 — batch 1
+# keeps the same 2048 tokens/step and the same recipe on ~1.2 GB peak.
+name: ryko-small-sft
+model:
+  vocab_size: 32768
+  block_size: 512
+  n_layer: 12
+  n_head: 8
+  n_kv_head: 4
+  n_embd: 512
+  ffn_hidden: 1408
+  dropout: 0.0
+  rope_theta: 10000.0
+  tie_embeddings: true
+train:
+  batch_size: 1
+  grad_accum: 4
+  lr: 3.0e-4
+  min_lr: 3.0e-5
+  warmup_steps: 15
+  weight_decay: 0.1
+  grad_clip: 1.0
+  total_steps: 110
+  eval_every: 30
+  seed: 1337

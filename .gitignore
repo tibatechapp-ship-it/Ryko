@@ -69,3 +69,10 @@ artifacts/training_v5c/best.pt
 # turath layer: the full (non-core) wide-selection DB stays local —
 # its RECEIPT is committed (rebuildable via make turath-collect && make turath-build-full)
 data/knowledge/ryko-wide-full.sqlite
+
+# Resumable training state + derived token streams (rebuildable via pack_sft;
+# only final.pt milestones + receipts + logs/summaries are committed)
+artifacts/*/last.pt
+artifacts/*/best.pt
+artifacts/*/*.bin
+artifacts/*/*.pt.tmp

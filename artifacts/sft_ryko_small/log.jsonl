@@ -1,0 +1,4 @@
+{"step": 30, "train_loss": 6.706, "val_loss": 6.6533, "lr": 0.000285788459525803, "tokens": 61440, "elapsed_s": 146.5}
+{"step": 60, "train_loss": 5.198, "val_loss": 5.4941, "lr": 0.00018059042599089412, "tokens": 122880, "elapsed_s": 292.0}
+{"step": 90, "train_loss": 5.2352, "val_loss": 5.0278, "lr": 6.126585003432406e-05, "tokens": 184320, "elapsed_s": 435.7}
+{"step": 110, "train_loss": 4.2265, "val_loss": 4.8863, "lr": 3.0073810258974985e-05, "tokens": 225280, "elapsed_s": 51.7}

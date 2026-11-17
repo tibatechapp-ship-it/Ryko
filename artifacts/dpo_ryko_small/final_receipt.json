@@ -1,0 +1,26 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-17T23:04:47Z",
+  "artifacts": [
+    {
+      "path": "artifacts/dpo_ryko_small/final.pt",
+      "sha256": "2391fd743cddc882c800d6fd80512efee970008679c916b04a9c5d70f8a330ce",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "model": "ryko-small",
+    "params": 52179456,
+    "phase": "9 DPO",
+    "init_from": "artifacts/sft_ryko_small/final.pt",
+    "pairs": "data/training/ryko1000_dpo_train.jsonl (792)",
+    "steps": 396,
+    "epochs": 1,
+    "beta": 0.1,
+    "lr": 1e-05,
+    "dpo_accuracy": 0.9975,
+    "eval": "docs/results/ryko1000_eval_small_dpo.json",
+    "trained_on": "2-core CPU, 530s"
+  },
+  "receipt_sha256": "34d3e4c0f28a50638d9e4826ba63a750528a0a2197b62a1b0040ef780df62277"
+}
