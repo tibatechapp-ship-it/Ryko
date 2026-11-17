@@ -80,7 +80,8 @@ def verify_quote(store: KnowledgeStore, quote: str, book_id: str | None = None,
     quote_sha = hashlib.sha256(norm_quote.encode("utf-8")).hexdigest()
     q_tokens = set(textproc.ar_tokens(quote))
 
-    best = None  # (score, row)
+    best = None          # (score, row) — token containment, strictly < 1.0
+    verbatim = None      # row whose normalized text CONTAINS the quote
     if book_id is not None:
         pool = store.search(quote, k=candidates, mode="hybrid", book_id=book_id)
     else:
@@ -89,24 +90,29 @@ def verify_quote(store: KnowledgeStore, quote: str, book_id: str | None = None,
     for hit in pool:
         norm_pass = textproc.normalize_for_match(hit.text)
         if norm_quote and norm_quote in norm_pass:
-            best = (1.0, hit)
+            verbatim = hit
             break
         if q_tokens:
             p_tokens = set(textproc.ar_tokens(hit.text))
             containment = len(q_tokens & p_tokens) / len(q_tokens)
+            # v1.18.0 fix: token containment can reach 1.0 (a passage whose
+            # token set covers the quote) — that is NOT a verbatim match and
+            # must never carry the ``verified`` verdict (the docstring
+            # contract: verified = literal containment, score 1.0).  Cap the
+            # token score just under 1.0 so it can only ever reach PARTIAL.
+            containment = min(containment, 0.9999)
             if best is None or containment > best[0]:
                 best = (containment, hit)
 
-    if best is None:
-        return CitationVerdict("not_found", quote_sha, None, None, None, None, 0.0, PROTOCOL)
-
-    score, hit = best
-    if score >= 1.0:
+    if verbatim is not None:
+        score, hit = 1.0, verbatim
         status = VERIFICATION_VERIFIED
-    elif score >= min_partial:
+    elif best is not None and best[0] >= min_partial:
+        score, hit = best
         status = VERIFICATION_PARTIAL
     else:
-        return CitationVerdict("not_found", quote_sha, None, None, None, None, score, PROTOCOL)
+        return CitationVerdict("not_found", quote_sha, None, None, None, None,
+                               best[0] if best else 0.0, PROTOCOL)
     if status == VERIFICATION_VERIFIED and write_status:
         store.set_verification(hit.passage_id, VERIFICATION_VERIFIED)
     return CitationVerdict(status, quote_sha, hit.passage_id, hit.book_id,
@@ -211,6 +217,7 @@ def audit_answer(answer: str, passages: list, min_partial: float = 0.82,
     for sentence in sentences:
         s_tokens = set(textproc.ar_tokens(sentence))
         s_score, s_hit = 0.0, None
+        s_verbatim = False
         for passage in passages:
             text = _pfield(passage, "text") or ""
             ids = (_pfield(passage, "passage_id"), _pfield(passage, "book_id"),
@@ -218,15 +225,20 @@ def audit_answer(answer: str, passages: list, min_partial: float = 0.82,
             if s_tokens:
                 p_tokens = set(textproc.ar_tokens(text))
                 containment = len(s_tokens & p_tokens) / len(s_tokens)
+                # v1.18.0 fix: token containment caps just under 1.0 — only a
+                # literal normalized containment may count as ``verified``
+                # (mirrors the verify_quote fix; contract consistency).
+                containment = min(containment, 0.9999)
             else:
                 containment = 0.0
             norm_sentence = textproc.normalize_for_match(sentence)
             if norm_sentence and norm_sentence in textproc.normalize_for_match(text):
                 containment = 1.0
+                s_verbatim = True
             if containment > s_score or s_hit is None:
                 s_score, s_hit = containment, ids
         pid, bid, title, page = s_hit
-        if s_score >= 1.0:
+        if s_verbatim:
             status = VERIFICATION_VERIFIED
             verified += 1
         elif s_score >= min_partial:

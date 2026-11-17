@@ -1,0 +1,162 @@
+{
+  "coverage": {
+    "abstain_polarity": {
+      "must-answer": 32,
+      "must-refuse": 68
+    },
+    "cite_polarity": {
+      "not_found": 100,
+      "verified": 100
+    },
+    "domains": {
+      "استكمال-نص": 100,
+      "استنتاج-نصي": 70,
+      "اعتراض-وجواب": 100,
+      "تراث/03__التفسير": 1,
+      "تراث/06__كتب-السنة": 1,
+      "تراث/07__شروح-الحديث": 1,
+      "تراث/10__علوم-الحديث": 1,
+      "تراث/14__الفقه-الحنفي": 1,
+      "تراث/16__الفقه-الشافعي": 1,
+      "تراث/17__الفقه-الحنبلي": 1,
+      "تراث/23__الرقائق-والآداب-والأذكار": 1,
+      "ترجيح-وسببه": 100,
+      "تفسير-المصطلح": 100,
+      "تقنية": 10,
+      "توثيق-اقتباس": 128,
+      "علاقة-حجاج": 30,
+      "في-المتن": 32,
+      "كشف-التركيب": 72,
+      "لا-سند-معاصر": 28,
+      "معاصر": 22,
+      "نسبة-الكتاب": 48,
+      "نسبة-الكتاب-التراثي": 12,
+      "نسبة-المسألة": 40,
+      "نقل-متعدد-المصادر": 100
+    },
+    "families": {
+      "akhta": 100,
+      "fahm": 100,
+      "ikhtilaf": 100,
+      "istidlal": 100,
+      "itirad": 100,
+      "multisource": 100,
+      "mustalahat": 100,
+      "naql": 100,
+      "tarjih": 100,
+      "yaqin": 100
+    },
+    "kinds": {
+      "abstain": 100,
+      "cite": 200,
+      "mcq": 700
+    },
+    "max_book_share_per_family": {
+      "fahm": {
+        "book_id": "shamela-4569",
+        "count": 16,
+        "share": 0.16
+      },
+      "ikhtilaf": {
+        "book_id": "turath-1714",
+        "count": 4,
+        "share": 0.067
+      },
+      "istidlal": {
+        "book_id": "shamela-190",
+        "count": 4,
+        "share": 0.057
+      },
+      "itirad": {
+        "book_id": "shamela-5684",
+        "count": 15,
+        "share": 0.15
+      },
+      "multisource": {
+        "book_id": "shamela-4569",
+        "count": 8,
+        "share": 0.04
+      },
+      "mustalahat": {
+        "book_id": "shamela-4569",
+        "count": 12,
+        "share": 0.12
+      },
+      "naql": {
+        "book_id": "shamela-5684",
+        "count": 9,
+        "share": 0.09
+      },
+      "tarjih": {
+        "book_id": "shamela-4569",
+        "count": 15,
+        "share": 0.15
+      }
+    },
+    "source_layers": {
+      "shamela": 634,
+      "turath": 196
+    },
+    "sources": {
+      "ryko-bench-seed": 315,
+      "ryko1000-seed": 685
+    },
+    "total": 1000
+  },
+  "gates": {
+    "abstention": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "answers": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "citations": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "contradictions": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "dedup": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "madhhab": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    },
+    "quotes": {
+      "checked": 1000,
+      "failures": [],
+      "pass": true
+    }
+  },
+  "kind": "ryko1000-verification",
+  "overall": "pass",
+  "seed": "docs/benchmarks/ryko1000_seed.jsonl",
+  "store_stats": {
+    "argument_relations": 35,
+    "authors": 11,
+    "books": 70,
+    "chars": 35414718,
+    "claims": 87,
+    "passages": 93359,
+    "passages_by_source": {
+      "econom": 5075,
+      "fikr": 65467,
+      "shamela": 11674,
+      "turath": 11143
+    },
+    "schema_version": 1,
+    "sources": 4
+  }
+}
