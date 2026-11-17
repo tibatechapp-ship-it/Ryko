@@ -127,3 +127,23 @@ def test_knowledge_ask_strict_contract(client):
         assert "أمتنع" in body["delivered_answer"]
     else:
         assert body["delivered_answer"] == body["answer"]
+
+
+@requires_knowledge
+def test_serving_session_is_sha256_neutral():
+    """v1.17.0 regression guard (the v1.16.0 neutrality claim, now enforced
+    over the FULL serving path): a complete read-only serving session —
+    search (warms the index, computes dense vectors), cite verification and
+    grounded ask — must leave the knowledge DB byte-identical.  The old
+    default opened the store with persist_vectors=True, silently doubling
+    the committed DB (~+130 MB of passage_vec rows) and invalidating its
+    receipt on every serving session."""
+    import hashlib
+
+    after = hashlib.sha256(_TMP_DB.read_bytes()).hexdigest()
+    before = KNOWLEDGE_DB.read_bytes()
+    expected = hashlib.sha256(before).hexdigest()
+    assert after == expected, (
+        "a serving session mutated the knowledge DB — the store must be "
+        "opened persist_vectors=False everywhere (serving / bench seed / "
+        "any read-only consumer)")

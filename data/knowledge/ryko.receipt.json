@@ -1,28 +1,28 @@
 {
   "kind": "ryko-knowledge-receipt",
-  "created_utc": "2026-11-17T02:57:12Z",
+  "created_utc": "2026-11-17T12:36:14Z",
   "artifacts": [
     {
       "path": "data/knowledge/ryko.sqlite",
-      "sha256": "75acfcf6e7c0ea99a38bf6e80258a5453845a4d5e4c61fd95be02185c0a99445",
-      "bytes": 96329728
+      "sha256": "58b9e5fc7ae77650b92b8903d46f9a29c2b86c08131a14ee6ee5dfe07833d5aa",
+      "bytes": 98906112
     }
   ],
   "meta": {
     "schema_version": 1,
     "sources": 4,
     "authors": 11,
-    "books": 58,
-    "passages": 90449,
+    "books": 70,
+    "passages": 93359,
     "claims": 87,
     "argument_relations": 35,
-    "chars": 34514961,
+    "chars": 35414718,
     "passages_by_source": {
       "econom": 5075,
       "fikr": 65467,
       "shamela": 11674,
-      "turath": 8233
+      "turath": 11143
     }
   },
-  "receipt_sha256": "abf52b1be3d77c9d7e177ad702439ead3b331922e5471c5c96863e183ffac398"
+  "receipt_sha256": "e64fecf46329930cd2de825092113488e221fbfe9b864b5d21c1ac2ad8178627"
 }

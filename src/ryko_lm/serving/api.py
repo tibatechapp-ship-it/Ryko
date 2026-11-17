@@ -15,7 +15,11 @@ POST /knowledge/ask       — grounded generation: retrieve → generate → gua
                             → per-sentence cite audit → deliver or abstain
 
 Configuration (environment variables):
-    RYKO_MODEL_PATH      default: artifacts/training/final.pt
+    RYKO_MODEL_PATH      default: artifacts/training_v5c/final.pt (the receipted
+                         v5c serving point, held-out PPL 221.38 — since v1.17.0;
+                         the old artifacts/training/final.pt default silently
+                         served the stale v1.2-era checkpoint for years, which
+                         is exactly what the first PalmX-IC run measured)
     RYKO_TOKENIZER_DIR   default: artifacts/tokenizer
     RYKO_DEVICE          default: cpu
     RYKO_THREADS         default: 2
@@ -42,7 +46,8 @@ from pydantic import BaseModel, Field
 from ..model.ryko_model import RykoLM
 from ..tokenizer.loader import RykoTokenizer
 
-MODEL_PATH = Path(os.environ.get("RYKO_MODEL_PATH", "artifacts/training/final.pt"))
+MODEL_PATH = Path(os.environ.get("RYKO_MODEL_PATH",
+                                 "artifacts/training_v5c/final.pt"))
 TOKENIZER_DIR = Path(os.environ.get("RYKO_TOKENIZER_DIR", "artifacts/tokenizer"))
 DEVICE = os.environ.get("RYKO_DEVICE", "cpu")
 THREADS = int(os.environ.get("RYKO_THREADS", "2"))
@@ -57,7 +62,9 @@ async def lifespan(_app: FastAPI):
     if MODEL_PATH.exists():
         state["model"] = RykoLM.load(MODEL_PATH, device=DEVICE)
         state["tokenizer"] = RykoTokenizer.from_dir(TOKENIZER_DIR)
-        summary = Path("artifacts/training/summary.json")
+        summary = MODEL_PATH.with_name("summary.json")
+        if not summary.exists():
+            summary = Path("artifacts/training/summary.json")
         state["meta"] = json.loads(summary.read_text(encoding="utf-8")) if summary.exists() else {}
         print(f"[ryko] model loaded: {MODEL_PATH} ({state['model'].num_params():,} params)")
     else:
@@ -65,7 +72,12 @@ async def lifespan(_app: FastAPI):
     if KNOWLEDGE_DB.exists():
         from ..knowledge.store import KnowledgeStore
 
-        state["store"] = KnowledgeStore(str(KNOWLEDGE_DB))
+        # v1.17.0 fix: the serving app is a READ-ONLY consumer of the store —
+        # persist_vectors=False keeps the derived passage_vec table empty, so
+        # serving against the committed repo DB never doubles its size or
+        # breaks its receipt (the old default persisted ~130 MB of vectors on
+        # every session, silently invalidating the committed sha256).
+        state["store"] = KnowledgeStore(str(KNOWLEDGE_DB), persist_vectors=False)
         print(f"[ryko] knowledge store loaded: {KNOWLEDGE_DB}")
     else:
         print(f"[ryko] WARNING: knowledge store not found at {KNOWLEDGE_DB} — /knowledge/* disabled")
@@ -74,7 +86,7 @@ async def lifespan(_app: FastAPI):
     state["store"] = None
 
 
-app = FastAPI(title="Ryko Arabic LM", version="1.16.0", lifespan=lifespan)
+app = FastAPI(title="Ryko Arabic LM", version="1.17.0", lifespan=lifespan)
 
 
 class GenerateRequest(BaseModel):
@@ -262,11 +274,18 @@ class CiteRequest(BaseModel):
 
 @app.post("/knowledge/cite")
 def knowledge_cite(req: CiteRequest) -> dict:
-    """ryko-cite/1 verdict: verified / partial / not_found + quote_sha256."""
+    """ryko-cite/1 verdict: verified / partial / not_found + quote_sha256.
+
+    v1.17.0: ``write_status=False`` — the serving app is a read-only
+    consumer of the committed store, so verified-quote status caching must
+    never dirty the repo DB (it would invalidate the receipt sha256).  A
+    deployment that wants the status cache points ``RYKO_KNOWLEDGE_DB`` at
+    a writable copy."""
     from ..knowledge.citation import verify_quote
 
     store = _require_store()
-    return verify_quote(store, req.quote, book_id=req.book_id).as_dict()
+    return verify_quote(store, req.quote, book_id=req.book_id,
+                        write_status=False).as_dict()
 
 
 class AskRequest(BaseModel):

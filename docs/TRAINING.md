@@ -123,7 +123,8 @@ are unchanged; raise `vocab_size` only if you add heavy dialect coverage.
 |---|---|---|
 | `artifacts/tokenizer/ryko-tokenizer.json` | yes | trained BPE tokenizer (32,768) |
 | `artifacts/tokenizer/tokenizer_meta.json` | yes | training metadata |
-| `artifacts/training/final.pt` | yes | final fp16 checkpoint (config + weights) — **v1.1 model** |
+| `artifacts/training/final.pt` | yes | final fp16 checkpoint (config + weights) — **v1.1 model** (archive; NOT the serving point since v1.17.0) |
+| `artifacts/training_v5c/final.pt` | yes | **serving point since v1.17.0** — v5c shard on corpus v5.2, held-out PPL 221.38, receipted (`final_receipt.json`) |
 | `artifacts/training/log.jsonl` | yes | eval metrics every 200 steps (v1.1 run) |
 | `artifacts/training/summary.json` | yes | final summary (steps, PPL, params) |
 | `artifacts/training/{last,best}.pt` | no | resumable/val-best checkpoints |

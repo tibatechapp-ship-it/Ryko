@@ -51,6 +51,29 @@ def test_sha256_file_matches_hashlib(tmp_path):
     assert sha256_file(f) == hashlib.sha256(b"ryko").hexdigest()
 
 
+def test_serving_default_checkpoint_is_receipted():
+    """v1.17.0 regression guard: the checkpoint the API serves by default
+    must exist AND carry a verified receipt whose sha256 matches the actual
+    bytes.  The old artifacts/training/final.pt default silently served the
+    stale v1.2-era checkpoint (PPL 431.78) — both published PalmX-IC runs
+    measured it by mistake (random-level score) — so an unreceipted or stale
+    serving default must now fail loudly."""
+    from ryko_lm.provenance import verify_receipt
+    from ryko_lm.serving.api import MODEL_PATH
+
+    assert MODEL_PATH.exists(), f"serving checkpoint missing: {MODEL_PATH}"
+    receipt_path = MODEL_PATH.with_name("final_receipt.json")
+    assert receipt_path.exists(), (
+        f"serving checkpoint has no receipt: {MODEL_PATH} — every served "
+        "artifact must be receipted (ZYKO pattern)")
+    ok, report = verify_receipt(receipt_path)
+    assert ok, f"receipt self-check failed: {report}"
+    artifact_checks = [r for r in report if r["check"] != "receipt_sha256"]
+    assert artifact_checks, f"receipt lists no artifacts: {report}"
+    assert all(r["ok"] for r in artifact_checks), (
+        f"receipted bytes do not match the file: {report}")
+
+
 # ---------------------------------------------------------------------------
 # generation guard (ZYKO pattern)
 # ---------------------------------------------------------------------------

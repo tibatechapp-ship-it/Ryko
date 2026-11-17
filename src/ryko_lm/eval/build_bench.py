@@ -40,6 +40,89 @@ N_CITE_NEGATIVE = 16
 # so every pre-existing case stays byte-identical when the store grows.
 N_TURATH_CITE_VERIFIED = 12
 N_TURATH_CITE_NEG = 6
+# v1.17.0 families: the same append-only discipline as v1.16.0 — fresh RNGs
+# (SEED + 2 / SEED + 3) and independent id counters, so the first 277 seed
+# lines stay byte-identical and every historical case_id keeps its measured
+# result across releases.
+N_TURATH2_CITE_VERIFIED = 12
+N_TURATH2_CITE_NEG = 6
+N_TURATH_BOOK_MCQ = 12
+N_TURATH_ABSTAIN_OUT = 8
+
+# Frozen turath book sets (v1.17.0 discipline): the append-only families
+# are PINNED to the books that existed when the family was created.  Adding
+# more turath books in a later release must NOT change an existing family's
+# pool — that would silently alter/renumber measured cases and break
+# cross-release comparability.  Growth opens a NEW family over the new
+# books instead (the rb-cite-t-* family was created on the 28 v1.16.0
+# books; rb-cite-t2-* and rb-book-t-* on the 12 added in v1.17.0).  Build
+# time self-checks: every frozen id must exist in the store, and the two
+# cite-family sets must stay disjoint — violations are fatal, never silent.
+TURATH_CITE_T1_BOOK_IDS = frozenset({
+    "turath-1031", "turath-1060", "turath-1073", "turath-1080",
+    "turath-1122", "turath-1131", "turath-1152", "turath-1173",
+    "turath-1214", "turath-1226", "turath-1287", "turath-130",
+    "turath-1351", "turath-1427", "turath-1487", "turath-1590",
+    "turath-1669", "turath-1714", "turath-2030", "turath-2087",
+    "turath-2672", "turath-3218", "turath-4049", "turath-4242",
+    "turath-4243", "turath-4484", "turath-4619", "turath-691",
+})  # v1.16.0 creation set (28 books)
+TURATH_CITE_T2_BOOK_IDS = frozenset({
+    "turath-1018", "turath-1024", "turath-1219", "turath-1245",
+    "turath-1412", "turath-1721", "turath-2075", "turath-2096",
+    "turath-4061", "turath-4524", "turath-561", "turath-8085",
+})  # v1.17.0 creation set (12 books)
+
+# All frozen family book sets, in creation order.  Growth discipline: a NEW
+# release that commits more turath books ADDS a new frozen set here and
+# opens a new family over those books — it must never enlarge an existing
+# family's pool.
+TURATH_FROZEN_FAMILY_SETS = (
+    TURATH_CITE_T1_BOOK_IDS, TURATH_CITE_T2_BOOK_IDS)
+
+
+def _turath_books_present(store: KnowledgeStore) -> set[str]:
+    return {b["book_id"] for b in store.iter_books()
+            if b["book_id"].startswith("turath-")}
+
+
+def verify_frozen_turath_sets(store: KnowledgeStore) -> None:
+    """Fatal check for the REAL committed store (CLI build path + test).
+
+    Rule: a frozen family book set must be either FULLY present (healthy
+    store) or FULLY absent (store predates that family — synthetic test
+    stores degrade gracefully); PARTIAL coverage means a store that once
+    carried the family's books lost some — that silently breaks the
+    family's measured cases and the receipt, so it fails loudly.  The
+    frozen sets must also stay pairwise disjoint.  NOT called from
+    ``build`` — synthetic test stores call build() directly.
+    """
+    present = _turath_books_present(store)
+    for label, ids in (("rb-cite-t (v1.16.0)", TURATH_CITE_T1_BOOK_IDS),
+                       ("rb-cite-t2 (v1.17.0)", TURATH_CITE_T2_BOOK_IDS)):
+        overlap, missing = ids & present, ids - present
+        if overlap and missing:
+            raise ValueError(
+                f"frozen turath books PARTIALLY missing from the store "
+                f"({label}): {sorted(missing)[:5]}")
+    for i in range(len(TURATH_FROZEN_FAMILY_SETS)):
+        for j in range(i + 1, len(TURATH_FROZEN_FAMILY_SETS)):
+            overlap = TURATH_FROZEN_FAMILY_SETS[i] & TURATH_FROZEN_FAMILY_SETS[j]
+            if overlap:
+                raise ValueError("frozen turath family book sets must stay "
+                                 f"disjoint: {sorted(overlap)[:5]}")
+
+
+def _unclaimed_turath_ids(store: KnowledgeStore) -> set[str]:
+    """Turath books covered by NO frozen family set — only the FIRST turath
+    family absorbs these (v1.16.0 catch-all semantics, keeps synthetic test
+    stores working); later families are strictly pinned."""
+    claimed: set[str] = set()
+    for ids in TURATH_FROZEN_FAMILY_SETS:
+        claimed |= ids
+    return _turath_books_present(store) - claimed
+
+
 N_MCQ = 48
 N_CLAIM_MCQ = 40
 N_RELATION_MCQ = 30
@@ -100,6 +183,35 @@ ABSTAIN_CASES = (
     ("ما رأي صاحب اقتصادنا في تقلبات العملات المشفرة في السوق الحالي؟", "معاصر"),
     ("كم عدد مستخدمي البريد الإلكتروني وفق مصنفات الآداب والتقليد؟", "تقنية"),
     ("ما حكم شيخ الإسلام ابن تيمية في خوارزميات التوصية بالفيديو؟", "معاصر"),
+)
+
+# v1.17.0 — out-of-domain abstain from the turath layer's own categories
+# (plan item #10b): questions that ask for the stance of a SPECIFIC real
+# classical work that is NOT committed to the Knowledge Core.  Asking for
+# the position of an absent book is unanswerable from the store by
+# construction, so the correct behaviour is abstain — the honest counterpart
+# of the modern-topic set above, phrased inside heritage categories.
+# Self-checked at build time: every referenced work keyword MUST be absent
+# from all committed book titles, or the build fails loudly (a future
+# release committing one of these works must replace the case, not keep it).
+# (question, domain = real turath category, work keyword)
+TURATH_ABSTAIN_OUT_CASES = (
+    ("ما نص حاشية ابن عابدين في «رد المحتار» عند اشتراط الفصل بين الطلاقات الثلاث؟",
+     "تراث/14__الفقه-الحنفي", "رد المحتار"),
+    ("ما اختيار ابن عاشور في «التحرير والتنوير» عند تفسير قوله تعالى: ﴿الم﴾؟",
+     "تراث/03__التفسير", "التحرير والتنوير"),
+    ("ما فرّق عليه ابن الجوزي في «تذكرة الحفاظ» بين الحفظ بالسمع والحفظ بالكتابة؟",
+     "تراث/10__علوم-الحديث", "تذكرة الحفاظ"),
+    ("ما موقف الغزالي في «إحياء علوم الدين» من إنشاد المتولدين عند الذكر؟",
+     "تراث/23__الرقائق-والآداب-والأذكار", "إحياء علوم الدين"),
+    ("ما اختيار ابن حجر في «فتح الباري» عند شرح حديث إنما الأعمال بالنيات وقوع النية في القلب؟",
+     "تراث/07__شروح-الحديث", "فتح الباري"),
+    ("ما نص الحجاوي في «زاد المستقنع» عند اشتراط النية في الطهارة من الحدث الأصغر؟",
+     "تراث/17__الفقه-الحنبلي", "زاد المستقنع"),
+    ("ما ترتيب النووي في «رياض الصالحين» لأبواب الاستعاذة والرُقي؟",
+     "تراث/06__كتب-السنة", "رياض الصالحين"),
+    ("على أي وجه أفتى الشوكاني في «فتح القدير» عند المسح على الخفين في السفر؟",
+     "تراث/16__الفقه-الشافعي", "فتح القدير"),
 )
 
 
@@ -389,12 +501,19 @@ def _turath_cite_cases(store: KnowledgeStore) -> list[dict]:
     positives + cross-book splices that must stay ``not_found``) but over
     the ``turath-`` pool only, with a FRESH RNG (``SEED + 1``) and its own
     counters (``rb-cite-t-`` / ``rb-cite-t-neg-``) so appending it can never
-    renumber or alter a pre-existing case.  The whole seed stays
-    byte-identical for its first 259 lines; this family appends.
+    renumber or alter a pre-existing case.  The pool is PINNED to the books
+    frozen at family creation (``TURATH_CITE_T1_BOOK_IDS``) plus any book no
+    frozen family has claimed yet (catch-all for stores predating the
+    discipline) — later store growth that freezes its books into a new set
+    can never mutate these measured cases.
     """
     rng = random.Random(SEED + 1)
+    present = _turath_books_present(store)
+    # frozen creation set + any book no family has claimed yet (v1.16.0
+    # catch-all semantics for stores predating the discipline)
+    pool_ids = (TURATH_CITE_T1_BOOK_IDS & present) | _unclaimed_turath_ids(store)
     pool = [p for p in store.iter_passages()
-            if p["book_id"].startswith("turath-")
+            if p["book_id"] in pool_ids
             and 160 <= len(p["text"]) <= 500]
     rng.shuffle(pool)
     positives: list[dict] = []
@@ -431,6 +550,149 @@ def _turath_cite_cases(store: KnowledgeStore) -> list[dict]:
     return positives + negatives
 
 
+def _turath2_cite_cases(store: KnowledgeStore,
+                        used_passage_ids: set[str]) -> list[dict]:
+    """Second turath cite family (v1.17.0) — the same self-checked
+    construction as ``_turath_cite_cases`` with a FRESH RNG (``SEED + 2``)
+    and its own counters (``rb-cite-t2-`` / ``rb-cite-t2-neg-``), pinned to
+    the books frozen at THIS family's creation (``TURATH_CITE_T2_BOOK_IDS``,
+    disjoint from family 1's set — also asserted at build time), so neither
+    family's measured cases can ever be mutated by later store growth.
+    """
+    rng = random.Random(SEED + 2)
+    frozen = TURATH_CITE_T2_BOOK_IDS & _turath_books_present(store)
+    pool = [p for p in store.iter_passages()
+            if p["book_id"] in frozen
+            and p["passage_id"] not in used_passage_ids
+            and 160 <= len(p["text"]) <= 500]
+    rng.shuffle(pool)
+    positives: list[dict] = []
+    negatives: list[dict] = []
+    for idx, passage in enumerate(pool):
+        text = " ".join(passage["text"].split())
+        quote = text[:120].rsplit(" ", 1)[0]
+        if len(quote) < 80:
+            continue
+        verdict = verify_quote(store, quote, write_status=False)
+        if verdict.status == "verified" and len(positives) < N_TURATH2_CITE_VERIFIED:
+            positives.append({
+                "case_id": f"rb-cite-t2-{len(positives) + 1:03d}",
+                "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
+                "quote": quote, "expect": "verified",
+                "meta": {"passage_id": passage["passage_id"], "book_id": passage["book_id"],
+                         "page_num": passage["page_num"]},
+            })
+        elif len(negatives) < N_TURATH2_CITE_NEG and positives:
+            donor = pool[(idx + 13) % len(pool)]
+            if donor["book_id"] == passage["book_id"]:
+                continue
+            donor_text = " ".join(donor["text"].split())
+            splice = text[:60] + " " + donor_text[-60:]
+            if verify_quote(store, splice, write_status=False).status == "not_found":
+                negatives.append({
+                    "case_id": f"rb-cite-t2-neg-{len(negatives) + 1:03d}",
+                    "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
+                    "quote": splice, "expect": "not_found",
+                    "meta": {"spliced_from": donor["book_id"]},
+                })
+        if len(positives) >= N_TURATH2_CITE_VERIFIED and len(negatives) >= N_TURATH2_CITE_NEG:
+            break
+    return positives + negatives
+
+
+def _turath_book_cases(store: KnowledgeStore) -> list[dict]:
+    """Book-attribution MCQ over the turath layer (v1.17.0) — mirror of
+    ``_book_cases`` for the wide stratified selection, with a FRESH RNG
+    (``SEED + 3``) and independent ``rb-book-t-`` ids.  The excerpt and the
+    correct title both come from the committed store; distractors are real
+    titles of OTHER turath books (same-title books skipped).  The pool is
+    pinned to the union of the two frozen cite-family book sets (all 40
+    books at creation) so later store growth never mutates these cases.
+    Fewer than four distinct titles in the frozen set → no cases (never
+    guessed)."""
+    rng = random.Random(SEED + 3)
+    frozen = ((TURATH_CITE_T1_BOOK_IDS | TURATH_CITE_T2_BOOK_IDS)
+              & _turath_books_present(store))
+    books = [b for b in store.iter_books()
+             if b["book_id"] in frozen
+             and (b.get("title_ar") or "").strip()]
+    if len(books) < 4:
+        return []
+    titles_by_id = {b["book_id"]: " ".join(b["title_ar"].split()) for b in books}
+    titles_set = set(titles_by_id.values())
+    if len(titles_set) < 4:
+        return []
+    pool = [p for p in store.iter_passages()
+            if p["book_id"] in frozen and len(p["text"]) >= 160]
+    rng.shuffle(pool)
+    out: list[dict] = []
+    used: set[str] = set()
+    for passage in pool:
+        if len(out) >= N_TURATH_BOOK_MCQ:
+            break
+        correct = titles_by_id.get(passage["book_id"])
+        if not correct or correct in used:
+            continue
+        distractors = [t for t in sorted(titles_set) if t != correct]
+        rng.shuffle(distractors)
+        if len(distractors) < 3:
+            continue
+        options = distractors[:3] + [correct]
+        rng.shuffle(options)
+        text = " ".join(passage["text"].split())
+        excerpt = text[:140].rsplit(" ", 1)[0]
+        if len(excerpt) < 80:
+            continue
+        out.append({
+            "case_id": f"rb-book-t-{len(out) + 1:03d}",
+            "kind": "mcq",
+            "source": "ryko-bench-seed",
+            "domain": "نسبة-الكتاب-التراثي",
+            "question": ("أي الكتب المثبتة في طبقة التراث الشامل ينتمي إليه هذا "
+                         "المقطع؟\n«" + excerpt + " …»"),
+            "options": options,
+            "answer": options.index(correct),
+            "meta": {"passage_id": passage["passage_id"],
+                     "book_id": passage["book_id"]},
+        })
+        used.add(correct)
+    return out
+
+
+def _turath_abstain_out_cases(store: KnowledgeStore) -> list[dict]:
+    """Out-of-domain abstain from heritage categories (v1.17.0, plan #10b).
+
+    Fixed questions asking for the stance of a specific REAL classical work
+    that is NOT committed — unanswerable from the store by construction, so
+    the correct behaviour is abstain.  Self-checked at build time: every
+    referenced work keyword must stay ABSENT from all committed book
+    titles; a collision means the work got committed and the case must be
+    replaced, so the build fails loudly instead of shipping a broken case.
+    """
+    if len(TURATH_ABSTAIN_OUT_CASES) != N_TURATH_ABSTAIN_OUT:
+        raise ValueError(
+            f"turath abstain contract broken: {len(TURATH_ABSTAIN_OUT_CASES)} "
+            f"cases vs N_TURATH_ABSTAIN_OUT={N_TURATH_ABSTAIN_OUT}")
+    titles = [(b.get("title_ar") or "") for b in store.iter_books()]
+    collisions = [(kw, t) for _q, _d, kw in TURATH_ABSTAIN_OUT_CASES
+                  for t in titles if kw in t]
+    if collisions:
+        raise ValueError(
+            "turath abstain cases reference committed works — replace them: "
+            + "; ".join(f"{kw} -> {t}" for kw, t in collisions[:5]))
+    return [{
+        "case_id": f"rb-abstain-t-out-{i:03d}",
+        "kind": "abstain",
+        "source": "ryko-bench-seed",
+        "domain": domain,
+        "question": question,
+        "should_answer": False,
+        "options": ["يجزم بجواب حاسم", "يعتذر عن الجواب لعدم السند", "يخترع إجابة"],
+        "answer": None,
+        "meta": {"referenced_work": kw},
+    } for i, (question, domain, kw) in enumerate(TURATH_ABSTAIN_OUT_CASES, 1)]
+
+
 def build(store: KnowledgeStore) -> list[dict]:
     if len(ABSTAIN_CASES) != N_ABSTAIN_OUT:
         raise ValueError(
@@ -452,7 +714,15 @@ def build(store: KnowledgeStore) -> list[dict]:
     # v1.16.0: the turath cite family appends LAST so the committed seed's
     # first 259 lines stay byte-identical and every old case_id keeps its
     # historical result across releases.
-    cases.extend(_turath_cite_cases(store))
+    t1 = _turath_cite_cases(store)
+    cases.extend(t1)
+    # v1.17.0: three more append-only families (fresh RNGs, independent ids)
+    # — the first 277 seed lines stay byte-identical, the new families tail.
+    used_t1 = {c["meta"]["passage_id"] for c in t1
+               if (c.get("meta") or {}).get("passage_id")}
+    cases.extend(_turath2_cite_cases(store, used_t1))
+    cases.extend(_turath_book_cases(store))
+    cases.extend(_turath_abstain_out_cases(store))
     return cases
 
 
@@ -463,7 +733,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=Path("docs/benchmarks/ryko_bench_seed.jsonl"))
     args = parser.parse_args(argv)
 
-    store = KnowledgeStore(str(args.store))
+    store = KnowledgeStore(str(args.store), persist_vectors=False)
+    # strict frozen-set check on the real build path (synthetic test stores
+    # call build() directly and degrade gracefully instead)
+    verify_frozen_turath_sets(store)
     cases = build(store)
     store.close()
 

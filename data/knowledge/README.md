@@ -17,20 +17,22 @@ core books (~5,075 passages) stay in the committed store — see
 `docs/ECONOMICS_RIGHTS.md`; rebuild the full variant with
 `make econom-collect && make econom-build-full`.
 
-Since v1.16.0 the committed core also carries the **التراث الشامل
-المُنتقى** layer (kind `ryko-turath-manifest` → source `turath`): the SAME
-wide stratified selection the corpus pipeline merged into v5.2
-(`collect_shamela --per-cat 12 --max-books 600 --max-file-mb 3
+Since v1.16.0 (budget raised v1.17.0) the committed core also carries
+the **التراث الشامل المُنتقى** layer (kind `ryko-turath-manifest` → source
+`turath`): the SAME wide stratified selection the corpus pipeline merged
+into v5.2 (`collect_shamela --per-cat 12 --max-books 600 --max-file-mb 3
 --keep-pages`), imported with page-level provenance under a
-budgeted-breadth policy — **28 committed books (8,233 passages / 2.5M
-chars, 28 of 40 Shamela categories)** inside a 2.5M-char TEXT budget that
-keeps the committed DB ≤ ~96 MB (GitHub's 100 MB blob limit).  The FULL
-tier carries all **358 collected books (373,543 passages / 127.6M chars)**
-in the gitignored `ryko-wide-full.sqlite` with its committed receipt —
-rebuild with `make turath-collect && make turath-build-full`.  The layer
-attributes **no claims**: attributed ideas stay the exclusive discipline
-of the two منقحة layers.  The store now holds 4 sources / 58 books /
-90,449 passages / 87 claims (31 fikr + 56 econom) / 35 relations.
+budgeted-breadth policy — **40 committed books (11,143 passages / 3.4M
+chars)** inside a **3.4M-char TEXT budget — the MAXIMUM that fits under
+GitHub's hard 100 MiB blob limit at 2.854 bytes/char (94.32 MiB, 5.95 MB
+of margin; the documented 4M goal would exceed the limit at 100.6 MB)**.
+The FULL tier carries all **358 collected books (373,543 passages /
+127.6M chars)** in the gitignored `ryko-wide-full.sqlite` with its
+committed receipt — rebuild with `make turath-collect && make
+turath-build-full`.  The layer attributes **no claims**: attributed ideas
+stay the exclusive discipline of the two منقحة layers.  The store now
+holds 4 sources / 70 books / 93,359 passages / 87 claims (31 fikr + 56
+econom) / 35 relations.
 
 | file | purpose |
 |---|---|

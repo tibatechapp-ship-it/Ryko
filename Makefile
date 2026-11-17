@@ -39,10 +39,10 @@ train-smoke:
 	            python -m ryko_lm.training.evaluate --checkpoint artifacts/smoke/training/final.pt --tokenizer artifacts/smoke/tokenizer/ryko-tokenizer.json --data-dir artifacts/smoke --max-batches 4 --max-new-tokens 24
 
 eval:
-	            python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt
+	            python -m ryko_lm.training.evaluate --checkpoint artifacts/training_v5c/final.pt --config configs/models/ryko-tiny.yaml --tokenizer artifacts/tokenizer/ryko-tokenizer.json
 
 samples:
-	            python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt --out docs/results/samples.json
+	            python -m ryko_lm.training.evaluate --checkpoint artifacts/training_v5c/final.pt --config configs/models/ryko-tiny.yaml --tokenizer artifacts/tokenizer/ryko-tokenizer.json --out docs/results/samples.json
 
 plot:
 	            python -m ryko_lm.training.plot_loss --log artifacts/training/log.jsonl --out docs/results/loss_curve.png

@@ -1,7 +1,7 @@
 """Evaluate a trained Ryko checkpoint: perplexity on a split + text samples.
 
 Usage:
-    python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt \
+    python -m ryko_lm.training.evaluate --checkpoint artifacts/training_v5c/final.pt \
         --tokenizer artifacts/tokenizer/ryko-tokenizer.json \
         --data-dir data/processed --prompts "اللغة العربية" "كان يا ما كان"
 """

@@ -11,27 +11,43 @@
     "args": "--per-cat 12 --max-books 600 --max-file-mb 3 --keep-pages",
     "selection": "famous-first per category, remaining slots by dataset order",
     "note": "same wide stratified selection merged into corpus v5.2 (v1.15.0)",
-    "budget_chars": 2500000
+    "budget_chars": 3400000
   },
   "selection": {
     "policy": "budgeted-breadth: category round-robin (sorted), smallest (size, id) fitting book first — every category that fits gets a book before any category gets a second one",
-    "budget_chars": 2500000,
-    "budget_spent_chars": 2488422,
-    "budget_new_chars": 0,
+    "budget_chars": 3400000,
+    "budget_spent_chars": 3396483,
+    "budget_new_chars": 908061,
     "budget_spent_before_chars": 2488422,
     "records_available": 358,
     "records_skipped_existing": 28,
-    "records_selected": 0,
+    "records_selected": 12,
     "categories_available": 40,
     "categories_covered": 28,
-    "rounds": 0
+    "rounds": 1
   },
   "claims_policy": "none — attributed ideas stay the exclusive discipline of the منقحة layers (fikr / econom); turath is a retrieval-and-citation layer",
   "counts": {
-    "books": 28,
-    "chars": 2488422
+    "books": 40,
+    "chars": 3388179
   },
   "books": [
+    {
+      "book_id": "turath-1018",
+      "dataset_id": "shamela-1018",
+      "title": "القول-بما-لم-يسبق-به-قول",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 149,
+      "chars": 106416
+    },
+    {
+      "book_id": "turath-1024",
+      "dataset_id": "shamela-1024",
+      "title": "مختصر-المغالطات-المنطقية",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 101,
+      "chars": 63537
+    },
     {
       "book_id": "turath-1031",
       "dataset_id": "shamela-1031",
@@ -105,12 +121,28 @@
       "chars": 75778
     },
     {
+      "book_id": "turath-1219",
+      "dataset_id": "shamela-1219",
+      "title": "بر-الوالدين-البخاري-ت-مكي",
+      "category": "تراث/06__كتب-السنة",
+      "raw_pages": 258,
+      "chars": 118559
+    },
+    {
       "book_id": "turath-1226",
       "dataset_id": "shamela-1226",
       "title": "بر-الوالدين-البخاري-ت-عبد-العاطي",
       "category": "تراث/06__كتب-السنة",
       "raw_pages": 82,
       "chars": 44095
+    },
+    {
+      "book_id": "turath-1245",
+      "dataset_id": "shamela-1245",
+      "title": "تحفة-الأقران-في-ما-قرئ-بالتثليث-من-حروف-القرآن",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 195,
+      "chars": 131531
     },
     {
       "book_id": "turath-1287",
@@ -135,6 +167,14 @@
       "category": "تراث/08__التخريج-والأطراف",
       "raw_pages": 205,
       "chars": 56041
+    },
+    {
+      "book_id": "turath-1412",
+      "dataset_id": "shamela-1412",
+      "title": "شرح-المنظومة-المسماة-بعقود-رسم-المفتي-ط-إسطنبول",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 44,
+      "chars": 87403
     },
     {
       "book_id": "turath-1427",
@@ -177,6 +217,14 @@
       "chars": 71383
     },
     {
+      "book_id": "turath-1721",
+      "dataset_id": "shamela-1721",
+      "title": "موجز-تاريخ-اليهود-والرد-على-بعض-مزاعمهم-الباطلة",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 78,
+      "chars": 83021
+    },
+    {
       "book_id": "turath-2030",
       "dataset_id": "shamela-2030",
       "title": "نخبة-الفكر-ط-دار-الحديث",
@@ -185,12 +233,28 @@
       "chars": 16454
     },
     {
+      "book_id": "turath-2075",
+      "dataset_id": "shamela-2075",
+      "title": "فضائل-سنن-الترمذي",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 27,
+      "chars": 31641
+    },
+    {
       "book_id": "turath-2087",
       "dataset_id": "shamela-2087",
       "title": "علل-الأحاديث-في-صحيح-مسلم",
       "category": "تراث/09__العلل-والسؤلات-الحديثية",
       "raw_pages": 94,
       "chars": 23541
+    },
+    {
+      "book_id": "turath-2096",
+      "dataset_id": "shamela-2096",
+      "title": "المغني-عن-الحفظ-والكتاب",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 103,
+      "chars": 24433
     },
     {
       "book_id": "turath-2672",
@@ -217,6 +281,14 @@
       "chars": 14107
     },
     {
+      "book_id": "turath-4061",
+      "dataset_id": "shamela-4061",
+      "title": "حاشية-ثلاثة-الأصول",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 168,
+      "chars": 23626
+    },
+    {
       "book_id": "turath-4242",
       "dataset_id": "shamela-4242",
       "title": "الآجرومية",
@@ -241,6 +313,14 @@
       "chars": 9519
     },
     {
+      "book_id": "turath-4524",
+      "dataset_id": "shamela-4524",
+      "title": "إبراهيم-بن-محمد-بن-سفيان-رواياته-وزياداته-وتعليقاته-على-صحيح-مسلم",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 84,
+      "chars": 64174
+    },
+    {
       "book_id": "turath-4619",
       "dataset_id": "shamela-4619",
       "title": "بداية-الهداية",
@@ -249,12 +329,28 @@
       "chars": 78908
     },
     {
+      "book_id": "turath-561",
+      "dataset_id": "shamela-561",
+      "title": "المقدمة-الجزرية-ت-القاسم",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 100,
+      "chars": 37011
+    },
+    {
       "book_id": "turath-691",
       "dataset_id": "shamela-691",
       "title": "الجمل-في-المنطق",
       "category": "تراث/13__المنطق",
       "raw_pages": 4,
       "chars": 12329
+    },
+    {
+      "book_id": "turath-8085",
+      "dataset_id": "shamela-8085",
+      "title": "التوسط-بين-مالك-وابن-القاسم-في-المسائل-التي-اختلفا-فيها-من-مسائل-المدونة",
+      "category": "تراث/15__الفقه-المالكي",
+      "raw_pages": 167,
+      "chars": 128405
     }
   ]
 }

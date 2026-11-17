@@ -75,7 +75,7 @@ Ryko **خط إنتاج كامل وقابل لإعادة التشغيل لبنا�
 > `/knowledge/ask`. التفاصيل في [docs/TRAINING.md](docs/TRAINING.md).
 
 الأصول المرفوعة داخل الشجرة: `artifacts/tokenizer/ryko-tokenizer.json`
-و`artifacts/training/final.pt` (نصف دقة) ومنحنى التدريب والعينات في
+و`artifacts/training_v5c/final.pt` (نصف دقة — نقطة الخدمة المُيصَّلة بإيصال بإيصال منذ v1.17.0، حُفظ `artifacts/training/final.pt` كأرشيف v1.1) ومنحنى التدريب والعينات في
 `docs/results/`.
 
 ## البدء السريع
@@ -85,7 +85,7 @@ git clone https://github.com/tibatechapp-ship-it/Ryko.git && cd Ryko
 pip install -r requirements.txt          # torch (نسخ CPU تكفي) + tokenizers + fastapi
 
 # 1) استخدم النموذج المدرب مباشرة دون تدريب
-python -m ryko_lm.training.evaluate --checkpoint artifacts/training/final.pt \
+python -m ryko_lm.training.evaluate --checkpoint artifacts/training_v5c/final.pt \
     --prompts "اللغة العربية" "كان يا ما كان"
 
 # 2) أطلق ساحة التجربة العربية
@@ -102,7 +102,7 @@ import torch
 from ryko_lm.model.ryko_model import RykoLM
 from ryko_lm.tokenizer.loader import RykoTokenizer
 
-model = RykoLM.load("artifacts/training/final.pt")
+model = RykoLM.load("artifacts/training_v5c/final.pt")
 tok   = RykoTokenizer.from_dir("artifacts/tokenizer")
 
 ids  = tok.encode("اللغة العربية", add_bos=True)

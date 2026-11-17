@@ -9,8 +9,8 @@ Pipeline (idempotent — safe to re-run after any interruption):
     2. select  — ``--mode full`` ingests every collected record into the FULL
                  local store; ``--mode core`` applies the budgeted-breadth
                  policy so the committed DB stays under GitHub's 100 MB blob
-                 limit (2.5M TEXT chars ≈ +7 MB calibrated on the 89.2 MB
-                 committed store)
+                 limit (3.4M TEXT chars ≈ +9.6 MB total turath layer, calibrated on
+                 the committed store — see the budget-history note below)
     3. ingest  — page-level passages with provenance under the ``turath``
                  source, namespaced ids (``turath-<dataset id>``),
                  category ``تراث/<cat>`` — never touching the two منقحة
@@ -22,7 +22,7 @@ Pipeline (idempotent — safe to re-run after any interruption):
 Usage:
     python scripts/build_turath_db.py                     # core (committed) DB
     python scripts/build_turath_db.py --mode full         # full local store
-    python scripts/build_turath_db.py --budget-chars 2500000
+    python scripts/build_turath_db.py --budget-chars 3400000
 """
 from __future__ import annotations
 
@@ -52,9 +52,17 @@ COLLECTOR_DOC = {
 }
 
 # Calibrated on the committed store: 89,227,264 bytes / 32.0M chars = 2.788
-# bytes per TEXT char (UTF-8 + row + index overhead).  2.5M chars ≈ +7.0 MB
-# → ~96.2 MB committed DB, safely under GitHub's 100 MB blob limit.
-DEFAULT_BUDGET_CHARS = 2_500_000
+# bytes per TEXT char (UTF-8 + row + index overhead).
+#
+# Budget history:
+#   v1.16.0  2.5M chars → 96,329,728-byte store (marginal 2.854 bytes/char).
+#   v1.17.0  3.4M chars → the MAXIMUM that fits under GitHub's hard 100 MiB
+#            blob limit (104,857,600 bytes): 2.5M + 911,578 fitable chars
+#            × 2.854 ≈ +2.6 MB → ~98.9 MB, 5.9 MB of margin.  The documented
+#            4M goal is IMPOSSIBLE at current per-row overhead (100.6 MB);
+#            reaching it needs a split store or per-row slimming — both
+#            rejected for now (they break the clone-and-test byte contract).
+DEFAULT_BUDGET_CHARS = 3_400_000
 
 
 def load_records(raw: Path) -> list[dict]:
@@ -96,7 +104,7 @@ def main(argv: list[str] | None = None) -> int:
                          "data/knowledge/ryko-wide-full.sqlite (full)")
     ap.add_argument("--manifest-out", type=Path, default=None)
     ap.add_argument("--budget-chars", type=int, default=DEFAULT_BUDGET_CHARS,
-                    help="core mode only: TEXT-character budget (default 2.5M)")
+                    help="core mode only: TEXT-character budget (default 3.4M)")
     args = ap.parse_args(argv)
 
     if args.db is None:
