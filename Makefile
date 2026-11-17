@@ -96,6 +96,18 @@ econom-build:
 econom-build-full:
 	python scripts/build_econom_db.py --no-core --db data/knowledge/ryko-full.sqlite
 
+turath-collect:
+	python -m ryko_lm.data.collect_shamela --per-cat 12 --max-books 600 --max-file-mb 3 --keep-pages --workers 6 --out data/raw/shamela_wide.jsonl
+
+turath-build:
+	python scripts/build_turath_db.py --mode core
+
+turath-build-full:
+	python scripts/build_turath_db.py --mode full
+
+turath-perf:
+	python scripts/perf_knowledge.py --db data/knowledge/ryko.sqlite
+
 relations-seed:
 	python -m ryko_lm.knowledge relations-seed --db data/knowledge/ryko.sqlite --manifest data/knowledge/relations_manifest.json --replace
 
@@ -106,4 +118,4 @@ vacuum-knowledge:
 	python scripts/vacuum_knowledge.py
 
 # البناء الكامل للطبقات المنقحة بالترتيب الصحيح: فكر ← اقتصاد ← علاقات الحجاج ← إفراغ المتجهات المشتقة
-knowledge-build: fikr-build econom-build relations-seed vacuum-knowledge
+knowledge-build: fikr-build econom-build turath-build relations-seed vacuum-knowledge

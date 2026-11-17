@@ -302,7 +302,8 @@ def run_cite(store, cases: list[Case]) -> list[dict]:
 
     rows = []
     for case in cases:
-        verdict = verify_quote(store, case.quote)
+        # write_status=False: evaluation never mutates the evaluated store
+        verdict = verify_quote(store, case.quote, write_status=False)
         rows.append({
             "case_id": case.case_id, "domain": case.domain, "source": case.source,
             "verdict": verdict.status, "expected": case.expect,
@@ -484,7 +485,13 @@ def main(argv: list[str] | None = None) -> int:
             raise BenchmarkError("cite cases need --store")
         from ..knowledge.store import KnowledgeStore
 
-        store = KnowledgeStore(str(args.store))
+        # evaluation must never mutate the evaluated artifact's derived
+        # cache: persist_vectors=False keeps passage_vec empty so the
+        # committed DB stays under GitHub's 100 MB blob limit (v1.16.0 —
+        # a bench run used to re-persist vectors and grow the file).
+        # Protocol-state upgrades from verify_quote still commit — that is
+        # ryko-cite/1 state, not a derived cache.
+        store = KnowledgeStore(str(args.store), persist_vectors=False)
         cite_rows = run_cite(store, cite)
         store.close()
 

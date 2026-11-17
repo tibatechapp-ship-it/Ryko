@@ -364,3 +364,38 @@ def test_iter_books_read_accessor(store):
     ids = [b["book_id"] for b in books]
     assert ids == sorted(ids)  # deterministic order
     assert all("title_ar" in b and "rights_status" in b for b in books)
+
+
+def test_build_bench_turath_growth_stability(store):
+    """v1.16.0 contract: adding turath (wide-selection) books must append a
+    new cite family with rb-cite-t-* ids and leave every legacy case
+    byte-identical — the seed grows by append, never by renumbering."""
+    legacy = [json.dumps(c, sort_keys=True, ensure_ascii=False)
+              for c in build_bench_cases(store)]
+
+    # add a turath book with verifiable passages
+    store.add_source("turath", "التراث الشامل المُنتقى", "MIT", "declared-open")
+    filler_t = ("وفي هذا الفصل من كتاب التراث الشامل تفصيل مسألة الشرط في "
+                "العقد وأثره في الانعقاد واللزوم عند الفقهاء مع دليله من "
+                "النصوص، وذكر اختلافهم في تفريعه والترجيح في الأمر المشكل. ")
+    store.add_book("turath-9001", "turath", "كتاب التراث الشامل تجربة",
+                   category="تراث/تجربة")
+    for i in range(4):
+        store.add_passage("turath-9001", filler_t * (2 + i), page_num=1 + i, seq=0)
+
+    grown = build_bench_cases(store)
+    grown_ids = [c["case_id"] for c in grown]
+    t_cases = [c for c in grown if c["case_id"].startswith("rb-cite-t-")]
+    assert t_cases, "turath cite family must produce cases from turath books"
+    assert all(c["kind"] == "cite" for c in t_cases)
+    assert any(c["expect"] == "verified" for c in t_cases)
+    # legacy prefix stays byte-identical
+    grown_legacy = [json.dumps(c, sort_keys=True, ensure_ascii=False)
+                    for c in grown[:len(legacy)]]
+    assert grown_legacy == legacy
+    # and the appended cases are exactly the turath family
+    assert grown_ids[len(legacy):] == [c["case_id"] for c in t_cases]
+    # determinism on the grown store as well
+    again = build_bench_cases(store)
+    assert [json.dumps(c, sort_keys=True, ensure_ascii=False) for c in grown] == \
+        [json.dumps(c, sort_keys=True, ensure_ascii=False) for c in again]

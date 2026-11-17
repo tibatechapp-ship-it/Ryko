@@ -65,7 +65,15 @@ class CitationVerdict:
 
 
 def verify_quote(store: KnowledgeStore, quote: str, book_id: str | None = None,
-                 min_partial: float = 0.82, candidates: int = 25) -> CitationVerdict:
+                 min_partial: float = 0.82, candidates: int = 25,
+                 write_status: bool = True) -> CitationVerdict:
+    """Verify a quote against the store (protocol ``ryko-cite/1``).
+
+    ``write_status=True`` (default) upgrades a verified passage's
+    ``verification_status`` — protocol state.  Evaluation and any other
+    read-only consumer MUST pass ``write_status=False`` so the run never
+    mutates the evaluated store's bytes (byte-exact receipts stay intact).
+    """
     norm_quote = textproc.normalize_for_match(quote)
     if not norm_quote:
         raise ValueError("empty quote")
@@ -99,7 +107,7 @@ def verify_quote(store: KnowledgeStore, quote: str, book_id: str | None = None,
         status = VERIFICATION_PARTIAL
     else:
         return CitationVerdict("not_found", quote_sha, None, None, None, None, score, PROTOCOL)
-    if status == VERIFICATION_VERIFIED:
+    if status == VERIFICATION_VERIFIED and write_status:
         store.set_verification(hit.passage_id, VERIFICATION_VERIFIED)
     return CitationVerdict(status, quote_sha, hit.passage_id, hit.book_id,
                            hit.title_ar, hit.page_num, score, PROTOCOL)

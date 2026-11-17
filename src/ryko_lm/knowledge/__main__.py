@@ -19,11 +19,19 @@ from ryko_lm.knowledge.citation import verify_quote
 from ryko_lm.knowledge.store import KnowledgeStore
 
 
-def _open_db(path: str) -> KnowledgeStore:
+def _open_db(path: str, read_only: bool = False) -> KnowledgeStore:
+    """Open a store.
+
+    ``read_only=True`` disables persisting the derived ``passage_vec`` table
+    (repo-copy hygiene, v1.9.0 lesson): read-only CLI commands (stats / search
+    / cite / receipt / ideas / relations) never grow the committed DB past
+    GitHub's 100 MB blob limit.  ``cite`` may still upgrade a passage's
+    ``verification_status`` — that is protocol state, not a derived cache.
+    """
     if path == ":memory:":
         return KnowledgeStore(":memory:")
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    return KnowledgeStore(path)
+    return KnowledgeStore(path, persist_vectors=not read_only)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -36,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     p_ing = sub.add_parser("ingest", help="ingest a collector JSONL into the store")
     p_ing.add_argument("--db", required=True)
     p_ing.add_argument("--jsonl", type=Path, required=True)
-    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr", "econom"],
+    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr", "econom", "turath"],
                        default="shamela")
     p_ing.add_argument("--no-classify", action="store_true",
                        help="skip rule-based discourse labelling")
@@ -114,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         fn = (ingest_mod.ingest_shamela_jsonl if args.format == "shamela"
               else ingest_mod.ingest_fikr_jsonl if args.format == "fikr"
               else ingest_mod.ingest_econom_jsonl if args.format == "econom"
+              else ingest_mod.ingest_turath_jsonl if args.format == "turath"
               else ingest_mod.ingest_openiti_jsonl)
         report = fn(store, args.jsonl, classify=not args.no_classify)
         print(json.dumps(report, ensure_ascii=False, indent=2))
@@ -121,18 +130,18 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "stats":
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         print(json.dumps(store.stats(), ensure_ascii=False, indent=2))
         return 0
 
     if args.cmd == "search":
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         hits = store.search(args.query, k=args.k, mode=args.mode, book_id=args.book)
         print(json.dumps([h.as_dict() for h in hits], ensure_ascii=False, indent=2))
         return 0
 
     if args.cmd == "cite":
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         verdict = verify_quote(store, args.quote, book_id=args.book)
         print(verdict.as_json())
         return 0 if verdict.status in {"verified", "partial"} else 1
@@ -140,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "receipt":
         from ryko_lm.provenance import make_receipt
 
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         meta = store.stats()
         out = args.out or (Path(args.db).with_suffix(".receipt.json"))
         receipt = make_receipt(Path(args.db), kind="knowledge", meta=meta)
@@ -172,7 +181,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "ideas":
         from ryko_lm.knowledge.ideas import search_ideas
 
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         hits = search_ideas(store, args.query, k=args.k,
                             schools={args.school} if args.school else None,
                             layers={args.layer} if args.layer else None)
@@ -197,7 +206,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "relations":
         from ryko_lm.knowledge.relations import list_relations, relations_stats
 
-        store = KnowledgeStore(args.db)
+        store = _open_db(args.db, read_only=True)
         hits = list_relations(store, layer=args.layer,
                               relation=args.relation,
                               claim_id=args.claim_id, k=args.k)

@@ -1,0 +1,17 @@
+{
+  "store": {
+    "db": "data/knowledge/ryko.sqlite",
+    "passages": 90449,
+    "books": 58,
+    "sources": 4
+  },
+  "warm_index_seconds": 39.84,
+  "median_ms_per_query": {
+    "bm25": 183.7,
+    "dense": 208.6,
+    "hybrid": 450.4
+  },
+  "cite_verify_ms": 1306.4,
+  "queries": 6,
+  "repeats": 3
+}

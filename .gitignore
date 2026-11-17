@@ -65,3 +65,7 @@ data/processed_v52/_all_docs.tmp.txt
 data/bench/palmx_ic_source.parquet
 artifacts/training_v5c/last.pt
 artifacts/training_v5c/best.pt
+
+# turath layer: the full (non-core) wide-selection DB stays local —
+# its RECEIPT is committed (rebuildable via make turath-collect && make turath-build-full)
+data/knowledge/ryko-wide-full.sqlite

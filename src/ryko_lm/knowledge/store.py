@@ -89,13 +89,35 @@ class KnowledgeStore:
             check_same_thread=False,
         )
         self.conn.row_factory = sqlite3.Row
+        self._ensure_schema()
+        self._index: _Index | None = None
+
+    def _ensure_schema(self) -> None:
+        """Create/upgrade the schema only when needed.
+
+        Opening an up-to-date store must stay **byte-neutral** (v1.16.0):
+        the previous unconditional ``executescript + INSERT OR REPLACE
+        meta`` rewrote pages on every open, so even a read-only session
+        changed the file's sha256 and broke byte-exact provenance receipts.
+        """
+        try:
+            row = self.conn.execute(
+                "SELECT value FROM meta WHERE key='schema_version'"
+            ).fetchone()
+        except sqlite3.OperationalError:
+            row = None
+        if row is not None:
+            try:
+                if int(row["value"]) >= int(sch.SCHEMA_VERSION):
+                    return
+            except (TypeError, ValueError):
+                pass
         self.conn.executescript(sch.SCHEMA_SQL)
         self.conn.execute(
             "INSERT OR REPLACE INTO meta(key, value) VALUES('schema_version', ?)",
             (str(sch.SCHEMA_VERSION),),
         )
         self.conn.commit()
-        self._index: _Index | None = None
 
     # ------------------------------------------------------------ writes
     def add_source(self, source_id: str, name: str, license: str,

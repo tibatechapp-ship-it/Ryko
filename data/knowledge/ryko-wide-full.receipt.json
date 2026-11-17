@@ -1,0 +1,25 @@
+{
+  "kind": "ryko-knowledge-receipt",
+  "created_utc": "2026-11-17T02:35:41Z",
+  "artifacts": [
+    {
+      "path": "data/knowledge/ryko-wide-full.sqlite",
+      "sha256": "bac2ca7a2140db7f44fd85fff5b388a5197a6a0f5f6a90642a1d1ced48752b73",
+      "bytes": 355381248
+    }
+  ],
+  "meta": {
+    "schema_version": 1,
+    "sources": 1,
+    "authors": 0,
+    "books": 358,
+    "passages": 373543,
+    "claims": 0,
+    "argument_relations": 0,
+    "chars": 127571070,
+    "passages_by_source": {
+      "turath": 373543
+    }
+  },
+  "receipt_sha256": "69d884d1f133aa48774c53042e2155da2539adbea079fb30d178a2dab59380d3"
+}

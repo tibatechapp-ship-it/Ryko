@@ -35,6 +35,11 @@ from ryko_lm.knowledge.textproc import ar_tokens
 SEED = 20261115
 N_CITE_VERIFIED = 48
 N_CITE_NEGATIVE = 16
+# turath cite family (v1.16.0): self-checked cases from the wide stratified
+# selection, generated with a FRESH RNG (SEED + 1) and independent counters
+# so every pre-existing case stays byte-identical when the store grows.
+N_TURATH_CITE_VERIFIED = 12
+N_TURATH_CITE_NEG = 6
 N_MCQ = 48
 N_CLAIM_MCQ = 40
 N_RELATION_MCQ = 30
@@ -100,7 +105,7 @@ ABSTAIN_CASES = (
 
 def _continuation_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     """Cloze-MCQ: a passage prefix + true continuation vs 3 foreign tails."""
-    pool = [p for p in store.iter_passages() if len(p["text"]) >= 240]
+    pool = [p for p in _legacy_pool(store) if len(p["text"]) >= 240]
     rng.shuffle(pool)
     out: list[dict] = []
     used_prefixes: set[str] = set()
@@ -266,6 +271,18 @@ def _relation_cases(store: KnowledgeStore) -> list[dict]:
     return out
 
 
+def _legacy_pool(store: KnowledgeStore) -> list[dict]:
+    """Passages of the pre-v1.16.0 store (everything but ``turath-`` books).
+
+    iter_passages orders by (book_id, page_num, seq) and ``turath-`` sorts
+    after every existing source prefix, so filtering the wide-selection rows
+    out reproduces the exact pre-growth pool sequence — the seed families
+    below stay byte-identical on the expanded store.
+    """
+    return [p for p in store.iter_passages()
+            if not p["book_id"].startswith("turath-")]
+
+
 def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     """Verified quotes (positives) + cross-book splices (negatives), self-checked.
 
@@ -275,7 +292,7 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     (``pos + neg + 1`` vs ``pos + 1``) — latent since v1.11.0, exposed by the
     rebuilt v1.13.0 store. Duplicate IDs are loader-fatal, hence this fix.
     """
-    pool = [p for p in store.iter_passages() if 160 <= len(p["text"]) <= 500]
+    pool = [p for p in _legacy_pool(store) if 160 <= len(p["text"]) <= 500]
     rng.shuffle(pool)
     positives: list[dict] = []
     negatives: list[dict] = []
@@ -284,7 +301,7 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
         quote = text[:120].rsplit(" ", 1)[0]
         if len(quote) < 80:
             continue
-        verdict = verify_quote(store, quote)
+        verdict = verify_quote(store, quote, write_status=False)
         if verdict.status == "verified" and len(positives) < N_CITE_VERIFIED:
             positives.append({
                 "case_id": f"rb-cite-{len(positives) + 1:03d}",
@@ -299,7 +316,7 @@ def _cite_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
                 continue
             donor_text = " ".join(donor["text"].split())
             splice = text[:60] + " " + donor_text[-60:]
-            if verify_quote(store, splice).status == "not_found":
+            if verify_quote(store, splice, write_status=False).status == "not_found":
                 negatives.append({
                     "case_id": f"rb-cite-neg-{len(negatives) + 1:03d}",
                     "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
@@ -320,14 +337,16 @@ def _book_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     Self-checked by construction: the excerpt and the title both originate in
     the committed store, and the answer index is derived after shuffling.
     """
-    books = [b for b in store.iter_books() if (b.get("title_ar") or "").strip()]
+    books = [b for b in store.iter_books()
+             if (b.get("title_ar") or "").strip()
+             and not b["book_id"].startswith("turath-")]
     if len(books) < 4:
         return []
     titles_by_id = {b["book_id"]: " ".join(b["title_ar"].split()) for b in books}
     titles_set = set(titles_by_id.values())
     if len(titles_set) < 4:
         return []
-    pool = [p for p in store.iter_passages() if len(p["text"]) >= 160]
+    pool = [p for p in _legacy_pool(store) if len(p["text"]) >= 160]
     rng.shuffle(pool)
     out: list[dict] = []
     used: set[str] = set()
@@ -363,6 +382,55 @@ def _book_cases(store: KnowledgeStore, rng: random.Random) -> list[dict]:
     return out
 
 
+def _turath_cite_cases(store: KnowledgeStore) -> list[dict]:
+    """Cite family from the wide stratified selection (v1.16.0).
+
+    Same self-checked construction as ``_cite_cases`` (verbatim-verified
+    positives + cross-book splices that must stay ``not_found``) but over
+    the ``turath-`` pool only, with a FRESH RNG (``SEED + 1``) and its own
+    counters (``rb-cite-t-`` / ``rb-cite-t-neg-``) so appending it can never
+    renumber or alter a pre-existing case.  The whole seed stays
+    byte-identical for its first 259 lines; this family appends.
+    """
+    rng = random.Random(SEED + 1)
+    pool = [p for p in store.iter_passages()
+            if p["book_id"].startswith("turath-")
+            and 160 <= len(p["text"]) <= 500]
+    rng.shuffle(pool)
+    positives: list[dict] = []
+    negatives: list[dict] = []
+    for idx, passage in enumerate(pool):
+        text = " ".join(passage["text"].split())
+        quote = text[:120].rsplit(" ", 1)[0]
+        if len(quote) < 80:
+            continue
+        verdict = verify_quote(store, quote, write_status=False)
+        if verdict.status == "verified" and len(positives) < N_TURATH_CITE_VERIFIED:
+            positives.append({
+                "case_id": f"rb-cite-t-{len(positives) + 1:03d}",
+                "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
+                "quote": quote, "expect": "verified",
+                "meta": {"passage_id": passage["passage_id"], "book_id": passage["book_id"],
+                         "page_num": passage["page_num"]},
+            })
+        elif len(negatives) < N_TURATH_CITE_NEG and positives:
+            donor = pool[(idx + 11) % len(pool)]
+            if donor["book_id"] == passage["book_id"]:
+                continue
+            donor_text = " ".join(donor["text"].split())
+            splice = text[:60] + " " + donor_text[-60:]
+            if verify_quote(store, splice, write_status=False).status == "not_found":
+                negatives.append({
+                    "case_id": f"rb-cite-t-neg-{len(negatives) + 1:03d}",
+                    "kind": "cite", "source": "ryko-bench-seed", "domain": "توثيق-اقتباس",
+                    "quote": splice, "expect": "not_found",
+                    "meta": {"spliced_from": donor["book_id"]},
+                })
+        if len(positives) >= N_TURATH_CITE_VERIFIED and len(negatives) >= N_TURATH_CITE_NEG:
+            break
+    return positives + negatives
+
+
 def build(store: KnowledgeStore) -> list[dict]:
     if len(ABSTAIN_CASES) != N_ABSTAIN_OUT:
         raise ValueError(
@@ -381,6 +449,10 @@ def build(store: KnowledgeStore) -> list[dict]:
             "answer": None,
         })
     cases.extend(abstain_in_cases)
+    # v1.16.0: the turath cite family appends LAST so the committed seed's
+    # first 259 lines stay byte-identical and every old case_id keeps its
+    # historical result across releases.
+    cases.extend(_turath_cite_cases(store))
     return cases
 
 

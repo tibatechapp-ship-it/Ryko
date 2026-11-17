@@ -60,6 +60,31 @@ ECONOM_SOURCE = {
 }
 
 
+TURATH_SOURCE = {
+    "source_id": "turath",
+    "name": "التراث الشامل المُنتقى — اختيار طبقي واسع (مرآة الشاملة، famous-first لكل صنف)",
+    "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
+    "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
+    "rights_status": sch.RIGHTS_DECLARED_OPEN,
+}
+
+
+def turath_book_id(raw_id: str) -> str:
+    """Namespace a wide-selection dataset id (``shamela-1234`` -> ``turath-1234``).
+
+    The wide stratified selection re-collects works the committed shamela
+    seed may already carry; namespacing guarantees a wide book can never
+    replace (INSERT OR REPLACE) the seed book of the same dataset id, so
+    layer attribution stays intact.
+    """
+    raw = str(raw_id)
+    for prefix in ("shamela-", "turath-"):
+        if raw.startswith(prefix):
+            raw = raw[len(prefix):]
+            break
+    return f"turath-{raw}"
+
+
 def chunk_text(text: str, target: int = TARGET_CHUNK, min_len: int = MIN_CHUNK,
                max_len: int = MAX_CHUNK) -> list[str]:
     """Paragraph-accumulating chunker — deterministic, provenance-preserving.
@@ -219,6 +244,36 @@ def _ingest_curated_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
                         dups += 1
     return {"format": src["source_id"], "books": books, "passages": passages,
             "duplicates_skipped": dups, "chars": chars}
+
+
+def ingest_turath_jsonl(store: KnowledgeStore, jsonl_path: str | Path | list | tuple,
+                        classify: bool = True,
+                        register_source: bool = True) -> dict:
+    """Ingest the wide stratified selection (``collect_shamela --per-cat 12``
+    output) into the dedicated ``turath`` source with page-level provenance.
+
+    Books register under ``category=تراث/<shamela-category>`` and namespaced
+    ids (``turath-<dataset id>``) so the layer stays queryable as one domain
+    and never collides with the committed shamela-seed books.  Idempotent:
+    re-running the same collection reports zero new passages.
+    """
+    if isinstance(jsonl_path, (list, tuple)):
+        raw_records = list(jsonl_path)
+    else:
+        raw_records = []
+        with Path(jsonl_path).open(encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if line:
+                    raw_records.append(json.loads(line))
+    records = []
+    for rec in raw_records:
+        rec = dict(rec)
+        rec["id"] = turath_book_id(rec.get("id", ""))
+        rec["cat"] = f"تراث/{rec['cat']}" if rec.get("cat") else "تراث"
+        records.append(rec)
+    return _ingest_curated_jsonl(store, records, TURATH_SOURCE, classify,
+                                 register_source)
 
 
 def ingest_openiti_jsonl(store: KnowledgeStore, jsonl_path: str | Path,

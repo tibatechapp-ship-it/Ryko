@@ -1,0 +1,2897 @@
+{
+  "kind": "ryko-turath-manifest",
+  "protocol": "ryko-turath/1",
+  "source_id": "turath",
+  "source_name": "التراث الشامل المُنتقى — اختيار طبقي واسع (مرآة الشاملة، famous-first لكل صنف)",
+  "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
+  "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
+  "rights_status": "declared-open",
+  "collector": {
+    "module": "ryko_lm.data.collect_shamela",
+    "args": "--per-cat 12 --max-books 600 --max-file-mb 3 --keep-pages",
+    "selection": "famous-first per category, remaining slots by dataset order",
+    "note": "same wide stratified selection merged into corpus v5.2 (v1.15.0)"
+  },
+  "selection": {
+    "policy": "full tier: every collected record (local store, receipt committed, file rebuildable)",
+    "budget_chars": null,
+    "budget_spent_chars": null,
+    "records_available": 358,
+    "records_skipped_existing": 0,
+    "records_selected": 358,
+    "categories_available": 40,
+    "categories_covered": 40,
+    "rounds": null
+  },
+  "claims_policy": "none — attributed ideas stay the exclusive discipline of the منقحة layers (fikr / econom); turath is a retrieval-and-citation layer",
+  "counts": {
+    "books": 358,
+    "chars": 128139604
+  },
+  "books": [
+    {
+      "book_id": "turath-1000",
+      "dataset_id": "shamela-1000",
+      "title": "إسبال-الكلام-على-حديث-ابن-عباس-في-القيام",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 883,
+      "chars": 710001
+    },
+    {
+      "book_id": "turath-1005",
+      "dataset_id": "shamela-1005",
+      "title": "متون-طالب-العلم-المستوى-الخامس-2",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 448,
+      "chars": 285773
+    },
+    {
+      "book_id": "turath-1006",
+      "dataset_id": "shamela-1006",
+      "title": "متون-طالب-العلم-المستوى-الخامس-3",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 109,
+      "chars": 102277
+    },
+    {
+      "book_id": "turath-1007",
+      "dataset_id": "shamela-1007",
+      "title": "متون-طالب-العلم-الإضافية-1",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 39,
+      "chars": 18799
+    },
+    {
+      "book_id": "turath-1010",
+      "dataset_id": "shamela-1010",
+      "title": "متون-طالب-العلم-الإضافية-2",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 237,
+      "chars": 167398
+    },
+    {
+      "book_id": "turath-1011",
+      "dataset_id": "shamela-1011",
+      "title": "متون-طالب-العلم-الإضافية-3",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 34,
+      "chars": 14597
+    },
+    {
+      "book_id": "turath-1012",
+      "dataset_id": "shamela-1012",
+      "title": "متون-طالب-العلم-الإضافية-4",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 87,
+      "chars": 48521
+    },
+    {
+      "book_id": "turath-1013",
+      "dataset_id": "shamela-1013",
+      "title": "متون-طالب-العلم-الإضافية-5",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 129,
+      "chars": 102992
+    },
+    {
+      "book_id": "turath-1014",
+      "dataset_id": "shamela-1014",
+      "title": "متون-طالب-العلم-الإضافية-6",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 471,
+      "chars": 567509
+    },
+    {
+      "book_id": "turath-1015",
+      "dataset_id": "shamela-1015",
+      "title": "متون-طالب-العلم-الإضافية-8",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 150,
+      "chars": 96795
+    },
+    {
+      "book_id": "turath-1016",
+      "dataset_id": "shamela-1016",
+      "title": "متون-طالب-العلم-الإضافية-10",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 33,
+      "chars": 17367
+    },
+    {
+      "book_id": "turath-1017",
+      "dataset_id": "shamela-1017",
+      "title": "العوامل-المؤثرة-في-نوط-الحكم-بالمظنة-أو-بالحكمة",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 54,
+      "chars": 109675
+    },
+    {
+      "book_id": "turath-1018",
+      "dataset_id": "shamela-1018",
+      "title": "القول-بما-لم-يسبق-به-قول",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 149,
+      "chars": 106609
+    },
+    {
+      "book_id": "turath-1019",
+      "dataset_id": "shamela-1019",
+      "title": "المسائل-التي-قيل-فيها-لا-فرق-عند-الحنابلة-في-العبادات",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 527,
+      "chars": 468907
+    },
+    {
+      "book_id": "turath-1022",
+      "dataset_id": "shamela-1022",
+      "title": "فقه-الهندسة-المالية-الإسلامية",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 444,
+      "chars": 418417
+    },
+    {
+      "book_id": "turath-1023",
+      "dataset_id": "shamela-1023",
+      "title": "المغالطات-المنطقية",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 259,
+      "chars": 357612
+    },
+    {
+      "book_id": "turath-1024",
+      "dataset_id": "shamela-1024",
+      "title": "مختصر-المغالطات-المنطقية",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 101,
+      "chars": 63677
+    },
+    {
+      "book_id": "turath-1025",
+      "dataset_id": "shamela-1025",
+      "title": "منهج-القرطبي-في-دفع-ما-يتوهم-تعارضه-من-الآيات-في-كتابه-الجامع-لإحكام-القرآن",
+      "category": "تراث/03__التفسير",
+      "raw_pages": 680,
+      "chars": 931102
+    },
+    {
+      "book_id": "turath-1030",
+      "dataset_id": "shamela-1030",
+      "title": "الإسلام-دين-الوسطية-والفضائل-والقيم-الخالدة",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 52,
+      "chars": 38198
+    },
+    {
+      "book_id": "turath-1031",
+      "dataset_id": "shamela-1031",
+      "title": "معجزة-القرآن",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 80,
+      "chars": 87688
+    },
+    {
+      "book_id": "turath-1032",
+      "dataset_id": "shamela-1032",
+      "title": "الهبات-السنية-العلية-على-أبيات-الشاطبية-الرائية",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 500,
+      "chars": 448716
+    },
+    {
+      "book_id": "turath-1033",
+      "dataset_id": "shamela-1033",
+      "title": "مغالطات-لغوية",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 264,
+      "chars": 403764
+    },
+    {
+      "book_id": "turath-1035",
+      "dataset_id": "shamela-1035",
+      "title": "نهاية-التدريب-نظم-غاية-التقريب-ت-جراد",
+      "category": "تراث/16__الفقه-الشافعي",
+      "raw_pages": 231,
+      "chars": 168767
+    },
+    {
+      "book_id": "turath-1040",
+      "dataset_id": "shamela-1040",
+      "title": "الجذور-التاريخية-لحقيقة-الغلو-والتطرف-والإرهاب-والعنف",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 66,
+      "chars": 50231
+    },
+    {
+      "book_id": "turath-1042",
+      "dataset_id": "shamela-1042",
+      "title": "الحوار-مع-أصحاب-الأديان-مشروعيته-وشروطه-وآدابه",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 61,
+      "chars": 43276
+    },
+    {
+      "book_id": "turath-1044",
+      "dataset_id": "shamela-1044",
+      "title": "الغلو-الأسباب-والعلاج",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 34,
+      "chars": 25724
+    },
+    {
+      "book_id": "turath-1045",
+      "dataset_id": "shamela-1045",
+      "title": "شرح-مشكلات-القدوري",
+      "category": "تراث/14__الفقه-الحنفي",
+      "raw_pages": 1213,
+      "chars": 848990
+    },
+    {
+      "book_id": "turath-1048",
+      "dataset_id": "shamela-1048",
+      "title": "اليسر-والسماحة-في-الإسلام",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 59,
+      "chars": 41887
+    },
+    {
+      "book_id": "turath-1053",
+      "dataset_id": "shamela-1053",
+      "title": "لطائف-المعارف-فيما-لمواسم-العام-من-الوظائف-ت-عوض-الله",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 586,
+      "chars": 652760
+    },
+    {
+      "book_id": "turath-1054",
+      "dataset_id": "shamela-1054",
+      "title": "أثر-العلم-الشرعي-في-مواجهة-العنف-والعدوان",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 56,
+      "chars": 42948
+    },
+    {
+      "book_id": "turath-1058",
+      "dataset_id": "shamela-1058",
+      "title": "ضعيف-سنن-النسائي",
+      "category": "تراث/06__كتب-السنة",
+      "raw_pages": 279,
+      "chars": 239959
+    },
+    {
+      "book_id": "turath-1060",
+      "dataset_id": "shamela-1060",
+      "title": "حصر-حرف-الظاء",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 10,
+      "chars": 7689
+    },
+    {
+      "book_id": "turath-1061",
+      "dataset_id": "shamela-1061",
+      "title": "لطائف-المعارف-فيما-لمواسم-العام-من-الوظائف-ت-عامر",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 739,
+      "chars": 860140
+    },
+    {
+      "book_id": "turath-1062",
+      "dataset_id": "shamela-1062",
+      "title": "لطائف-المعارف-فيما-لمواسم-العام-من-الوظائف-ت-السواس",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 583,
+      "chars": 781891
+    },
+    {
+      "book_id": "turath-1065",
+      "dataset_id": "shamela-1065",
+      "title": "الشامل-في-زكاة-الأسهم-واستثمار-أموال-الزكاة",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 168,
+      "chars": 176783
+    },
+    {
+      "book_id": "turath-1066",
+      "dataset_id": "shamela-1066",
+      "title": "الفتاوى-اليومية-من-المسائل-الفقهية",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 247,
+      "chars": 236234
+    },
+    {
+      "book_id": "turath-1067",
+      "dataset_id": "shamela-1067",
+      "title": "الجامع-الكبير-لمحمد-بن-الحسن",
+      "category": "تراث/14__الفقه-الحنفي",
+      "raw_pages": 384,
+      "chars": 589759
+    },
+    {
+      "book_id": "turath-1069",
+      "dataset_id": "shamela-1069",
+      "title": "المنح-العلية-في-بيان-السنن-اليومية",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 207,
+      "chars": 232455
+    },
+    {
+      "book_id": "turath-1073",
+      "dataset_id": "shamela-1073",
+      "title": "استدراك-ما-فات-من-الإخوة-والأخوات",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 61,
+      "chars": 17172
+    },
+    {
+      "book_id": "turath-1075",
+      "dataset_id": "shamela-1075",
+      "title": "تسمية-الإخوة-الذين-روي-عنهم-الحديث",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 107,
+      "chars": 49395
+    },
+    {
+      "book_id": "turath-1076",
+      "dataset_id": "shamela-1076",
+      "title": "تسمية-من-روي-عنه-من-أولاد-العشرة-ت-الجوابرة",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 141,
+      "chars": 53072
+    },
+    {
+      "book_id": "turath-1077",
+      "dataset_id": "shamela-1077",
+      "title": "الأحكام-لعبد-الملك-بن-حبيب",
+      "category": "تراث/15__الفقه-المالكي",
+      "raw_pages": 198,
+      "chars": 214905
+    },
+    {
+      "book_id": "turath-1078",
+      "dataset_id": "shamela-1078",
+      "title": "إرهاب-المستأمنين-وموقف-الإسلام-منه",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 56,
+      "chars": 38369
+    },
+    {
+      "book_id": "turath-1080",
+      "dataset_id": "shamela-1080",
+      "title": "جزء-في-بيع-أمهات-الأولاد",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 152,
+      "chars": 113430
+    },
+    {
+      "book_id": "turath-1083",
+      "dataset_id": "shamela-1083",
+      "title": "ثقافة-العولمة-بوصفها-خطابا-متطرفا",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 37,
+      "chars": 24367
+    },
+    {
+      "book_id": "turath-1084",
+      "dataset_id": "shamela-1084",
+      "title": "فتح-الرحيم-في-الصلاة-والسلام-على-النبي-الكريم-صلى-الله-عليه-وسلم",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 164,
+      "chars": 155514
+    },
+    {
+      "book_id": "turath-1085",
+      "dataset_id": "shamela-1085",
+      "title": "جهود-أئمة-الدعوة-السلفية-بنجد-في-التصدي-للعنف-والإرهاب-من-خلال-الدعوة-إلى-فقه",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 73,
+      "chars": 53432
+    },
+    {
+      "book_id": "turath-1086",
+      "dataset_id": "shamela-1086",
+      "title": "الجوهر-النقي",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 2317,
+      "chars": 1306602
+    },
+    {
+      "book_id": "turath-1089",
+      "dataset_id": "shamela-1089",
+      "title": "القرآن-وإعجازه-العلمي",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 171,
+      "chars": 193845
+    },
+    {
+      "book_id": "turath-1099",
+      "dataset_id": "shamela-1099",
+      "title": "العقد-المفرد-في-الفقه-على-مذهب-الإمام-أحمد",
+      "category": "تراث/17__الفقه-الحنبلي",
+      "raw_pages": 700,
+      "chars": 493856
+    },
+    {
+      "book_id": "turath-1103",
+      "dataset_id": "shamela-1103",
+      "title": "المختصر-الصغير-لابن-عبد-الحكم-خلافيات-في-الفقه",
+      "category": "تراث/15__الفقه-المالكي",
+      "raw_pages": 564,
+      "chars": 291397
+    },
+    {
+      "book_id": "turath-1104",
+      "dataset_id": "shamela-1104",
+      "title": "تحصيل-عين-الذهب-من-معدن-جوهر-الأدب-في-علم-مجازات-العرب",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 617,
+      "chars": 755334
+    },
+    {
+      "book_id": "turath-1110",
+      "dataset_id": "shamela-1110",
+      "title": "معجم-لغة-الفقهاء",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 499,
+      "chars": 675925
+    },
+    {
+      "book_id": "turath-1111",
+      "dataset_id": "shamela-1111",
+      "title": "ضعيف-سنن-الترمذي",
+      "category": "تراث/06__كتب-السنة",
+      "raw_pages": 602,
+      "chars": 508269
+    },
+    {
+      "book_id": "turath-1112",
+      "dataset_id": "shamela-1112",
+      "title": "تعطير-الأنام-في-تعبير-المنام",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 378,
+      "chars": 1304433
+    },
+    {
+      "book_id": "turath-1117",
+      "dataset_id": "shamela-1117",
+      "title": "المسائل-الفقهية-التي-عليها-الفتوى-عند-متأخري-الحنفية-جمعا-ودراسة",
+      "category": "تراث/14__الفقه-الحنفي",
+      "raw_pages": 676,
+      "chars": 603397
+    },
+    {
+      "book_id": "turath-1119",
+      "dataset_id": "shamela-1119",
+      "title": "المدخل-إلي-جامع-الترمذي",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 1281,
+      "chars": 1222252
+    },
+    {
+      "book_id": "turath-1120",
+      "dataset_id": "shamela-1120",
+      "title": "التحفة-المكية-في-توضيح-أهم-القواعد-الفقهية",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 333,
+      "chars": 332932
+    },
+    {
+      "book_id": "turath-1122",
+      "dataset_id": "shamela-1122",
+      "title": "درر-من-تفسير-القرطبي",
+      "category": "تراث/03__التفسير",
+      "raw_pages": 667,
+      "chars": 725819
+    },
+    {
+      "book_id": "turath-1123",
+      "dataset_id": "shamela-1123",
+      "title": "شرح-صفة-الصلاة-لابن-القيم",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 121,
+      "chars": 140385
+    },
+    {
+      "book_id": "turath-1124",
+      "dataset_id": "shamela-1124",
+      "title": "ربط-الديون-والالتزامات-الآجلة-بالذهب-أو-الفضة-أو-بسلة-من-العملات-أو-بمستوى-وحكمه",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 123,
+      "chars": 143806
+    },
+    {
+      "book_id": "turath-1125",
+      "dataset_id": "shamela-1125",
+      "title": "السر-المصون-على-كشف-الظنون-قطعة-منه",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 262,
+      "chars": 299196
+    },
+    {
+      "book_id": "turath-1128",
+      "dataset_id": "shamela-1128",
+      "title": "ذيل-كشف-الظنون-الطهراني",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 112,
+      "chars": 194600
+    },
+    {
+      "book_id": "turath-113",
+      "dataset_id": "shamela-113",
+      "title": "العرف-الشذي-شرح-سنن-الترمذي",
+      "category": "تراث/07__شروح-الحديث",
+      "raw_pages": 2812,
+      "chars": 1184381
+    },
+    {
+      "book_id": "turath-1131",
+      "dataset_id": "shamela-1131",
+      "title": "نظرات-استشرافية-في-فقه-العلاقات-الإنسانية-بين-المسلمين-وغير-المسلمين",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 39,
+      "chars": 24986
+    },
+    {
+      "book_id": "turath-1135",
+      "dataset_id": "shamela-1135",
+      "title": "الرد-الأمين",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 57,
+      "chars": 141528
+    },
+    {
+      "book_id": "turath-1140",
+      "dataset_id": "shamela-1140",
+      "title": "تقريب-الوصول-إلى-ثلاثة-الأصول",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 185,
+      "chars": 201549
+    },
+    {
+      "book_id": "turath-1145",
+      "dataset_id": "shamela-1145",
+      "title": "الرد-السديد-على-مطاعن-حسن-المالكي-على-أئمة-الدعوة-ومقررات-التوحيد",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 215,
+      "chars": 229809
+    },
+    {
+      "book_id": "turath-1147",
+      "dataset_id": "shamela-1147",
+      "title": "التحرير-في-شرح-صحيح-مسلم-الأصبهاني",
+      "category": "تراث/07__شروح-الحديث",
+      "raw_pages": 646,
+      "chars": 614840
+    },
+    {
+      "book_id": "turath-1152",
+      "dataset_id": "shamela-1152",
+      "title": "كتاب-الحج-من-مدونة-أشهب",
+      "category": "تراث/15__الفقه-المالكي",
+      "raw_pages": 179,
+      "chars": 113316
+    },
+    {
+      "book_id": "turath-1153",
+      "dataset_id": "shamela-1153",
+      "title": "المآخذ-على-تحقيق-ضاري-الدوري-لكتاب-التجريد-لابن-الفحام",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 73,
+      "chars": 74920
+    },
+    {
+      "book_id": "turath-1156",
+      "dataset_id": "shamela-1156",
+      "title": "الكشف-عن-وجوه-القراءات-السبع-وعللها-وحججها",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 990,
+      "chars": 1082849
+    },
+    {
+      "book_id": "turath-116",
+      "dataset_id": "shamela-116",
+      "title": "الأماكن-ما-اتفق-لفظه-وافترق-مسماه",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 871,
+      "chars": 461512
+    },
+    {
+      "book_id": "turath-1173",
+      "dataset_id": "shamela-1173",
+      "title": "نظم-نور-الإيضاح",
+      "category": "تراث/14__الفقه-الحنفي",
+      "raw_pages": 69,
+      "chars": 56678
+    },
+    {
+      "book_id": "turath-1177",
+      "dataset_id": "shamela-1177",
+      "title": "منهج-الكرماني-فى-كتابه-الكواكب-الدراري-في-شرح-صحيح-البخاري",
+      "category": "تراث/07__شروح-الحديث",
+      "raw_pages": 643,
+      "chars": 552026
+    },
+    {
+      "book_id": "turath-1185",
+      "dataset_id": "shamela-1185",
+      "title": "مرويات-غزوة-حنين-وحصار-الطائف",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 751,
+      "chars": 642054
+    },
+    {
+      "book_id": "turath-1186",
+      "dataset_id": "shamela-1186",
+      "title": "غريب-الحديث-أبو-عبيد-ط-الهندية",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 1659,
+      "chars": 1109448
+    },
+    {
+      "book_id": "turath-1194",
+      "dataset_id": "shamela-1194",
+      "title": "أمالي-الزجاجي",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 248,
+      "chars": 184706
+    },
+    {
+      "book_id": "turath-1198",
+      "dataset_id": "shamela-1198",
+      "title": "درة-التنزيل-وغرة-التأويل",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 1361,
+      "chars": 739052
+    },
+    {
+      "book_id": "turath-1201",
+      "dataset_id": "shamela-1201",
+      "title": "صفة-جزيرة-الأندلس",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 203,
+      "chars": 222097
+    },
+    {
+      "book_id": "turath-1202",
+      "dataset_id": "shamela-1202",
+      "title": "صفة-صاحب-الذوق-السليم",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 48,
+      "chars": 34686
+    },
+    {
+      "book_id": "turath-1205",
+      "dataset_id": "shamela-1205",
+      "title": "شرح-كشف-الشبهات-البراك",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 116,
+      "chars": 126199
+    },
+    {
+      "book_id": "turath-1206",
+      "dataset_id": "shamela-1206",
+      "title": "غرر-الخصائص-الواضحة",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 601,
+      "chars": 760802
+    },
+    {
+      "book_id": "turath-1211",
+      "dataset_id": "shamela-1211",
+      "title": "دراسات-أصولية-تطبيقية-على-آيات-الأحكام",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 391,
+      "chars": 379129
+    },
+    {
+      "book_id": "turath-1212",
+      "dataset_id": "shamela-1212",
+      "title": "فتح-الجليل-في-التعليق-على-كتاب-الإكليل",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 159,
+      "chars": 281382
+    },
+    {
+      "book_id": "turath-1213",
+      "dataset_id": "shamela-1213",
+      "title": "المعتقد-وأثره-على-مسائل-أصول-الفقه",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 183,
+      "chars": 161296
+    },
+    {
+      "book_id": "turath-1214",
+      "dataset_id": "shamela-1214",
+      "title": "حدود-حرية-الفكر-في-الشريعة-الإسلامية",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 63,
+      "chars": 75951
+    },
+    {
+      "book_id": "turath-1216",
+      "dataset_id": "shamela-1216",
+      "title": "فتح-العلام-في-بيان-مآخذ-الأحكام",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 711,
+      "chars": 749070
+    },
+    {
+      "book_id": "turath-1219",
+      "dataset_id": "shamela-1219",
+      "title": "بر-الوالدين-البخاري-ت-مكي",
+      "category": "تراث/06__كتب-السنة",
+      "raw_pages": 258,
+      "chars": 124092
+    },
+    {
+      "book_id": "turath-1226",
+      "dataset_id": "shamela-1226",
+      "title": "بر-الوالدين-البخاري-ت-عبد-العاطي",
+      "category": "تراث/06__كتب-السنة",
+      "raw_pages": 82,
+      "chars": 44342
+    },
+    {
+      "book_id": "turath-1230",
+      "dataset_id": "shamela-1230",
+      "title": "أنساب-الأشراف-ت-حميد-الله",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 620,
+      "chars": 804626
+    },
+    {
+      "book_id": "turath-1234",
+      "dataset_id": "shamela-1234",
+      "title": "الإكليل-في-استنباط-التنزيل",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 296,
+      "chars": 422688
+    },
+    {
+      "book_id": "turath-1237",
+      "dataset_id": "shamela-1237",
+      "title": "البرهان-فى-تناسب-سور-القرآن",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 207,
+      "chars": 222698
+    },
+    {
+      "book_id": "turath-1245",
+      "dataset_id": "shamela-1245",
+      "title": "تحفة-الأقران-في-ما-قرئ-بالتثليث-من-حروف-القرآن",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 195,
+      "chars": 131774
+    },
+    {
+      "book_id": "turath-1246",
+      "dataset_id": "shamela-1246",
+      "title": "الانتصار-للقرآن-للباقلاني",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 756,
+      "chars": 969386
+    },
+    {
+      "book_id": "turath-1249",
+      "dataset_id": "shamela-1249",
+      "title": "فنون-الأفنان-في-عيون-علوم-القرآن",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 341,
+      "chars": 154447
+    },
+    {
+      "book_id": "turath-1250",
+      "dataset_id": "shamela-1250",
+      "title": "كشف-المعاني-في-المتشابه-من-المثاني",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 308,
+      "chars": 201786
+    },
+    {
+      "book_id": "turath-1251",
+      "dataset_id": "shamela-1251",
+      "title": "مصاعد-النظر-للإشراف-على-مقاصد-السور",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 1180,
+      "chars": 788948
+    },
+    {
+      "book_id": "turath-1253",
+      "dataset_id": "shamela-1253",
+      "title": "المغرب-في-ترتيب-المعرب-ت-فاخوري-ومختار",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 948,
+      "chars": 1000941
+    },
+    {
+      "book_id": "turath-126",
+      "dataset_id": "shamela-126",
+      "title": "الأمثال-أبو-عبيد",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 357,
+      "chars": 248499
+    },
+    {
+      "book_id": "turath-1269",
+      "dataset_id": "shamela-1269",
+      "title": "يسألونك-عن-المعاملات-المالية-المعاصرة",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 302,
+      "chars": 380189
+    },
+    {
+      "book_id": "turath-1280",
+      "dataset_id": "shamela-1280",
+      "title": "يسألونك-عن-رمضان",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 291,
+      "chars": 356340
+    },
+    {
+      "book_id": "turath-1287",
+      "dataset_id": "shamela-1287",
+      "title": "الدرة-الأرجوزة-فى-رسم-الكلم-المهموزة",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 13,
+      "chars": 5490
+    },
+    {
+      "book_id": "turath-129",
+      "dataset_id": "shamela-129",
+      "title": "شمائل-الحبيب-المصطفى",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 211,
+      "chars": 247068
+    },
+    {
+      "book_id": "turath-1292",
+      "dataset_id": "shamela-1292",
+      "title": "كتاب-العلل-الواقع-بآخر-جامع-الترمذي-ط-الرسالة",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 50,
+      "chars": 34284
+    },
+    {
+      "book_id": "turath-130",
+      "dataset_id": "shamela-130",
+      "title": "الحواشي-السابغات-على-أخصر-المختصرات",
+      "category": "تراث/17__الفقه-الحنبلي",
+      "raw_pages": 758,
+      "chars": 144566
+    },
+    {
+      "book_id": "turath-1305",
+      "dataset_id": "shamela-1305",
+      "title": "الرد-على-الشاذلي-في-حزبيه-وما-صنفه-في-آداب-الطريق",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 326,
+      "chars": 296664
+    },
+    {
+      "book_id": "turath-1307",
+      "dataset_id": "shamela-1307",
+      "title": "الاستدلال-في-التفسير-دراسة-في-منهج-الطبري",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 633,
+      "chars": 696132
+    },
+    {
+      "book_id": "turath-1311",
+      "dataset_id": "shamela-1311",
+      "title": "الأصل-الجامع-لإيضاح-الدرر-المنظومة-في-سلك-جمع-الجوامع",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 397,
+      "chars": 1115595
+    },
+    {
+      "book_id": "turath-1314",
+      "dataset_id": "shamela-1314",
+      "title": "الجامع-لأحكام-الطهارة",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 643,
+      "chars": 697103
+    },
+    {
+      "book_id": "turath-132",
+      "dataset_id": "shamela-132",
+      "title": "مدارج-تفقه-الحنبلي",
+      "category": "تراث/17__الفقه-الحنبلي",
+      "raw_pages": 211,
+      "chars": 222809
+    },
+    {
+      "book_id": "turath-1323",
+      "dataset_id": "shamela-1323",
+      "title": "الفهرست-ت-رضا-تجدد",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 406,
+      "chars": 1087142
+    },
+    {
+      "book_id": "turath-1329",
+      "dataset_id": "shamela-1329",
+      "title": "جمهرة-النسب-ابن-الكلبي-ت-علي-عمر",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 992,
+      "chars": 1211082
+    },
+    {
+      "book_id": "turath-1336",
+      "dataset_id": "shamela-1336",
+      "title": "الفهرست-ط-المكتبة-التجارية",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 520,
+      "chars": 722822
+    },
+    {
+      "book_id": "turath-1337",
+      "dataset_id": "shamela-1337",
+      "title": "الإنباه-فى-ذكر-القبائل-الرواة-ت-التركي",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 173,
+      "chars": 132507
+    },
+    {
+      "book_id": "turath-1345",
+      "dataset_id": "shamela-1345",
+      "title": "مع-الاثنى-عشرية-في-الأصول-والفروع",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 1175,
+      "chars": 1329395
+    },
+    {
+      "book_id": "turath-1350",
+      "dataset_id": "shamela-1350",
+      "title": "نهاية-الإيجاز-في-سيرة-ساكن-الحجاز",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 549,
+      "chars": 782223
+    },
+    {
+      "book_id": "turath-1351",
+      "dataset_id": "shamela-1351",
+      "title": "أحاديث-الموطأ-وذكر-اتفاق-الرواة-عن-مالك-واختلافهم",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 205,
+      "chars": 56170
+    },
+    {
+      "book_id": "turath-1362",
+      "dataset_id": "shamela-1362",
+      "title": "الغريب-المصنف-قطعة-ضمن-مجلة-الجامعة-الإسلامية",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 248,
+      "chars": 180736
+    },
+    {
+      "book_id": "turath-1364",
+      "dataset_id": "shamela-1364",
+      "title": "موت-الألفاظ-في-العربية",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 117,
+      "chars": 94556
+    },
+    {
+      "book_id": "turath-1367",
+      "dataset_id": "shamela-1367",
+      "title": "تفسير-النصوص-في-الفقه-الإسلامي",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 929,
+      "chars": 1029068
+    },
+    {
+      "book_id": "turath-1374",
+      "dataset_id": "shamela-1374",
+      "title": "وجاء-النبي-المنتظر",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 116,
+      "chars": 94811
+    },
+    {
+      "book_id": "turath-1377",
+      "dataset_id": "shamela-1377",
+      "title": "نزهة-النظر-في-توضيح-نخبة-الفكر-ت-عتر",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 157,
+      "chars": 154347
+    },
+    {
+      "book_id": "turath-1382",
+      "dataset_id": "shamela-1382",
+      "title": "شرح-رسالة-لطيفة-جامعة-في-أصول-الفقه-المهمة",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 320,
+      "chars": 303617
+    },
+    {
+      "book_id": "turath-1383",
+      "dataset_id": "shamela-1383",
+      "title": "العقد-الثمين-في-شرح-منظومة-الشيخ-ابن-عثيمين",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 304,
+      "chars": 319440
+    },
+    {
+      "book_id": "turath-1393",
+      "dataset_id": "shamela-1393",
+      "title": "سراج-الملوك",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 204,
+      "chars": 558492
+    },
+    {
+      "book_id": "turath-1406",
+      "dataset_id": "shamela-1406",
+      "title": "فضائل-بيت-المقدس-ابن-الجوزي-ط-الآفاق",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 81,
+      "chars": 43281
+    },
+    {
+      "book_id": "turath-1412",
+      "dataset_id": "shamela-1412",
+      "title": "شرح-المنظومة-المسماة-بعقود-رسم-المفتي-ط-إسطنبول",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 44,
+      "chars": 87498
+    },
+    {
+      "book_id": "turath-1420",
+      "dataset_id": "shamela-1420",
+      "title": "شفاء-العليل-وبل-الغليل-في-حكم-الوصية-بالختمات-والتهاليل-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 57,
+      "chars": 108895
+    },
+    {
+      "book_id": "turath-1421",
+      "dataset_id": "shamela-1421",
+      "title": "منة-الجليل-لبيان-إسقاط-ما-على-الذمة-من-كثير-وقليل-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 24,
+      "chars": 48636
+    },
+    {
+      "book_id": "turath-1425",
+      "dataset_id": "shamela-1425",
+      "title": "تحرير-النقول-في-نفقة-الفروع-والأصول-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 15,
+      "chars": 29309
+    },
+    {
+      "book_id": "turath-1427",
+      "dataset_id": "shamela-1427",
+      "title": "رفع-الاشتباه-عن-عبارة-الأشباه-ط-إسطنبول",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 9,
+      "chars": 16265
+    },
+    {
+      "book_id": "turath-1429",
+      "dataset_id": "shamela-1429",
+      "title": "الأقوال-الواضحة-الجلية-في-تحرير-مسئلة-نقض-القسمة-ومسئلة-الدرجة-الجعلية-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 15,
+      "chars": 42498
+    },
+    {
+      "book_id": "turath-1430",
+      "dataset_id": "shamela-1430",
+      "title": "العقود-الدرية-في-قول-الواقف-على-الفريضة-الشرعية-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 16,
+      "chars": 30204
+    },
+    {
+      "book_id": "turath-1431",
+      "dataset_id": "shamela-1431",
+      "title": "غاية-المطلب-في-اشتراط-الواقف-عود-النصيب-إلى-أهل-الدرجة-الأقرب-فالأقرب-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 13,
+      "chars": 24281
+    },
+    {
+      "book_id": "turath-1432",
+      "dataset_id": "shamela-1432",
+      "title": "غاية-البيان-في-أن-وقف-الاثنين-على-أنفسهما-وقف-لا-وقفان-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 10,
+      "chars": 17272
+    },
+    {
+      "book_id": "turath-1436",
+      "dataset_id": "shamela-1436",
+      "title": "إعلام-الأعلام-بأحكام-الإقرار-العام-ط-إسطنبول",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 19,
+      "chars": 38335
+    },
+    {
+      "book_id": "turath-1450",
+      "dataset_id": "shamela-1450",
+      "title": "مختصر-المزني-ط-الفكر-بآخر-كتاب-الأم",
+      "category": "تراث/16__الفقه-الشافعي",
+      "raw_pages": 351,
+      "chars": 1468148
+    },
+    {
+      "book_id": "turath-1453",
+      "dataset_id": "shamela-1453",
+      "title": "الأشباه-والنظائر-ابن-نجيم",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 361,
+      "chars": 1024407
+    },
+    {
+      "book_id": "turath-147",
+      "dataset_id": "shamela-147",
+      "title": "التحقيقات-على-شرح-الجلال-للورقات",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 344,
+      "chars": 320110
+    },
+    {
+      "book_id": "turath-1470",
+      "dataset_id": "shamela-1470",
+      "title": "الضروري-في-أصول-الفقه-مختصر-المستصفى",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 114,
+      "chars": 117277
+    },
+    {
+      "book_id": "turath-1485",
+      "dataset_id": "shamela-1485",
+      "title": "معجم-الفروق-اللغوية-الحاوي-لكتابي-العسكري-والجزائري-ط-قم",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 582,
+      "chars": 658705
+    },
+    {
+      "book_id": "turath-1486",
+      "dataset_id": "shamela-1486",
+      "title": "أثر-اختلاف-الأسانيد-والمتون-في-اختلاف-الفقهاء",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 524,
+      "chars": 516827
+    },
+    {
+      "book_id": "turath-1487",
+      "dataset_id": "shamela-1487",
+      "title": "حجية-القياس-والرد-علي-المخالفين",
+      "category": "تراث/11__أصول-الفقه",
+      "raw_pages": 57,
+      "chars": 79399
+    },
+    {
+      "book_id": "turath-1490",
+      "dataset_id": "shamela-1490",
+      "title": "الشفا-بتعريف-حقوق-المصطفى-وحاشية-الشمني",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 697,
+      "chars": 926489
+    },
+    {
+      "book_id": "turath-1497",
+      "dataset_id": "shamela-1497",
+      "title": "الانتصار-للصحابة-الأخيار-في-رد-أباطيل-حسن-المالكي",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 144,
+      "chars": 186968
+    },
+    {
+      "book_id": "turath-1504",
+      "dataset_id": "shamela-1504",
+      "title": "رد-شبهات-حول-عصمة-النبى-صلى-الله-عليه-وسلم",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 808,
+      "chars": 733751
+    },
+    {
+      "book_id": "turath-153",
+      "dataset_id": "shamela-153",
+      "title": "القطارة-النحوية-على-المقدمة-الآجرومية",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 44,
+      "chars": 78422
+    },
+    {
+      "book_id": "turath-1537",
+      "dataset_id": "shamela-1537",
+      "title": "النظام-القضائي",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 71,
+      "chars": 43330
+    },
+    {
+      "book_id": "turath-154",
+      "dataset_id": "shamela-154",
+      "title": "هدم-المنارة-لمن-صحح-أحاديث-التوسل-والزيارة",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 366,
+      "chars": 299838
+    },
+    {
+      "book_id": "turath-1572",
+      "dataset_id": "shamela-1572",
+      "title": "الجغرافيا-المناخية-والنباتية",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 664,
+      "chars": 662915
+    },
+    {
+      "book_id": "turath-1581",
+      "dataset_id": "shamela-1581",
+      "title": "الجامع-لأحكام-الصيام",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 401,
+      "chars": 493918
+    },
+    {
+      "book_id": "turath-1582",
+      "dataset_id": "shamela-1582",
+      "title": "الجامع-لأحكام-الصلاة-محمود-عويضة",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 1205,
+      "chars": 1459102
+    },
+    {
+      "book_id": "turath-1583",
+      "dataset_id": "shamela-1583",
+      "title": "أخطاء-اللغة-العربية-المعاصرة-عند-الكتاب-والإذاعيين",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 264,
+      "chars": 173652
+    },
+    {
+      "book_id": "turath-1590",
+      "dataset_id": "shamela-1590",
+      "title": "شرح-صحيح-البخاري-للحويني",
+      "category": "تراث/07__شروح-الحديث",
+      "raw_pages": 129,
+      "chars": 328944
+    },
+    {
+      "book_id": "turath-1591",
+      "dataset_id": "shamela-1591",
+      "title": "الدرة-البهية-نظم-الآجرومية",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 33,
+      "chars": 23295
+    },
+    {
+      "book_id": "turath-1593",
+      "dataset_id": "shamela-1593",
+      "title": "جغرافية-المناخ-والنبات",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 351,
+      "chars": 416288
+    },
+    {
+      "book_id": "turath-1597",
+      "dataset_id": "shamela-1597",
+      "title": "قاموس-الإملاء",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 99,
+      "chars": 145153
+    },
+    {
+      "book_id": "turath-160",
+      "dataset_id": "shamela-160",
+      "title": "مع-المشككين-في-السنة",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 317,
+      "chars": 367792
+    },
+    {
+      "book_id": "turath-1605",
+      "dataset_id": "shamela-1605",
+      "title": "شرح-الآجرومية-حسن-حفظي",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 302,
+      "chars": 398819
+    },
+    {
+      "book_id": "turath-1609",
+      "dataset_id": "shamela-1609",
+      "title": "تحفة-المجالس-في-التعليقات-علي-فهرس-الفهارس",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 65,
+      "chars": 91698
+    },
+    {
+      "book_id": "turath-1624",
+      "dataset_id": "shamela-1624",
+      "title": "معجم-تصحيح-لغة-الإعلام-العربي",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 330,
+      "chars": 163839
+    },
+    {
+      "book_id": "turath-1627",
+      "dataset_id": "shamela-1627",
+      "title": "ثبت-مؤلفات-الألباني",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 109,
+      "chars": 143359
+    },
+    {
+      "book_id": "turath-1628",
+      "dataset_id": "shamela-1628",
+      "title": "إسبال-المطر-على-قصب-السكر-نظم-نخبة-الفكر-في-مصطلح-أهل-الأثر",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 246,
+      "chars": 257661
+    },
+    {
+      "book_id": "turath-1641",
+      "dataset_id": "shamela-1641",
+      "title": "تصحيفات-المحدثين-العسكري",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 870,
+      "chars": 415389
+    },
+    {
+      "book_id": "turath-1657",
+      "dataset_id": "shamela-1657",
+      "title": "سؤالات-الترمذي-للبخاري-حول-أحاديث-في-جامع-الترمذي",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 886,
+      "chars": 548486
+    },
+    {
+      "book_id": "turath-1669",
+      "dataset_id": "shamela-1669",
+      "title": "اختلاف-الفقهاء-اختلاف-العلماء-للمروزي",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 488,
+      "chars": 245226
+    },
+    {
+      "book_id": "turath-1670",
+      "dataset_id": "shamela-1670",
+      "title": "نسب-قريش",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 429,
+      "chars": 449290
+    },
+    {
+      "book_id": "turath-1688",
+      "dataset_id": "shamela-1688",
+      "title": "خريدة-العجائب-وفريدة-الغرائب",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 461,
+      "chars": 411763
+    },
+    {
+      "book_id": "turath-1691",
+      "dataset_id": "shamela-1691",
+      "title": "خصائص-التراكيب-دارسة-تحليلية-لمسائل-علم-المعاني",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 350,
+      "chars": 474310
+    },
+    {
+      "book_id": "turath-1698",
+      "dataset_id": "shamela-1698",
+      "title": "اللباب-في-قواعد-اللغة-وآلات-الأدب-النحو-والصرف-والبلاغة-والعروض-واللغة-والمثل",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 281,
+      "chars": 270037
+    },
+    {
+      "book_id": "turath-1705",
+      "dataset_id": "shamela-1705",
+      "title": "معجم-المؤلفات-الأصولية-الشافعية-المبثوثة-في-كشف-الظنون-وإيضاح-المكنون-وهدية",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 93,
+      "chars": 83860
+    },
+    {
+      "book_id": "turath-1710",
+      "dataset_id": "shamela-1710",
+      "title": "الأزمنة-في-اللغة-العربية-بالمقارنة-مع-اللغات-الأجنبية",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 14,
+      "chars": 18789
+    },
+    {
+      "book_id": "turath-1714",
+      "dataset_id": "shamela-1714",
+      "title": "التهذيب-في-الفقه-الشافعي-كتاب-السير-منه",
+      "category": "تراث/16__الفقه-الشافعي",
+      "raw_pages": 117,
+      "chars": 71511
+    },
+    {
+      "book_id": "turath-1721",
+      "dataset_id": "shamela-1721",
+      "title": "موجز-تاريخ-اليهود-والرد-على-بعض-مزاعمهم-الباطلة",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 78,
+      "chars": 83189
+    },
+    {
+      "book_id": "turath-175",
+      "dataset_id": "shamela-175",
+      "title": "الصواعق-المرسلة-على-الجهمية-والمعطلة-ط-عطاءات-العلم",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 1216,
+      "chars": 1230513
+    },
+    {
+      "book_id": "turath-1752",
+      "dataset_id": "shamela-1752",
+      "title": "التبر-المسبوك-في-نصيحة-الملوك",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 123,
+      "chars": 167253
+    },
+    {
+      "book_id": "turath-1753",
+      "dataset_id": "shamela-1753",
+      "title": "نخبة-الفكر-دراسة-عنها-وعن-منهجها",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 71,
+      "chars": 61794
+    },
+    {
+      "book_id": "turath-1755",
+      "dataset_id": "shamela-1755",
+      "title": "مقالات-الإسلاميين-ت-زرزور",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 815,
+      "chars": 543853
+    },
+    {
+      "book_id": "turath-1779",
+      "dataset_id": "shamela-1779",
+      "title": "لقاءات-ملتقى-أهل-الحديث-بالعلماء",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 753,
+      "chars": 1090943
+    },
+    {
+      "book_id": "turath-1793",
+      "dataset_id": "shamela-1793",
+      "title": "منهج-الأشاعرة-في-العقيدة-الكبير",
+      "category": "تراث/02__الفرق-والردود",
+      "raw_pages": 207,
+      "chars": 186787
+    },
+    {
+      "book_id": "turath-1824",
+      "dataset_id": "shamela-1824",
+      "title": "أنس-الملا-بوحش-الفلا",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 55,
+      "chars": 176751
+    },
+    {
+      "book_id": "turath-1833",
+      "dataset_id": "shamela-1833",
+      "title": "الخزل-والدأل-بين-الدور-والدارات-والديرة",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 59,
+      "chars": 187120
+    },
+    {
+      "book_id": "turath-1851",
+      "dataset_id": "shamela-1851",
+      "title": "العيون-الغامزة-على-خبايا-الرامزة",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 95,
+      "chars": 284323
+    },
+    {
+      "book_id": "turath-1870",
+      "dataset_id": "shamela-1870",
+      "title": "شرح-الشاطبية-إبراز-المعاني-من-حرز-الأماني-ت-عطوة",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 805,
+      "chars": 1487174
+    },
+    {
+      "book_id": "turath-1947",
+      "dataset_id": "shamela-1947",
+      "title": "تنوير-الحوالك-شرح-موطأ-مالك",
+      "category": "تراث/07__شروح-الحديث",
+      "raw_pages": 414,
+      "chars": 669253
+    },
+    {
+      "book_id": "turath-1961",
+      "dataset_id": "shamela-1961",
+      "title": "الأنساب-المتفقة-المؤتلف-والمختلف-ت-الحوت",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 181,
+      "chars": 275178
+    },
+    {
+      "book_id": "turath-1962",
+      "dataset_id": "shamela-1962",
+      "title": "تقييد-المهمل-وتمييز-المشكل-شيوخ-البخاري-المهملون-ط-المغرب",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 504,
+      "chars": 95405
+    },
+    {
+      "book_id": "turath-1986",
+      "dataset_id": "shamela-1986",
+      "title": "المغني-في-الضعفاء",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 811,
+      "chars": 746142
+    },
+    {
+      "book_id": "turath-1993",
+      "dataset_id": "shamela-1993",
+      "title": "إسعاف-المبطأ-برجال-الموطأ",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 33,
+      "chars": 106768
+    },
+    {
+      "book_id": "turath-1995",
+      "dataset_id": "shamela-1995",
+      "title": "التعديل-والتجريح-لمن-خرج-له-البخاري-في-الجامع-الصحيح",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 1029,
+      "chars": 891059
+    },
+    {
+      "book_id": "turath-1996",
+      "dataset_id": "shamela-1996",
+      "title": "تسمية-من-أخرجهم-البخاري-ومسلم",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 243,
+      "chars": 106325
+    },
+    {
+      "book_id": "turath-1998",
+      "dataset_id": "shamela-1998",
+      "title": "رجال-صحيح-مسلم",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 834,
+      "chars": 775946
+    },
+    {
+      "book_id": "turath-2000",
+      "dataset_id": "shamela-2000",
+      "title": "من-روى-عنهم-البخاري-في-الصحيح",
+      "category": "تراث/26__التراجم-والطبقات",
+      "raw_pages": 181,
+      "chars": 47490
+    },
+    {
+      "book_id": "turath-2011",
+      "dataset_id": "shamela-2011",
+      "title": "كتاب-العلل-الواقع-بآخر-جامع-الترمذي-ت-شاكر",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 15,
+      "chars": 34773
+    },
+    {
+      "book_id": "turath-2017",
+      "dataset_id": "shamela-2017",
+      "title": "الدراية-في-تخريج-أحاديث-الهداية",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 578,
+      "chars": 1097923
+    },
+    {
+      "book_id": "turath-2030",
+      "dataset_id": "shamela-2030",
+      "title": "نخبة-الفكر-ط-دار-الحديث",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 18,
+      "chars": 16490
+    },
+    {
+      "book_id": "turath-2036",
+      "dataset_id": "shamela-2036",
+      "title": "الغاية-فى-شرح-الهداية-فى-علم-الرواية",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 294,
+      "chars": 364645
+    },
+    {
+      "book_id": "turath-204",
+      "dataset_id": "shamela-204",
+      "title": "التعريف-بما-أنست-الهجرة-من-معالم-دار-الهجرة",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 203,
+      "chars": 183459
+    },
+    {
+      "book_id": "turath-2045",
+      "dataset_id": "shamela-2045",
+      "title": "اليواقيت-والدرر-شرح-شرح-نخبة-الفكر",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 833,
+      "chars": 495084
+    },
+    {
+      "book_id": "turath-2051",
+      "dataset_id": "shamela-2051",
+      "title": "شرح-نخبة-الفكر-للقاري",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 700,
+      "chars": 813556
+    },
+    {
+      "book_id": "turath-2068",
+      "dataset_id": "shamela-2068",
+      "title": "صيانة-صحيح-مسلم",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 229,
+      "chars": 186654
+    },
+    {
+      "book_id": "turath-2075",
+      "dataset_id": "shamela-2075",
+      "title": "فضائل-سنن-الترمذي",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 27,
+      "chars": 31697
+    },
+    {
+      "book_id": "turath-2079",
+      "dataset_id": "shamela-2079",
+      "title": "القول-المسدد-في-الذب-عن-مسند-أحمد",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 43,
+      "chars": 92642
+    },
+    {
+      "book_id": "turath-2087",
+      "dataset_id": "shamela-2087",
+      "title": "علل-الأحاديث-في-صحيح-مسلم",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 94,
+      "chars": 23558
+    },
+    {
+      "book_id": "turath-2096",
+      "dataset_id": "shamela-2096",
+      "title": "المغني-عن-الحفظ-والكتاب",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 103,
+      "chars": 24439
+    },
+    {
+      "book_id": "turath-216",
+      "dataset_id": "shamela-216",
+      "title": "موسوعة-تفسير-الأحلام",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 188,
+      "chars": 695968
+    },
+    {
+      "book_id": "turath-2202",
+      "dataset_id": "shamela-2202",
+      "title": "مسائل-مهمات-تتعلق-بفقه-الصوم-والتراويح-والقراءة-على-الأموات",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 54,
+      "chars": 103927
+    },
+    {
+      "book_id": "turath-225",
+      "dataset_id": "shamela-225",
+      "title": "ثلاثة-الأصول-وشروط-الصلاة-والقواعد-الأربع",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 46,
+      "chars": 42062
+    },
+    {
+      "book_id": "turath-226",
+      "dataset_id": "shamela-226",
+      "title": "الشامل-في-الصناعة-الطبية",
+      "category": "تراث/38__الطب",
+      "raw_pages": 449,
+      "chars": 307497
+    },
+    {
+      "book_id": "turath-2277",
+      "dataset_id": "shamela-2277",
+      "title": "تحفة-الحكام-في-نكت-العقود-والأحكام",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 99,
+      "chars": 143771
+    },
+    {
+      "book_id": "turath-2311",
+      "dataset_id": "shamela-2311",
+      "title": "تكملة-تاريخ-الطبري",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 237,
+      "chars": 378315
+    },
+    {
+      "book_id": "turath-2353",
+      "dataset_id": "shamela-2353",
+      "title": "الإنباه-على-قبائل-الرواة-ت-الإبياري",
+      "category": "تراث/27__الأنساب",
+      "raw_pages": 130,
+      "chars": 93444
+    },
+    {
+      "book_id": "turath-2355",
+      "dataset_id": "shamela-2355",
+      "title": "فضائل-الأندلس-وأهلها",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 60,
+      "chars": 83961
+    },
+    {
+      "book_id": "turath-2439",
+      "dataset_id": "shamela-2439",
+      "title": "العروض",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 101,
+      "chars": 39313
+    },
+    {
+      "book_id": "turath-2458",
+      "dataset_id": "shamela-2458",
+      "title": "معاهد-التنصيص-على-شواهد-التلخيص",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 694,
+      "chars": 832397
+    },
+    {
+      "book_id": "turath-2497",
+      "dataset_id": "shamela-2497",
+      "title": "تفسير-غريب-ما-في-الصحيحين-البخاري-ومسلم",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 545,
+      "chars": 531987
+    },
+    {
+      "book_id": "turath-252",
+      "dataset_id": "shamela-252",
+      "title": "آداب-البحث-والمناظرة",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 383,
+      "chars": 352082
+    },
+    {
+      "book_id": "turath-2525",
+      "dataset_id": "shamela-2525",
+      "title": "تصحيح-لسان-العرب",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 136,
+      "chars": 191463
+    },
+    {
+      "book_id": "turath-2527",
+      "dataset_id": "shamela-2527",
+      "title": "السياسة-لابن-سينا",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 31,
+      "chars": 32287
+    },
+    {
+      "book_id": "turath-2528",
+      "dataset_id": "shamela-2528",
+      "title": "السياسة-للفارابي",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 28,
+      "chars": 32573
+    },
+    {
+      "book_id": "turath-255",
+      "dataset_id": "shamela-255",
+      "title": "إدامة-النظر-في-تحرير-نخبة-الفكر",
+      "category": "تراث/10__علوم-الحديث",
+      "raw_pages": 83,
+      "chars": 137817
+    },
+    {
+      "book_id": "turath-2594",
+      "dataset_id": "shamela-2594",
+      "title": "الأسلوب",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 204,
+      "chars": 225131
+    },
+    {
+      "book_id": "turath-2601",
+      "dataset_id": "shamela-2601",
+      "title": "حاشية-الآجرومية",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 116,
+      "chars": 91627
+    },
+    {
+      "book_id": "turath-2611",
+      "dataset_id": "shamela-2611",
+      "title": "الإيضاح-في-علوم-البلاغة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 638,
+      "chars": 385465
+    },
+    {
+      "book_id": "turath-2624",
+      "dataset_id": "shamela-2624",
+      "title": "علم-الفرائض-والمواريث-في-الشريعة-الإسلامية-والقانون-السوري",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 395,
+      "chars": 315756
+    },
+    {
+      "book_id": "turath-2645",
+      "dataset_id": "shamela-2645",
+      "title": "اختلاف-الفقهاء-لابن-جرير",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 357,
+      "chars": 298587
+    },
+    {
+      "book_id": "turath-2672",
+      "dataset_id": "shamela-2672",
+      "title": "الأجوبة-النافعة-عن-أسئلة-لجنة-مسجد-الجامعة",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 116,
+      "chars": 56261
+    },
+    {
+      "book_id": "turath-271",
+      "dataset_id": "shamela-271",
+      "title": "الفتاوى-محمد-الأمين-الشنقيطي",
+      "category": "تراث/22__الفتاوى",
+      "raw_pages": 100,
+      "chars": 85574
+    },
+    {
+      "book_id": "turath-2719",
+      "dataset_id": "shamela-2719",
+      "title": "البلاغة-2-المعاني-جامعة-المدينة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 482,
+      "chars": 634611
+    },
+    {
+      "book_id": "turath-2818",
+      "dataset_id": "shamela-2818",
+      "title": "شرح-ثلاثة-الأصول-لخالد-المصلح",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 99,
+      "chars": 161969
+    },
+    {
+      "book_id": "turath-2820",
+      "dataset_id": "shamela-2820",
+      "title": "شرح-كشف-الشبهات-لخالد-المصلح",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 82,
+      "chars": 167697
+    },
+    {
+      "book_id": "turath-2832",
+      "dataset_id": "shamela-2832",
+      "title": "متن-الشاطبية-حرز-الأماني-ووجه-التهاني-في-القراءات-السبع",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 100,
+      "chars": 130628
+    },
+    {
+      "book_id": "turath-2878",
+      "dataset_id": "shamela-2878",
+      "title": "أسرار-البلاغة-ت-محمود-شاكر",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 421,
+      "chars": 447417
+    },
+    {
+      "book_id": "turath-2952",
+      "dataset_id": "shamela-2952",
+      "title": "سحر-البلاغة-وسر-البراعة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 189,
+      "chars": 238741
+    },
+    {
+      "book_id": "turath-2953",
+      "dataset_id": "shamela-2953",
+      "title": "رسائل-فلسفية-لابن-باجه",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 36,
+      "chars": 113666
+    },
+    {
+      "book_id": "turath-2964",
+      "dataset_id": "shamela-2964",
+      "title": "الغذاء-والتغذية",
+      "category": "تراث/38__الطب",
+      "raw_pages": 762,
+      "chars": 1076287
+    },
+    {
+      "book_id": "turath-3007",
+      "dataset_id": "shamela-3007",
+      "title": "مجلة-الأحكام-العدلية",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 364,
+      "chars": 623808
+    },
+    {
+      "book_id": "turath-3016",
+      "dataset_id": "shamela-3016",
+      "title": "ألفية-ابن-مالك-ط-التعاون",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 145,
+      "chars": 65328
+    },
+    {
+      "book_id": "turath-3026",
+      "dataset_id": "shamela-3026",
+      "title": "الكنز-اللغوي-في-اللسان-العربي",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 271,
+      "chars": 228339
+    },
+    {
+      "book_id": "turath-3071",
+      "dataset_id": "shamela-3071",
+      "title": "شرح-ثلاثة-الأصول-لصالح-الفوزان",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 304,
+      "chars": 176181
+    },
+    {
+      "book_id": "turath-3090",
+      "dataset_id": "shamela-3090",
+      "title": "الأشباه-والنظائر-السبكي",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 824,
+      "chars": 1094776
+    },
+    {
+      "book_id": "turath-3102",
+      "dataset_id": "shamela-3102",
+      "title": "تاريخ-الفلسفة-الحديثة",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 464,
+      "chars": 761294
+    },
+    {
+      "book_id": "turath-3108",
+      "dataset_id": "shamela-3108",
+      "title": "المغني-في-تصريف-الأفعال",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 23,
+      "chars": 17274
+    },
+    {
+      "book_id": "turath-3141",
+      "dataset_id": "shamela-3141",
+      "title": "الأسفار-المقدسة-عند-اليهود-وأثرها-في-انحرافهم-عرض-ونقد",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 83,
+      "chars": 79482
+    },
+    {
+      "book_id": "turath-3158",
+      "dataset_id": "shamela-3158",
+      "title": "البديع-عند-الحريري",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 31,
+      "chars": 36117
+    },
+    {
+      "book_id": "turath-3218",
+      "dataset_id": "shamela-3218",
+      "title": "انتشار-الإسلام-الفتوحات-الإسلامية-زمن-الراشدين",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 40,
+      "chars": 46835
+    },
+    {
+      "book_id": "turath-3250",
+      "dataset_id": "shamela-3250",
+      "title": "الأنواء-في-مواسم-العرب-لابن-قتيبة-الدينوري",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 256,
+      "chars": 208813
+    },
+    {
+      "book_id": "turath-3307",
+      "dataset_id": "shamela-3307",
+      "title": "جواهر-البلاغة-في-المعاني-والبيان-والبديع",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 311,
+      "chars": 328633
+    },
+    {
+      "book_id": "turath-336",
+      "dataset_id": "shamela-336",
+      "title": "ألفية-ابن-مالك-ت-القاسم",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 432,
+      "chars": 157544
+    },
+    {
+      "book_id": "turath-3488",
+      "dataset_id": "shamela-3488",
+      "title": "القياس",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 103,
+      "chars": 304633
+    },
+    {
+      "book_id": "turath-3494",
+      "dataset_id": "shamela-3494",
+      "title": "حي-بن-يقظان",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 30,
+      "chars": 97194
+    },
+    {
+      "book_id": "turath-3495",
+      "dataset_id": "shamela-3495",
+      "title": "رسالة-النفس",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 30,
+      "chars": 96499
+    },
+    {
+      "book_id": "turath-3589",
+      "dataset_id": "shamela-3589",
+      "title": "رسالة-في-تحقيق-معنى-النظم-والصياغة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 18,
+      "chars": 26464
+    },
+    {
+      "book_id": "turath-3598",
+      "dataset_id": "shamela-3598",
+      "title": "شرح-ابن-عقيل-على-ألفية-ابن-مالك",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 1329,
+      "chars": 598383
+    },
+    {
+      "book_id": "turath-3599",
+      "dataset_id": "shamela-3599",
+      "title": "تاريخ-الخلفاء-الراشدين-الفتوحات-والإنجازات-السياسية",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 492,
+      "chars": 729985
+    },
+    {
+      "book_id": "turath-3603",
+      "dataset_id": "shamela-3603",
+      "title": "شرح-كشف-الشبهات-ويليه-شرح-الأصول-الستة",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 140,
+      "chars": 145275
+    },
+    {
+      "book_id": "turath-3609",
+      "dataset_id": "shamela-3609",
+      "title": "علم-نفس-النمو",
+      "category": "تراث/38__الطب",
+      "raw_pages": 992,
+      "chars": 1278888
+    },
+    {
+      "book_id": "turath-3632",
+      "dataset_id": "shamela-3632",
+      "title": "الشبهات-وأثرها-في-العقوبة-الجنائية-في-الفقه-الإسلامي-مقارنا-بالقانون",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 668,
+      "chars": 630690
+    },
+    {
+      "book_id": "turath-3633",
+      "dataset_id": "shamela-3633",
+      "title": "الجنايات-في-الفقه-الإسلامي-دراسة-مقارنة-بين-الفقه-الإسلامي-والقانون",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 467,
+      "chars": 464899
+    },
+    {
+      "book_id": "turath-3642",
+      "dataset_id": "shamela-3642",
+      "title": "موجز-عن-الفتوحات-الإسلامية",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 102,
+      "chars": 127365
+    },
+    {
+      "book_id": "turath-3649",
+      "dataset_id": "shamela-3649",
+      "title": "علوم-البلاغة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 425,
+      "chars": 446180
+    },
+    {
+      "book_id": "turath-3671",
+      "dataset_id": "shamela-3671",
+      "title": "المنهاج-الواضح-للبلاغة",
+      "category": "تراث/35__البلاغة",
+      "raw_pages": 1115,
+      "chars": 1198924
+    },
+    {
+      "book_id": "turath-3771",
+      "dataset_id": "shamela-3771",
+      "title": "الخمر-وتأثيرها-على-العيون",
+      "category": "تراث/38__الطب",
+      "raw_pages": 17,
+      "chars": 12951
+    },
+    {
+      "book_id": "turath-3898",
+      "dataset_id": "shamela-3898",
+      "title": "العلاج-بالأعشاب",
+      "category": "تراث/38__الطب",
+      "raw_pages": 113,
+      "chars": 137018
+    },
+    {
+      "book_id": "turath-3923",
+      "dataset_id": "shamela-3923",
+      "title": "علم-نفس-النمو-من-الجنين-إلى-الشيخوخة",
+      "category": "تراث/38__الطب",
+      "raw_pages": 737,
+      "chars": 1047405
+    },
+    {
+      "book_id": "turath-3946",
+      "dataset_id": "shamela-3946",
+      "title": "حماسة-الخالديين-الأشباه-والنظائر-من-أشعار-المتقدمين-والجاهليين-والمخضرمين",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 140,
+      "chars": 498558
+    },
+    {
+      "book_id": "turath-3961",
+      "dataset_id": "shamela-3961",
+      "title": "أهدى-سبيل-إلى-علمي-الخليل",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 191,
+      "chars": 139661
+    },
+    {
+      "book_id": "turath-3979",
+      "dataset_id": "shamela-3979",
+      "title": "القوافي-للتنوخي",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 58,
+      "chars": 59487
+    },
+    {
+      "book_id": "turath-4000",
+      "dataset_id": "shamela-4000",
+      "title": "تهافت-الفلاسفة",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 216,
+      "chars": 286951
+    },
+    {
+      "book_id": "turath-4049",
+      "dataset_id": "shamela-4049",
+      "title": "ثلاثة-الأصول-مطبوع-ضمن-مؤلفات-الشيخ-محمد-بن-عبد-الوهاب-الجزء-الأول",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 12,
+      "chars": 14135
+    },
+    {
+      "book_id": "turath-4061",
+      "dataset_id": "shamela-4061",
+      "title": "حاشية-ثلاثة-الأصول",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 168,
+      "chars": 24482
+    },
+    {
+      "book_id": "turath-4069",
+      "dataset_id": "shamela-4069",
+      "title": "حصول-المأمول-بشرح-ثلاثة-الأصول",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 204,
+      "chars": 224813
+    },
+    {
+      "book_id": "turath-409",
+      "dataset_id": "shamela-409",
+      "title": "تعريف-بالأماكن-الواردة-في-البداية-والنهاية-لابن-كثير",
+      "category": "تراث/28__البلدان-والرحلات",
+      "raw_pages": 929,
+      "chars": 204877
+    },
+    {
+      "book_id": "turath-4146",
+      "dataset_id": "shamela-4146",
+      "title": "شرح-ثلاثة-الأصول-لابن-باز",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 81,
+      "chars": 76186
+    },
+    {
+      "book_id": "turath-4148",
+      "dataset_id": "shamela-4148",
+      "title": "شرح-ثلاثة-الأصول-للعثيمين",
+      "category": "تراث/01__العقيدة",
+      "raw_pages": 236,
+      "chars": 200869
+    },
+    {
+      "book_id": "turath-4180",
+      "dataset_id": "shamela-4180",
+      "title": "علم-العروض-والقافية",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 215,
+      "chars": 157772
+    },
+    {
+      "book_id": "turath-4242",
+      "dataset_id": "shamela-4242",
+      "title": "الآجرومية",
+      "category": "تراث/31__النحو-والصرف",
+      "raw_pages": 31,
+      "chars": 13181
+    },
+    {
+      "book_id": "turath-4243",
+      "dataset_id": "shamela-4243",
+      "title": "متن-الرحبية-بغية-الباحث-عن-جمل-الموارث",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 30,
+      "chars": 9982
+    },
+    {
+      "book_id": "turath-4359",
+      "dataset_id": "shamela-4359",
+      "title": "نمو-الإنسان-من-مرحلة-الجنين-إلى-مرحلة-المسنين",
+      "category": "تراث/38__الطب",
+      "raw_pages": 770,
+      "chars": 1254636
+    },
+    {
+      "book_id": "turath-440",
+      "dataset_id": "shamela-440",
+      "title": "مسائل-القراءة-في-الصلاة-والرد-على-أحد-شراح-الترمذي-ضمن-آثار-المعلمي",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 207,
+      "chars": 199045
+    },
+    {
+      "book_id": "turath-4484",
+      "dataset_id": "shamela-4484",
+      "title": "المقدمة-الجزرية-ط-المغني",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 25,
+      "chars": 9530
+    },
+    {
+      "book_id": "turath-4524",
+      "dataset_id": "shamela-4524",
+      "title": "إبراهيم-بن-محمد-بن-سفيان-رواياته-وزياداته-وتعليقاته-على-صحيح-مسلم",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 84,
+      "chars": 64301
+    },
+    {
+      "book_id": "turath-4619",
+      "dataset_id": "shamela-4619",
+      "title": "بداية-الهداية",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 46,
+      "chars": 79128
+    },
+    {
+      "book_id": "turath-4628",
+      "dataset_id": "shamela-4628",
+      "title": "فصل-المقال-لابن-رشد",
+      "category": "تراث/40__علوم-أخرى",
+      "raw_pages": 53,
+      "chars": 40839
+    },
+    {
+      "book_id": "turath-486",
+      "dataset_id": "shamela-486",
+      "title": "ضبط-فعلين-في-متن-الأزهار-و-فائدتان-ضمن-آثار-المعلمي",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 21,
+      "chars": 15493
+    },
+    {
+      "book_id": "turath-4873",
+      "dataset_id": "shamela-4873",
+      "title": "العلل-الكبير-للترمذي-ترتيب-علل-الترمذي-الكبير",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 958,
+      "chars": 398372
+    },
+    {
+      "book_id": "turath-490",
+      "dataset_id": "shamela-490",
+      "title": "مناظرة-أدبية-بين-المعلمي-والشاعر-الأديب-علي-بن-محمد-السنوسي-ضمن-آثار-المعلمي",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 29,
+      "chars": 20530
+    },
+    {
+      "book_id": "turath-492",
+      "dataset_id": "shamela-492",
+      "title": "مختصر-متن-الكافي-في-العروض-والقوافي-ضمن-آثار-المعلمي",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 69,
+      "chars": 268779
+    },
+    {
+      "book_id": "turath-4937",
+      "dataset_id": "shamela-4937",
+      "title": "بذل-الإحسان-بتقريب-سنن-النسائي-أبي-عبد-الرحمن",
+      "category": "تراث/08__التخريج-والأطراف",
+      "raw_pages": 825,
+      "chars": 786283
+    },
+    {
+      "book_id": "turath-5004",
+      "dataset_id": "shamela-5004",
+      "title": "التدخين-وكيف-نحمي-الجيل-الجديد-منه",
+      "category": "تراث/38__الطب",
+      "raw_pages": 12,
+      "chars": 11906
+    },
+    {
+      "book_id": "turath-5087",
+      "dataset_id": "shamela-5087",
+      "title": "ديوان-الأفوه-الأودي",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 57,
+      "chars": 17977
+    },
+    {
+      "book_id": "turath-5105",
+      "dataset_id": "shamela-5105",
+      "title": "الهداية-إلى-أوهام-الكفاية",
+      "category": "تراث/16__الفقه-الشافعي",
+      "raw_pages": 594,
+      "chars": 888867
+    },
+    {
+      "book_id": "turath-5131",
+      "dataset_id": "shamela-5131",
+      "title": "الأحاديث-التي-أعل-الإمام-البخاري-متونها-بالتناقض",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 96,
+      "chars": 102752
+    },
+    {
+      "book_id": "turath-5177",
+      "dataset_id": "shamela-5177",
+      "title": "شرح-غريب-ألفاظ-المدونة",
+      "category": "تراث/30__الغريب-والمعاجم",
+      "raw_pages": 111,
+      "chars": 65639
+    },
+    {
+      "book_id": "turath-5188",
+      "dataset_id": "shamela-5188",
+      "title": "المسائل-الفقهية-المستجدة-في-النكاح-مع-بيان-ما-أخذ-به-القانون-الكويتي",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 299,
+      "chars": 205710
+    },
+    {
+      "book_id": "turath-5209",
+      "dataset_id": "shamela-5209",
+      "title": "ديوان-ذي-الرمة-بشرح-أبي-نصر-الباهلي",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 1895,
+      "chars": 688600
+    },
+    {
+      "book_id": "turath-5278",
+      "dataset_id": "shamela-5278",
+      "title": "الروضة-الندية-شرح-متن-الجزرية",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 147,
+      "chars": 163901
+    },
+    {
+      "book_id": "turath-5298",
+      "dataset_id": "shamela-5298",
+      "title": "الفوائد-الذهبية-من-سير-أعلام-النبلاء-جـ-2",
+      "category": "تراث/36__الجوامع",
+      "raw_pages": 131,
+      "chars": 135185
+    },
+    {
+      "book_id": "turath-5349",
+      "dataset_id": "shamela-5349",
+      "title": "ما-يفعله-الأطباء-والداعون-بدفع-شر-الطاعون",
+      "category": "تراث/38__الطب",
+      "raw_pages": 20,
+      "chars": 16650
+    },
+    {
+      "book_id": "turath-5398",
+      "dataset_id": "shamela-5398",
+      "title": "شرح-شواهد-المغني",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 981,
+      "chars": 922347
+    },
+    {
+      "book_id": "turath-5471",
+      "dataset_id": "shamela-5471",
+      "title": "ديوان-الهذليين",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 651,
+      "chars": 498412
+    },
+    {
+      "book_id": "turath-5500",
+      "dataset_id": "shamela-5500",
+      "title": "الأشباه-والنظائر-لابن-الملقن-ت-الأزهري",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 1088,
+      "chars": 849699
+    },
+    {
+      "book_id": "turath-5508",
+      "dataset_id": "shamela-5508",
+      "title": "التنبيه-على-مشكلات-الهداية",
+      "category": "تراث/14__الفقه-الحنفي",
+      "raw_pages": 2128,
+      "chars": 1180478
+    },
+    {
+      "book_id": "turath-561",
+      "dataset_id": "shamela-561",
+      "title": "المقدمة-الجزرية-ت-القاسم",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 100,
+      "chars": 37602
+    },
+    {
+      "book_id": "turath-5624",
+      "dataset_id": "shamela-5624",
+      "title": "قواعد-الترجيح-المتعلقة-بالنص-عند-ابن-عاشور-في-تفسيره-التحرير-والتنوير",
+      "category": "تراث/04__علوم-القرآن-وأصول-التفسير",
+      "raw_pages": 980,
+      "chars": 865760
+    },
+    {
+      "book_id": "turath-5747",
+      "dataset_id": "shamela-5747",
+      "title": "فتح-رب-البرية-شرح-المقدمة-الجزرية-في-علم-التجويد",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 106,
+      "chars": 113302
+    },
+    {
+      "book_id": "turath-5832",
+      "dataset_id": "shamela-5832",
+      "title": "الأشباه-والنظائر-السيوطي",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 540,
+      "chars": 1367703
+    },
+    {
+      "book_id": "turath-5961",
+      "dataset_id": "shamela-5961",
+      "title": "ألفية-ابن-مالك-منهجها-وشروحها",
+      "category": "تراث/37__فهارس-الكتب-والأدلة",
+      "raw_pages": 26,
+      "chars": 31771
+    },
+    {
+      "book_id": "turath-5968",
+      "dataset_id": "shamela-5968",
+      "title": "تاريخ-دمشق-لابن-القلانسي",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 573,
+      "chars": 668026
+    },
+    {
+      "book_id": "turath-5978",
+      "dataset_id": "shamela-5978",
+      "title": "موعظة-المؤمنين-من-إحياء-علوم-الدين",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 327,
+      "chars": 986510
+    },
+    {
+      "book_id": "turath-6142",
+      "dataset_id": "shamela-6142",
+      "title": "معجزات-النبي-من-البداية-والنهاية-ت-السيد-إبراهيم",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 448,
+      "chars": 822176
+    },
+    {
+      "book_id": "turath-617",
+      "dataset_id": "shamela-617",
+      "title": "كتاب-العلل-الواقع-بآخر-جامع-الترمذي-ت-بشار",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 81,
+      "chars": 46639
+    },
+    {
+      "book_id": "turath-6322",
+      "dataset_id": "shamela-6322",
+      "title": "محك-النظر",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 77,
+      "chars": 144791
+    },
+    {
+      "book_id": "turath-634",
+      "dataset_id": "shamela-634",
+      "title": "القسطاس-في-علم-العروض",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 118,
+      "chars": 37001
+    },
+    {
+      "book_id": "turath-6351",
+      "dataset_id": "shamela-6351",
+      "title": "معيار-العلم-في-فن-المنطق",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 286,
+      "chars": 270941
+    },
+    {
+      "book_id": "turath-6486",
+      "dataset_id": "shamela-6486",
+      "title": "ديوان-امرئ-القيس-ت-المصطاوي",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 147,
+      "chars": 147712
+    },
+    {
+      "book_id": "turath-6505",
+      "dataset_id": "shamela-6505",
+      "title": "نفح-الأزهار-في-منتخبات-الأشعار",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 131,
+      "chars": 122368
+    },
+    {
+      "book_id": "turath-6530",
+      "dataset_id": "shamela-6530",
+      "title": "السبيكة-الذهبية-على-المنظومة-الرحبية-ضمن-رسالتان-في-الفرائض",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 55,
+      "chars": 42880
+    },
+    {
+      "book_id": "turath-6783",
+      "dataset_id": "shamela-6783",
+      "title": "البداية-والنهاية-ط-دار-ابن-كثير-التكملة",
+      "category": "تراث/25__التاريخ",
+      "raw_pages": 651,
+      "chars": 1033766
+    },
+    {
+      "book_id": "turath-680",
+      "dataset_id": "shamela-680",
+      "title": "المختصر-في-المنطق",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 29,
+      "chars": 93961
+    },
+    {
+      "book_id": "turath-6818",
+      "dataset_id": "shamela-6818",
+      "title": "التيسير-والتبصير-لما-فات-البخاري-في-العلل-الكبير",
+      "category": "تراث/09__العلل-والسؤلات-الحديثية",
+      "raw_pages": 282,
+      "chars": 305592
+    },
+    {
+      "book_id": "turath-6823",
+      "dataset_id": "shamela-6823",
+      "title": "فصل-المقال-في-هدايا-العمال",
+      "category": "تراث/19__مسائل-فقهية",
+      "raw_pages": 189,
+      "chars": 186729
+    },
+    {
+      "book_id": "turath-691",
+      "dataset_id": "shamela-691",
+      "title": "الجمل-في-المنطق",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 4,
+      "chars": 12362
+    },
+    {
+      "book_id": "turath-708",
+      "dataset_id": "shamela-708",
+      "title": "القوافي-للأخفش-الأوسط",
+      "category": "تراث/33__العروض-والقوافي",
+      "raw_pages": 18,
+      "chars": 59063
+    },
+    {
+      "book_id": "turath-7131",
+      "dataset_id": "shamela-7131",
+      "title": "كشف-الأسرار-في-حكم-الطيور-والأزهار",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 53,
+      "chars": 41853
+    },
+    {
+      "book_id": "turath-7170",
+      "dataset_id": "shamela-7170",
+      "title": "ديوان-لبيد-بن-ربيعة-العامري",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 134,
+      "chars": 109839
+    },
+    {
+      "book_id": "turath-7203",
+      "dataset_id": "shamela-7203",
+      "title": "الشرح-المختصر-للسلم-المنورق",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 144,
+      "chars": 283895
+    },
+    {
+      "book_id": "turath-7231",
+      "dataset_id": "shamela-7231",
+      "title": "شرح-القويسني-على-السلم-المنورق-للأخضري",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 270,
+      "chars": 525352
+    },
+    {
+      "book_id": "turath-7242",
+      "dataset_id": "shamela-7242",
+      "title": "شرح-المطلع-على-متن-إيساغوجي",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 371,
+      "chars": 912638
+    },
+    {
+      "book_id": "turath-7243",
+      "dataset_id": "shamela-7243",
+      "title": "شرح-الرحبية-للحازمي",
+      "category": "تراث/16__الفقه-الشافعي",
+      "raw_pages": 456,
+      "chars": 941517
+    },
+    {
+      "book_id": "turath-7279",
+      "dataset_id": "shamela-7279",
+      "title": "أثر-القراءات-القرآنية-في-الصناعة-المعجمية-تاج-العروس-نموذجا",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 333,
+      "chars": 440506
+    },
+    {
+      "book_id": "turath-7330",
+      "dataset_id": "shamela-7330",
+      "title": "ديوان-طرفة-بن-العبد",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 70,
+      "chars": 42385
+    },
+    {
+      "book_id": "turath-7424",
+      "dataset_id": "shamela-7424",
+      "title": "شرح-كتاب-الجامع-لأحكام-العمرة-والحج-والزيارة-حطيبة",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 460,
+      "chars": 730775
+    },
+    {
+      "book_id": "turath-7427",
+      "dataset_id": "shamela-7427",
+      "title": "شرح-كتاب-الجامع-لأحكام-الصيام-وأعمال-رمضان-حطيبة",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 387,
+      "chars": 586886
+    },
+    {
+      "book_id": "turath-7546",
+      "dataset_id": "shamela-7546",
+      "title": "متن-موطأة-الفصيح-نظم-فصيح-ثعلب",
+      "category": "تراث/29__كتب-اللغة",
+      "raw_pages": 187,
+      "chars": 74130
+    },
+    {
+      "book_id": "turath-7569",
+      "dataset_id": "shamela-7569",
+      "title": "الجامع-لأحكام-الصلاة-عادل-بن-سعد",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 320,
+      "chars": 687688
+    },
+    {
+      "book_id": "turath-7571",
+      "dataset_id": "shamela-7571",
+      "title": "بلوغ-الغاية-من-تهذيب-بداية-الهداية",
+      "category": "تراث/23__الرقائق-والآداب-والأذكار",
+      "raw_pages": 113,
+      "chars": 92257
+    },
+    {
+      "book_id": "turath-7624",
+      "dataset_id": "shamela-7624",
+      "title": "نثار-الأزهار-في-الليل-والنهار",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 186,
+      "chars": 209434
+    },
+    {
+      "book_id": "turath-7635",
+      "dataset_id": "shamela-7635",
+      "title": "أثر-الاختلاف-في-القواعد-الأصولية-في-اختلاف-الفقهاء",
+      "category": "تراث/12__علوم-الفقه-والقواعد-الفقهية",
+      "raw_pages": 149,
+      "chars": 225153
+    },
+    {
+      "book_id": "turath-772",
+      "dataset_id": "shamela-772",
+      "title": "شرح-تشريح-القانون-لابن-سينا",
+      "category": "تراث/38__الطب",
+      "raw_pages": 179,
+      "chars": 548299
+    },
+    {
+      "book_id": "turath-7752",
+      "dataset_id": "shamela-7752",
+      "title": "الوافي-في-شرح-الشاطبية",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 396,
+      "chars": 676845
+    },
+    {
+      "book_id": "turath-7824",
+      "dataset_id": "shamela-7824",
+      "title": "شرح-الشاطبية-سراج-القارئ-المبتدي-وتذكار-المقرئ-المنتهي",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 411,
+      "chars": 700062
+    },
+    {
+      "book_id": "turath-7865",
+      "dataset_id": "shamela-7865",
+      "title": "ديوان-محمد-العيد-آل-خليفة",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 523,
+      "chars": 428308
+    },
+    {
+      "book_id": "turath-7879",
+      "dataset_id": "shamela-7879",
+      "title": "الإسلام-وأوضاعنا-القانونية",
+      "category": "تراث/20__السياسة-الشرعية-والقضاء",
+      "raw_pages": 157,
+      "chars": 165823
+    },
+    {
+      "book_id": "turath-7934",
+      "dataset_id": "shamela-7934",
+      "title": "ديوان-الشيخ-أحمد-سحنون",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 714,
+      "chars": 477331
+    },
+    {
+      "book_id": "turath-796",
+      "dataset_id": "shamela-796",
+      "title": "المرأة-بين-الفقه-والقانون",
+      "category": "تراث/18__الفقه-العام",
+      "raw_pages": 242,
+      "chars": 358688
+    },
+    {
+      "book_id": "turath-8085",
+      "dataset_id": "shamela-8085",
+      "title": "التوسط-بين-مالك-وابن-القاسم-في-المسائل-التي-اختلفا-فيها-من-مسائل-المدونة",
+      "category": "تراث/15__الفقه-المالكي",
+      "raw_pages": 167,
+      "chars": 128701
+    },
+    {
+      "book_id": "turath-8100",
+      "dataset_id": "shamela-8100",
+      "title": "ملحمة-حر",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 103,
+      "chars": 53680
+    },
+    {
+      "book_id": "turath-8188",
+      "dataset_id": "shamela-8188",
+      "title": "تهافت-العلمانية-في-الصحافة-العربية",
+      "category": "تراث/39__كتب-عامة",
+      "raw_pages": 277,
+      "chars": 459911
+    },
+    {
+      "book_id": "turath-825",
+      "dataset_id": "shamela-825",
+      "title": "شرح-الشاطبية-فتح-الوصيد-في-شرح-القصيد-ت-أحمد-الزعبي",
+      "category": "تراث/05__التجويد-والقراءات",
+      "raw_pages": 1125,
+      "chars": 1114252
+    },
+    {
+      "book_id": "turath-8327",
+      "dataset_id": "shamela-8327",
+      "title": "ديوان-جرير-بشرح-محمد-بن-حبيب",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 992,
+      "chars": 650348
+    },
+    {
+      "book_id": "turath-8415",
+      "dataset_id": "shamela-8415",
+      "title": "الفتوحات-الربانية-بشرح-الدرة-المضية-في-علم-القواعد-الفرضية",
+      "category": "تراث/21__الفرائض-والوصايا",
+      "raw_pages": 327,
+      "chars": 204519
+    },
+    {
+      "book_id": "turath-8453",
+      "dataset_id": "shamela-8453",
+      "title": "ديوان-ابن-أبي-حصينة",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 374,
+      "chars": 319127
+    },
+    {
+      "book_id": "turath-8454",
+      "dataset_id": "shamela-8454",
+      "title": "ديوان-ابن-الخياط",
+      "category": "تراث/34__الشعر-ودواوينه",
+      "raw_pages": 332,
+      "chars": 266261
+    },
+    {
+      "book_id": "turath-868",
+      "dataset_id": "shamela-868",
+      "title": "قصص-الأنبياء-من-البداية-والنهاية-ت-عبد-الواحد",
+      "category": "تراث/24__السيرة-النبوية",
+      "raw_pages": 888,
+      "chars": 1425284
+    },
+    {
+      "book_id": "turath-952",
+      "dataset_id": "shamela-952",
+      "title": "فصل-المقال-في-شرح-كتاب-الأمثال",
+      "category": "تراث/32__الأدب",
+      "raw_pages": 530,
+      "chars": 435280
+    },
+    {
+      "book_id": "turath-955",
+      "dataset_id": "shamela-955",
+      "title": "التقريب-لحد-المنطق-والمدخل-إليه-بالألفاظ-العامية-والأمثلة-الفقهية",
+      "category": "تراث/13__المنطق",
+      "raw_pages": 225,
+      "chars": 352292
+    }
+  ]
+}
