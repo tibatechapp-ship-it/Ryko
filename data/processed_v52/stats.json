@@ -1,0 +1,15 @@
+{
+  "mode": "in-place",
+  "existing_dir": "data/processed_v52",
+  "existing_paragraphs": 34421976,
+  "new_sources": {
+    "shamela_v52.jsonl": {
+      "docs": 306,
+      "chars": 208218872,
+      "dup_paragraphs": 77138
+    }
+  },
+  "val_ratio_new": 0.004,
+  "no_new_val": true,
+  "chars_existing_train": 2465082834
+}

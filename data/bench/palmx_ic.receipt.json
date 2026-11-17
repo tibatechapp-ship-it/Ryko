@@ -1,0 +1,11 @@
+{
+  "bench_source": "palmx-ic",
+  "case_id_prefix": "px-",
+  "dataset": "qimma/MCQ_PalmX (islamic split) — community mirror of UBC-NLP/palmx_2025_subtask2_islamic",
+  "domain": "islamic-culture",
+  "official_dataset": "UBC-NLP/palmx_2025_subtask2_islamic",
+  "official_gated": "auto (needs HF token)",
+  "parquet_sha256": "01e95f234f5721ddce168b0993a4c52f34a6b083fea6b07df4b2100b2f2cd590",
+  "protocol": "ryko-bench/1 (mcq, length-normalized log-likelihood)",
+  "rows": 981
+}

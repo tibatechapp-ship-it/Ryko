@@ -194,3 +194,35 @@ def test_augment_in_place_requires_existing_files(tmp_path):
     rc = augment_main(["--existing-dir", str(empty), "--inputs", str(raw),
                        "--out-dir", str(empty), "--in-place"])
     assert rc == 2
+
+
+def test_augment_no_new_val_freezes_ruler(tmp_path):
+    """--no-new-val: val.txt stays byte-identical, all new docs go to train."""
+    existing = tmp_path / "existing"
+    existing.mkdir()
+    old_val = "الاحتجاز الثابت لا يتغير أبدا مهما نما التدريب الجديد\n\n"
+    (existing / "train.txt").write_text("فقرة قديمة أولى للسند\n\n", encoding="utf-8")
+    (existing / "val.txt").write_text(old_val, encoding="utf-8")
+    raw = tmp_path / "new.jsonl"
+    # many unique docs + one doc whose doc_seed hits the 0.004 bucket: without
+    # the flag it would divert to val, with --no-new-val it must land in train
+    # (uniqueness via Arabic-letter runs — digits fold out of fingerprints)
+    from ryko_lm.data.augment_corpus import doc_seed
+    base = "وثيقة جديدة تحمل نصا كافيا للتنقية والفحص "
+    bucket_hit = next(k for k in range(1, 400) if doc_seed([base + "متميز" * k]) % 250 == 0)
+    docs = [base + "متميز" * (i + 1) for i in range(120) if i + 1 != bucket_hit]
+    docs.append(base + "متميز" * bucket_hit)
+    _raw_jsonl(raw, docs)
+    rc = augment_main(["--existing-dir", str(existing), "--inputs", str(raw),
+                       "--out-dir", str(existing), "--in-place", "--no-new-val"])
+    assert rc == 0
+    assert (existing / "val.txt").read_text(encoding="utf-8") == old_val
+    merged = (existing / "train.txt").read_text(encoding="utf-8")
+    assert "فقرة قديمة أولى" in merged
+    assert "متميز " * 2 not in merged  # sanity: no padded repetition artefacts
+    stats = json.loads((existing / "stats.json").read_text(encoding="utf-8"))
+    assert stats["no_new_val"] is True
+    assert sum(s["docs"] for s in stats["new_sources"].values()) == 121
+    # the bucket-hit doc went to TRAIN (would have diverted without the flag)
+    assert doc_seed([base + "متميز" * bucket_hit]) % 250 == 0
+    assert base + "متميز" * bucket_hit in merged

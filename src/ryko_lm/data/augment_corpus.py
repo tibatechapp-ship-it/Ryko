@@ -143,6 +143,11 @@ def main(argv: list[str] | None = None) -> int:
                              "already hold train.txt/val.txt")
     parser.add_argument("--val-ratio", type=float, default=0.004,
                         help="fraction of NEW documents diverted to val")
+    parser.add_argument("--no-new-val", action="store_true",
+                        help="freeze the held-out ruler: every NEW document "
+                             "goes to train and val.txt is left byte-identical "
+                             "(v1.15.0 — the standard practice of keeping the "
+                             "eval set fixed when the train set grows)")
     parser.add_argument("--min-line-len", type=int, default=40)
     parser.add_argument("--min-arabic-letters", type=int, default=20)
     parser.add_argument("--min-arabic-ratio", type=float, default=0.55)
@@ -184,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
 
     per_source: dict[str, dict] = {}
     val_bucket = max(1, int(1 / args.val_ratio))
+    diverted = 0
     # NOTE: both sinks are opened ONCE across all inputs — reopening per
     # input in "w" mode would wipe the previous source's data.
     with train_sink as tr, val_sink as va:
@@ -192,8 +198,9 @@ def main(argv: list[str] | None = None) -> int:
             for paragraphs, dropped in stream_clean_file(path, opts, seen):
                 body = "\n".join(paragraphs) + "\n\n"
                 chars_kept += sum(len(p) for p in paragraphs)
-                if doc_seed(paragraphs) % val_bucket == 0:
+                if not args.no_new_val and doc_seed(paragraphs) % val_bucket == 0:
                     va.write(body)
+                    diverted += 1
                 else:
                     tr.write(body)
                 docs_kept += 1
@@ -202,6 +209,8 @@ def main(argv: list[str] | None = None) -> int:
                                      "dup_paragraphs": dup}
             print(f"[augment] {path.name}: {docs_kept} docs, "
                   f"{chars_kept / 1e6:.1f}M chars, dup_dropped={dup}", flush=True)
+    if args.no_new_val:
+        print(f"[augment] --no-new-val: held-out ruler frozen, diverted=0", flush=True)
 
     # concatenate old + new
     train_out = args.out_dir / "train.txt"
@@ -231,6 +240,7 @@ def main(argv: list[str] | None = None) -> int:
         "existing_paragraphs": existing_paras,
         "new_sources": per_source,
         "val_ratio_new": args.val_ratio,
+        "no_new_val": bool(args.no_new_val),
         "chars_existing_train": old_chars,
     }
     (args.out_dir / "stats.json").write_text(

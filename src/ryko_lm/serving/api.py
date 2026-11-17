@@ -12,7 +12,7 @@ GET  /knowledge/ideas     — idea layer (العقل الفكري): school-attri
 GET  /knowledge/relations — argument-relations graph (علاقات الحجاج)
 POST /knowledge/cite      — citation verification (ryko-cite/1 verdict)
 POST /knowledge/ask       — grounded generation: retrieve → generate → guard
-                            → lexical-grounding ratio + source list
+                            → per-sentence cite audit → deliver or abstain
 
 Configuration (environment variables):
     RYKO_MODEL_PATH      default: artifacts/training/final.pt
@@ -74,7 +74,7 @@ async def lifespan(_app: FastAPI):
     state["store"] = None
 
 
-app = FastAPI(title="Ryko Arabic LM", version="1.14.0", lifespan=lifespan)
+app = FastAPI(title="Ryko Arabic LM", version="1.15.0", lifespan=lifespan)
 
 
 class GenerateRequest(BaseModel):
@@ -278,6 +278,12 @@ class AskRequest(BaseModel):
     top_p: float = Field(default=0.95, ge=0.05, le=1.0)
     repetition_penalty: float = Field(default=1.15, ge=1.0, le=2.0)
     seed: int | None = None
+    strict: bool = Field(default=False, description="deliver only fully attributed answers")
+
+
+ABSTAIN_MESSAGE = ("أمتنع عن تقديم إجابة موثقة لهذا السؤال: لم يُعثر في المقاطع "
+                   "المسترجعة من نواة المعرفة على سند نصي كافٍ لأي جملة من الجواب. "
+                   "المصادر أدناه تعرض ما وُجد فعلاً — راجعها مباشرة.")
 
 
 def _lexical_grounding(answer: str, passages: list[str]) -> tuple[float, int]:
@@ -302,11 +308,21 @@ def _lexical_grounding(answer: str, passages: list[str]) -> tuple[float, int]:
 @app.post("/knowledge/ask")
 def knowledge_ask(req: AskRequest) -> dict:
     """Grounded generation: retrieve → build a sourced prompt → generate →
-    guard → report lexical-grounding ratio and the retrieved sources.
+    guard → cite-audit every sentence against the retrieval pool →
+    deliver the answer with its anchor, or abstain (v1.15.0).
+
+    The decision rule is structural, documented and two-sided:
+    * ``attributed``  (≥1 sentence verbatim in a stored passage) — deliver.
+    * ``partial``     (≥1 sentence ≥82% token-contained) — deliver unless
+      ``strict=true``; flagged as unattributed-verbatim either way.
+    * ``unattributed`` (nothing anchors) — **abstain**: ``answer`` keeps the
+      raw draft for auditability, ``delivered_answer`` is the abstention
+      message, never presented as sourced.
 
     The answer is returned as an *attribution-eligible draft*, never a fatwa
     (see DISCLAIMER and docs/KNOWLEDGE_CORE.md §4).
     """
+    from ..knowledge.citation import audit_answer
     from ..serving.guard import guard_output
 
     _require_ready()
@@ -332,6 +348,13 @@ def knowledge_ask(req: AskRequest) -> dict:
     )
     answer = state["tokenizer"].decode(out[0].tolist())
     grounding, best_idx = _lexical_grounding(answer, clamped)
+    audit = audit_answer(answer, hits)
+    deliver = audit.status == "attributed" or \
+        (audit.status == "partial" and not req.strict)
+    abstain_reason = None if deliver else \
+        ("strict: الإجابة جزئية السند والوضع الصارم يشترط سنداً حرفياً"
+         if req.strict and audit.status == "partial"
+         else "لا توجد جملة واحدة في الجواب لها سند نصي في المقاطع المسترجعة")
     sources = [{
         "passage_id": h.passage_id, "book_id": h.book_id, "title_ar": h.title_ar,
         "page_num": h.page_num, "chars_used": len(clamped[i]),
@@ -339,6 +362,10 @@ def knowledge_ask(req: AskRequest) -> dict:
     return {
         "question": req.question,
         "answer": answer,
+        "delivered_answer": answer if deliver else ABSTAIN_MESSAGE,
+        "decision": "deliver" if deliver else "abstain",
+        "abstain_reason": abstain_reason,
+        "citation_audit": audit.as_dict(),
         "sources": sources,
         "primary_source": sources[max(best_idx, 0)] if best_idx >= 0 else None,
         "grounding_ratio": round(grounding, 4),

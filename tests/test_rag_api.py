@@ -89,8 +89,41 @@ def test_knowledge_ask_grounding(client):
     assert body["guard"]["decision"] in {"ALLOW", "REVIEW"}
     assert 0.0 <= body["grounding_ratio"] <= 1.0
     assert "ليست فتوى" in body["disclaimer"]
+    # v1.15.0 cite-audit loop: audited answer, deliver-or-abstain decision
+    audit = body["citation_audit"]
+    assert audit["protocol"] == "ryko-cite/1"
+    assert audit["sentences_audited"] >= 0
+    assert audit["status"] in {"attributed", "partial", "unattributed"}
+    assert 0.0 <= audit["attributed_ratio"] <= 1.0
+    # the decision follows the documented rule, independent of draft quality
+    expected = "deliver" if audit["status"] in {"attributed", "partial"} else "abstain"
+    assert body["decision"] == expected
+    if body["decision"] == "deliver":
+        assert body["delivered_answer"] == body["answer"]
+        assert body["abstain_reason"] is None
+    else:
+        assert "أمتنع" in body["delivered_answer"]
+        assert body["abstain_reason"]
     a = client.post("/knowledge/ask", json={
         "question": "ما شروط الإسناد المتصل في الحديث؟",
         "k": 2, "max_new_tokens": 40, "seed": 7,
     }).json()
     assert a["answer"] == body["answer"]  # seeded determinism end-to-end
+    assert a["citation_audit"]["status"] == audit["status"]  # audit deterministic
+
+
+@requires_final_model
+@requires_knowledge
+def test_knowledge_ask_strict_contract(client):
+    body = client.post("/knowledge/ask", json={
+        "question": "ما شروط الإسناد المتصل في الحديث؟",
+        "k": 2, "max_new_tokens": 40, "seed": 7, "strict": True,
+    }).json()
+    status = body["citation_audit"]["status"]
+    assert status in {"attributed", "partial", "unattributed"}
+    expected = "deliver" if status == "attributed" else "abstain"
+    assert body["decision"] == expected
+    if body["decision"] == "abstain":
+        assert "أمتنع" in body["delivered_answer"]
+    else:
+        assert body["delivered_answer"] == body["answer"]

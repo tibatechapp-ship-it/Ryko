@@ -56,3 +56,12 @@ artifacts/training_v5/*.tmp
 # Training checkpoints (heavy) — final fp16 artifact IS committed
 artifacts/training_v5b/last.pt
 artifacts/training_v5b/best.pt
+
+# v1.15 working data (large) — receipts + stats ARE committed; bins/tmp are not
+data/processed_v52/train.bin
+data/processed_v52/val.bin
+data/processed_v52/*.binarize_state.json
+data/processed_v52/_all_docs.tmp.txt
+data/bench/palmx_ic_source.parquet
+artifacts/training_v5c/last.pt
+artifacts/training_v5c/best.pt

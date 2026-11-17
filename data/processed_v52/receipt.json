@@ -1,0 +1,37 @@
+{
+  "kind": "ryko-ryko-corpus-receipt-receipt",
+  "created_utc": "2026-11-17T01:14:33Z",
+  "artifacts": [
+    {
+      "path": "data/processed_v52/train.bin",
+      "sha256": "be77f3803d3c262c4e3d7a144dac52abfb4ad9345ddd374e2dacd5eda1f39b4b",
+      "bytes": 1495894920
+    },
+    {
+      "path": "data/processed_v52/val.bin",
+      "sha256": "ef10b14590645c9f02bebf7ca8c5d01749995b4df2b48f3642e53b885b9408da",
+      "bytes": 7367920
+    },
+    {
+      "path": "data/processed_v52/binarize_stats.json",
+      "sha256": "e006832ca14d6decdcb922ed8394822bbc562fe19883ba40b5967a9ee4953d07",
+      "bytes": 191
+    },
+    {
+      "path": "data/processed_v52/stats.json",
+      "sha256": "c12065aad29d15933d00d6ff880015eceab22f69ee49db4a96bdb40e5b7fff7d",
+      "bytes": 317
+    }
+  ],
+  "meta": {
+    "corpus": "v5.2",
+    "tokens_train": 747947460,
+    "tokens_val": 3683960,
+    "ruler": "val.bin sha256 ef10b14590645c9f02bebf7ca8c5d01749995b4df2b48f3642e53b885b9408da (frozen, byte-identical to the v5.1 receipt)",
+    "pipeline": "v5.1 stage-verified rebuild (all dup counts byte-exact vs v1.13.0 docs) + in-place augment shamela_500 --no-new-val (ruler frozen, diverted=0), binarize checkpointed",
+    "base_v51_tokens_train": 687640506,
+    "delta_tokens": 60306954,
+    "delta_source": "shamela 500-book selection (434 collected, 306 kept after dedup, 208.2M chars, 77138 paragraph dups dropped)"
+  },
+  "receipt_sha256": "613e86b8abbf8a637461f56123edeb00e2077200e1a9901b43856d4e071f6f55"
+}

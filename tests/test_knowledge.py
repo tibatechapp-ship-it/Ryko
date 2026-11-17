@@ -7,7 +7,7 @@ import json
 import pytest
 
 from ryko_lm.knowledge import KnowledgeStore, chunk_text, classify, embed
-from ryko_lm.knowledge.citation import verify_quote
+from ryko_lm.knowledge.citation import audit_answer, verify_quote
 from ryko_lm.knowledge.embeddings import cosine, pack, unpack
 from ryko_lm.knowledge.ingest import ingest_openiti_jsonl, ingest_shamela_jsonl
 from ryko_lm.knowledge.schema import stable_id
@@ -181,6 +181,51 @@ def test_citation_not_found(seeded):
     verdict = verify_quote(seeded, "كلام كليلا غير موجود هنا في المتن إطلاقا")
     assert verdict.status == "not_found"
     assert verdict.passage_id is None
+
+
+# ------------------------------------------------------------ answer audit
+def test_audit_attributed(seeded):
+    audit = audit_answer(
+        "الماء الطهور لا ينجّس بغير تغيير أحد خصائصه. وزدنا هنا كلاما غير موجود في المتن أصلا",
+        seeded.iter_passages(),
+    )
+    assert audit.protocol == "ryko-cite/1"
+    assert audit.status == "attributed"
+    assert audit.attributed_ratio == 0.5
+    best = audit.as_dict()["best"]
+    assert best["status"] == "verified" and best["page_num"] == 4
+
+
+def test_audit_partial(seeded):
+    audit = audit_answer(
+        "الماء الطهور لا ينجّس بغير تغيير أحد خصائصه النادرة",
+        seeded.iter_passages(),
+    )
+    assert audit.status == "partial"
+    assert audit.verdicts[0].status == "partial"
+    assert 0.82 <= audit.verdicts[0].score < 1.0
+
+
+def test_audit_unattributed(seeded):
+    audit = audit_answer("كلام كليلا غير موجود هنا في المتن إطلاقا وقطعا", seeded.iter_passages())
+    assert audit.status == "unattributed"
+    assert audit.attributed_ratio == 0.0
+
+
+def test_audit_plain_strings():
+    audit = audit_answer("الماء الطهور لا ينجّس بغير تغيير أحد خصائصه",
+                         ["الماء الطهور لا ينجّس بغير تغيير أحد خصائصه"])
+    assert audit.status == "attributed"
+    assert audit.verdicts[0].passage_id is None
+
+
+def test_audit_deterministic_and_capped(seeded):
+    long_answer = "الماء الطهور لا ينجّس بغير تغيير أحد خصائصه. " * 6
+    a = audit_answer(long_answer, seeded.iter_passages())
+    b = audit_answer(long_answer, seeded.iter_passages())
+    assert a.status == b.status == "attributed"
+    assert [v.as_dict() for v in a.verdicts] == [v.as_dict() for v in b.verdicts]
+    assert a.sentences_audited == 4  # ANSWER_AUDIT_MAX_SENTENCES cap
 
 
 # ---------------------------------------------------------------- taxonomy

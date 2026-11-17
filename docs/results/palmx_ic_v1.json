@@ -1,0 +1,21 @@
+{
+  "model": {
+    "checkpoint": "artifacts/training/final.pt",
+    "params_M": 11.54,
+    "abstain_threshold": 0.34,
+    "cases": 981
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 981,
+      "accuracy": 0.2538,
+      "per_domain": {
+        "islamic-culture": {
+          "n": 981,
+          "rate": 0.2538
+        }
+      }
+    }
+  }
+}
