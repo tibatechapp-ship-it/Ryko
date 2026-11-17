@@ -1,0 +1,58 @@
+{
+  "schema": "ryko1000-sft/1",
+  "splits_used": [
+    "train",
+    "dev"
+  ],
+  "test_split": "held out — never consumed by SFT/DPO builders",
+  "files": {
+    "train": {
+      "path": "data/training/ryko1000_sft_train.jsonl",
+      "n": 850,
+      "sha256": "43a61061c2cd75a4cfcadae18ed7621888edcde3412900adb06958553ed16902"
+    },
+    "dev": {
+      "path": "data/training/ryko1000_sft_dev.jsonl",
+      "n": 70,
+      "sha256": "c419943ff752a94ff07a090e87ba6637a4a00eceb0020063dfc335e7260e9bc3"
+    }
+  },
+  "counts": {
+    "train": {
+      "cases": 850,
+      "pairs": 850,
+      "by_family": {
+        "akhta": 85,
+        "fahm": 85,
+        "ikhtilaf": 85,
+        "istidlal": 85,
+        "itirad": 85,
+        "multisource": 85,
+        "mustalahat": 85,
+        "naql": 85,
+        "tarjih": 85,
+        "yaqin": 85
+      }
+    },
+    "dev": {
+      "cases": 70,
+      "pairs": 70,
+      "by_family": {
+        "akhta": 7,
+        "fahm": 7,
+        "ikhtilaf": 7,
+        "istidlal": 7,
+        "itirad": 7,
+        "multisource": 7,
+        "mustalahat": 7,
+        "naql": 7,
+        "tarjih": 7,
+        "yaqin": 7
+      }
+    }
+  },
+  "leakage_check": {
+    "leaked": 0,
+    "fatal": true
+  }
+}

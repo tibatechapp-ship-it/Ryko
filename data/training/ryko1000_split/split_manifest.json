@@ -1,0 +1,83 @@
+{
+  "schema": "ryko1000-split/1",
+  "split_seed": 20261118,
+  "proportions": [
+    85,
+    7,
+    8
+  ],
+  "per_family": {
+    "akhta": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "fahm": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "ikhtilaf": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "istidlal": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "itirad": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "multisource": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "mustalahat": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "naql": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "tarjih": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    },
+    "yaqin": {
+      "train": 85,
+      "dev": 7,
+      "test": 8
+    }
+  },
+  "files": {
+    "train": {
+      "path": "data/training/ryko1000_split/ryko1000_train.jsonl",
+      "n": 850,
+      "sha256": "6ba9e00d4cb5c04e5ab9d96d79a1cfa5041d9cba55eeede639eb4f3302a83d34"
+    },
+    "dev": {
+      "path": "data/training/ryko1000_split/ryko1000_dev.jsonl",
+      "n": 70,
+      "sha256": "69408c9e68af8117d4fdf0bd6e87fd059b4ca5a281932066a264fa5018a2e892"
+    },
+    "test": {
+      "path": "data/training/ryko1000_split/ryko1000_test.jsonl",
+      "n": 80,
+      "sha256": "8d0f00e720aa5d757eccb22c5c8a5079b8d18db0673f5b3d95e50f43cfe97f93"
+    }
+  },
+  "test_held_out": true,
+  "seed_source": {
+    "path": "docs/benchmarks/ryko1000_seed.jsonl",
+    "sha256": "6dd1432669fa17720103f717a1ef64d69be866ed7f377da515af025b646d414c"
+  }
+}

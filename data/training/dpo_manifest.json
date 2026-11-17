@@ -1,0 +1,36 @@
+{
+  "schema": "ryko1000-dpo/1",
+  "source": "failure_probes of the train split (+ over-refusal counter-pairs from must-answer cases)",
+  "files": {
+    "train": {
+      "path": "data/training/ryko1000_dpo_train.jsonl",
+      "n": 792,
+      "sha256": "457fb4ffe3de3bf04a97fb36e1b4a4a71bdd1f63a31f469754f3c964f126cba5"
+    }
+  },
+  "counts": {
+    "by_family": {
+      "akhta": 85,
+      "fahm": 85,
+      "ikhtilaf": 50,
+      "istidlal": 62,
+      "itirad": 85,
+      "multisource": 85,
+      "mustalahat": 85,
+      "naql": 85,
+      "tarjih": 85,
+      "yaqin": 85
+    },
+    "by_probe_kind": {
+      "evidenceless": 143,
+      "over_refusal": 27,
+      "splice": 170,
+      "wrong_attribution": 452
+    }
+  },
+  "leakage_check": {
+    "leaked": 0,
+    "fatal": true
+  },
+  "test_split": "held out — never consumed by SFT/DPO builders"
+}
