@@ -54,11 +54,20 @@ def sha256_file(path: Path) -> str:
 
 
 def fingerprint_dir(directory: Path, patterns: tuple[str, ...] = ("*.bin", "*.txt", "*.json")) -> list[dict]:
-    """Hash every artifact under ``directory`` (sorted, stable)."""
+    """Hash every artifact under ``directory`` (sorted, stable).
+
+    Receipt files themselves (``receipt.json`` / ``*.receipt.json``) are
+    EXCLUDED: a receipt must never fingerprint itself (or a previous
+    receipt) — the self-entry made any re-signing fail by construction,
+    since the written receipt pointed at the hash of the receipt it was
+    about to replace (v1.22.0 fix, tested).
+    """
     entries: list[dict] = []
     for pattern in patterns:
         for path in sorted(directory.glob(pattern)):
             if not path.is_file():
+                continue
+            if path.name == "receipt.json" or path.name.endswith(".receipt.json"):
                 continue
             entries.append({
                 "path": str(path),

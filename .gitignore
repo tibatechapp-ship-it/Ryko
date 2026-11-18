@@ -84,3 +84,7 @@ artifacts/*/last.pt
 artifacts/*/best.pt
 artifacts/*/*.bin
 artifacts/*/*.pt.tmp
+
+# v1.22 unified verify store + receipt (local, rebuildable via lugha-build-full on a core copy)
+data/knowledge/ryko-verify-full.sqlite
+data/knowledge/ryko-verify-full.receipt.json

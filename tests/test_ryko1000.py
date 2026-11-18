@@ -321,7 +321,9 @@ def test_verify_all_passes(big_store, bench_seed_file, tmp_path):
     path = tmp_path / "ryko1000_seed.jsonl"
     path.write_text("\n".join(json.dumps(c, sort_keys=True, ensure_ascii=False)
                               for c in cases), encoding="utf-8")
-    report = verify_all(big_store, path)
+    report = verify_all(big_store, path, expect_total=1000,
+                        expect_families={f: N_PER_FAMILY
+                                         for f in FAMILY_IDS})
     assert report["overall"] == "pass", {
         k: v["failures"][:3] for k, v in report["gates"].items()
         if not v["pass"]}

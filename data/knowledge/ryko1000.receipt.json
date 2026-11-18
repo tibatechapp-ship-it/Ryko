@@ -1,12 +1,12 @@
 {
   "artifacts": [
     {
-      "bytes": 2848367,
+      "bytes": 3732443,
       "path": "docs/benchmarks/ryko1000_seed.jsonl",
-      "sha256": "6dd1432669fa17720103f717a1ef64d69be866ed7f377da515af025b646d414c"
+      "sha256": "a5613cb020067a21d1be3bb3ddc3858e5477f9f548915e808f592cbba05f1d25"
     }
   ],
-  "created_utc": "2026-11-17T17:35:52Z",
+  "created_utc": "2026-11-18T20:14:42Z",
   "kind": "ryko-ryko1000-receipt",
   "meta": {
     "coverage": {
@@ -19,6 +19,7 @@
         "verified": 100
       },
       "domains": {
+        "استكمال-النص-اللغوي": 129,
         "استكمال-نص": 100,
         "استنتاج-نصي": 70,
         "اعتراض-وجواب": 100,
@@ -39,29 +40,40 @@
         "كشف-التركيب": 72,
         "لا-سند-معاصر": 28,
         "معاصر": 22,
+        "نسبة-القاعدة-اللغوية": 9,
         "نسبة-الكتاب": 48,
         "نسبة-الكتاب-التراثي": 12,
+        "نسبة-الكتاب-اللغوي": 129,
+        "نسبة-المؤلف-اللغوي": 33,
         "نسبة-المسألة": 40,
         "نقل-متعدد-المصادر": 100
       },
       "families": {
         "akhta": 100,
+        "balagha": 100,
         "fahm": 100,
         "ikhtilaf": 100,
+        "irab": 100,
         "istidlal": 100,
         "itirad": 100,
         "multisource": 100,
         "mustalahat": 100,
         "naql": 100,
+        "sarf": 100,
         "tarjih": 100,
         "yaqin": 100
       },
       "kinds": {
         "abstain": 100,
         "cite": 200,
-        "mcq": 700
+        "mcq": 1000
       },
       "max_book_share_per_family": {
+        "balagha": {
+          "book_id": "shamela-1074",
+          "count": 35,
+          "share": 0.361
+        },
         "fahm": {
           "book_id": "shamela-4569",
           "count": 16,
@@ -71,6 +83,11 @@
           "book_id": "turath-1714",
           "count": 4,
           "share": 0.067
+        },
+        "irab": {
+          "book_id": "shamela-1074",
+          "count": 35,
+          "share": 0.361
         },
         "istidlal": {
           "book_id": "shamela-190",
@@ -97,6 +114,11 @@
           "count": 9,
           "share": 0.09
         },
+        "sarf": {
+          "book_id": "shamela-1074",
+          "count": 35,
+          "share": 0.361
+        },
         "tarjih": {
           "book_id": "shamela-4569",
           "count": 15,
@@ -104,14 +126,14 @@
         }
       },
       "source_layers": {
-        "shamela": 634,
+        "shamela": 925,
         "turath": 196
       },
       "sources": {
         "ryko-bench-seed": 315,
-        "ryko1000-seed": 685
+        "ryko1000-seed": 985
       },
-      "total": 1000
+      "total": 1300
     },
     "gates": {
       "abstention": true,
@@ -124,5 +146,5 @@
     },
     "overall": "pass"
   },
-  "receipt_sha256": "b982ba4e69c1ee68d1ad5fda59b6295cce577d36773233ac0add63a974222939"
+  "receipt_sha256": "64afec6a96b341c9f81018e81dae5bd4713e02c05c99ea04b5690fab91e65383"
 }

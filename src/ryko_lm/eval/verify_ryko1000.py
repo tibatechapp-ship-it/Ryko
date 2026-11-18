@@ -51,7 +51,8 @@ from ryko_lm.knowledge.textproc import ar_tokens, normalize_for_match
 
 SCHEMA = "ryko1000/1"
 FAMILY_IDS = ("fahm", "mustalahat", "istidlal", "naql", "ikhtilaf",
-              "itirad", "tarjih", "akhta", "yaqin", "multisource")
+              "itirad", "tarjih", "akhta", "yaqin", "multisource",
+              "irab", "sarf", "balagha")
 FAMILY_AR: dict[str, str] = {
     "fahm": "فهم النصوص التراثية",
     "mustalahat": "تفسير المصطلحات",
@@ -63,7 +64,14 @@ FAMILY_AR: dict[str, str] = {
     "akhta": "اكتشاف الأخطاء والتناقضات",
     "yaqin": "التمييز بين اليقين والظن",
     "multisource": "الاستدلال متعدد المصادر",
+    "irab": "الإعراب والنحو",
+    "sarf": "الصرف",
+    "balagha": "البلاغة",
 }
+# The linguistic families (v1.22.0) — used by the madhhab gate's extended
+# attribution checks (book-attribution -> committed title, author-attribution
+# -> committed author catalog).
+LINGUA_FAMILY_IDS = ("irab", "sarf", "balagha")
 N_PER_FAMILY = 100
 TOTAL = N_PER_FAMILY * len(FAMILY_IDS)
 # 0.90 catches true duplicate/near-identical content (measured 0.95-1.0
@@ -152,9 +160,18 @@ def _norm(text: str) -> str:
 
 
 # ---------------------------------------------------------------- engines
-def verify_citations(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
-    """Gate 1 — every reference resolves; cite verdicts match expectations."""
+def verify_citations(store: KnowledgeStore, cases: list[dict],
+                     cite_store: KnowledgeStore | None = None) -> list[dict]:
+    """Gate 1 — every reference resolves; cite verdicts match expectations.
+
+    The ryko-cite/1 verdict SEARCH runs on ``cite_store`` (contract-scoped:
+    the 516K-passage unified index OOMs measurably, and the verdict history
+    was measured on the committed retrieval core), while source resolution
+    and the recorded-quote containment stay on ``store``.  Default
+    ``cite_store=None`` keeps the closed single-store behavior.
+    """
     failures: list[dict] = []
+    verdict_store = cite_store if cite_store is not None else store
     book_ids = {b["book_id"] for b in store.iter_books()}
     for rec in cases:
         cid = rec["case_id"]
@@ -181,8 +198,8 @@ def verify_citations(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
                 failures.append(_fail("citations", cid,
                                       f"book {src['book_id']} missing from store"))
         if rec["kind"] == "cite":
-            verdict = verify_quote(store, rec["quote"], write_status=False,
-                                   candidates=100)
+            verdict = verify_quote(verdict_store, rec["quote"],
+                                   write_status=False, candidates=100)
             if verdict.status != rec["expect"]:
                 failures.append(_fail(
                     "citations", cid,
@@ -288,10 +305,18 @@ def check_contradictions(store: KnowledgeStore, cases: list[dict]) -> list[dict]
 
 
 def check_madhhab(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
-    """Gate 5 — no attribution without committed evidence."""
+    """Gate 5 — no attribution without committed evidence.
+
+    Extended in v1.22.0 for the linguistic families: book-attribution
+    answers must match the committed TITLE and author-attribution answers
+    the committed AUTHOR catalog — no invented attribution passes.
+    """
     failures: list[dict] = []
     titles = {b["book_id"]: normalize_for_match(" ".join(
         (b.get("title_ar") or "").split())) for b in store.iter_books()}
+    author_names = {row["author_id"]: (row["name_ar"] or "").strip()
+                    for row in store.conn.execute(
+                        "SELECT author_id, name_ar FROM authors")}
     for rec in cases:
         cid = rec["case_id"]
         meta = rec.get("meta") or {}
@@ -302,13 +327,32 @@ def check_madhhab(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
                 f"attributed {rec['expected_answer']!r} but the committed "
                 f"claim originator is {originator!r}"))
         book_id = meta.get("book_id")
-        if book_id and rec["kind"] == "mcq" and rec["family"] == "ikhtilaf":
+        if book_id and rec["kind"] == "mcq" and (
+                rec["family"] == "ikhtilaf"
+                or meta.get("ling_pattern") == "book"):
             correct = rec["options"][rec["answer"]]
             if normalize_for_match(correct) != titles.get(book_id):
                 failures.append(_fail(
                     "madhhab", cid,
                     f"book-attribution answer does not match the committed "
                     f"title of {book_id}"))
+        author_id = meta.get("author_id")
+        if author_id and rec["kind"] == "mcq":
+            correct = rec["options"][rec["answer"]]
+            committed = author_names.get(author_id, "")
+            if normalize_for_match(correct) != normalize_for_match(committed):
+                failures.append(_fail(
+                    "madhhab", cid,
+                    f"author-attribution answer does not match the committed "
+                    f"author catalog entry {author_id}"))
+            book_author = next(
+                (b.get("author_id") for b in store.iter_books()
+                 if b["book_id"] == book_id), None)
+            if book_author != author_id:
+                failures.append(_fail(
+                    "madhhab", cid,
+                    f"anchored book {book_id} is not by {author_id} in the "
+                    "committed catalog"))
         ref = meta.get("referenced_work")
         if ref and any(ref in t for t in titles.values()):
             failures.append(_fail(
@@ -319,7 +363,14 @@ def check_madhhab(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
 
 
 def check_abstention(store: KnowledgeStore, cases: list[dict]) -> list[dict]:
-    """Gate 6 — abstain polarity correct; absence tokens PROVEN absent."""
+    """Gate 6 — abstain polarity correct; absence tokens PROVEN absent.
+
+    Contract-scoped (v1.22.0): the absence-token proof runs on the store it
+    is MEASURED against at eval time — the committed retrieval core.  Tokens
+    like "thulathi" DO occur in the lugha sarf books, so widening the scope
+    to the unified store would discard measured history; the caller passes
+    ``check_abstention(core_store, cases)`` explicitly.
+    """
     failures: list[dict] = []
     token_sets = {p["passage_id"]: set(ar_tokens(p["text"]))
                   for p in store.iter_passages()}
@@ -442,26 +493,45 @@ GATE_NAMES = ("citations", "quotes", "answers", "contradictions", "madhhab",
               "abstention", "dedup")
 
 
-def verify_all(store: KnowledgeStore, seed_path: str | Path) -> dict:
-    """Run all seven gates; return the full verification report."""
+def verify_all(store: KnowledgeStore, seed_path: str | Path,
+               *, abstain_store: KnowledgeStore | None = None,
+               cite_store: KnowledgeStore | None = None,
+               expect_total: int | None = None,
+               expect_families: dict[str, int] | None = None) -> dict:
+    """Run all seven gates; return the full verification report.
+
+    Contract-scoped stores (v1.22.0): ``abstain_store`` carries the
+    absence-token proof (the committed retrieval core), ``cite_store`` the
+    ryko-cite/1 verdict search (the committed core — the 516K unified index
+    OOMs measurably); both default to ``store`` (closed single-store
+    behavior preserved).  ``expect_total``/``expect_families`` inject the
+    closed-count contract for TESTS only (synthetic seeds); the default is
+    the closed 100-per-family over every FAMILY_IDS entry.
+    """
     cases = load_ryko1000(seed_path)
     fam_counts = Counter(c["family"] for c in cases)
-    if len(cases) != TOTAL:
+    total = TOTAL if expect_total is None else expect_total
+    required = ({f: N_PER_FAMILY for f in FAMILY_IDS}
+                if expect_families is None else dict(expect_families))
+    if len(cases) != total:
         raise VerificationError(
-            f"seed has {len(cases)} cases vs required {TOTAL}")
-    for fam in FAMILY_IDS:
-        if fam_counts[fam] != N_PER_FAMILY:
+            f"seed has {len(cases)} cases vs required {total}")
+    for fam, need in required.items():
+        if fam not in FAMILY_IDS:
+            raise VerificationError(f"unknown family in contract: {fam!r}")
+        if fam_counts[fam] != need:
             raise VerificationError(
                 f"family {fam!r}: {fam_counts[fam]} cases vs required "
-                f"{N_PER_FAMILY}")
+                f"{need}")
     gates: dict[str, dict] = {}
     gate_results = {
-        "citations": verify_citations(store, cases),
+        "citations": verify_citations(store, cases, cite_store=cite_store),
         "quotes": verify_quotes(store, cases),
         "answers": verify_answers(cases),
         "contradictions": check_contradictions(store, cases),
         "madhhab": check_madhhab(store, cases),
-        "abstention": check_abstention(store, cases),
+        "abstention": check_abstention(
+            abstain_store if abstain_store is not None else store, cases),
         "dedup": check_dedup(cases),
     }
     for name in GATE_NAMES:
@@ -535,6 +605,12 @@ def main(argv: list[str] | None = None) -> int:
                         default=Path("docs/benchmarks/ryko1000_seed.jsonl"))
     parser.add_argument("--store", type=Path,
                         default=Path("data/knowledge/ryko.sqlite"))
+    parser.add_argument("--abstain-store", type=Path, default=None,
+                        help="store for the absence-token proof (gate 6) — "
+                             "default: --store (closed behavior)")
+    parser.add_argument("--cite-store", type=Path, default=None,
+                        help="store for ryko-cite/1 verdict search (gate 1) "
+                             "— default: --store (closed behavior)")
     parser.add_argument("--report", type=Path,
                         default=Path("docs/results/ryko1000_verification.json"))
     parser.add_argument("--coverage-md", type=Path,
@@ -544,10 +620,20 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     store = KnowledgeStore(str(args.store), persist_vectors=False)
+    abstain_store = (KnowledgeStore(str(args.abstain_store),
+                                    persist_vectors=False)
+                     if args.abstain_store else None)
+    cite_store = (KnowledgeStore(str(args.cite_store), persist_vectors=False)
+                  if args.cite_store else None)
     try:
-        report = verify_all(store, args.seed)
+        report = verify_all(store, args.seed, abstain_store=abstain_store,
+                            cite_store=cite_store)
     finally:
         store.close()
+        if abstain_store is not None:
+            abstain_store.close()
+        if cite_store is not None:
+            cite_store.close()
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2,

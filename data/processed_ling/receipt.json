@@ -1,21 +1,36 @@
 {
   "kind": "ryko-corpus-receipt",
-  "created_utc": "2026-11-18T00:48:41Z",
+  "created_utc": "2026-11-18T18:17:31Z",
   "artifacts": [
     {
+      "path": "data/processed_ling/train.bin",
+      "sha256": "2d6b4f2df82fa45d4c82df99938256b2a30313cd9d23edb0cfda09406421e471",
+      "bytes": 68480804
+    },
+    {
+      "path": "data/processed_ling/val.bin",
+      "sha256": "e87b880d6b469a83c794cc67f5ca717ea91719a1c5b251dec0c671a9a89c5d41",
+      "bytes": 297262
+    },
+    {
       "path": "data/processed_ling/train.txt",
-      "sha256": "6c9d4d1ea667623533dec976b8fc617b560f05490e339842e8aae0e8f3bcd97d",
-      "bytes": 194697411
+      "sha256": "f8319de5e4cfc951b086350946b048d929cf3e093bb9b83a3291745b29465d92",
+      "bytes": 194697362
     },
     {
       "path": "data/processed_ling/val.txt",
-      "sha256": "01c77c1ef4e1171d54bc1f81af56921285fa1bd1c206398bec3528a336524c25",
-      "bytes": 756577
+      "sha256": "ae3e3220b14b96e9acd5898330e54fec8338eca981969a8275e3f6d53ea18fea",
+      "bytes": 756389
+    },
+    {
+      "path": "data/processed_ling/binarize_stats.json",
+      "sha256": "047cedd1684ebf8ca98d6d6b3f792045857aea4b6da00b94260987f6d907b8f0",
+      "bytes": 191
     },
     {
       "path": "data/processed_ling/stats.json",
-      "sha256": "5937fe7480275c52e6a2b6f53f58e9c615cd6d35b8fefaaa1c62bb5cd42fd832",
-      "bytes": 973
+      "sha256": "c543e0abc2acc311fa82c82df0bd3db48232ab1d6f88822ddb8ec12c1b940e12",
+      "bytes": 974
     }
   ],
   "meta": {
@@ -23,11 +38,11 @@
     "raw_sources": [
       "data/raw/lugha_shamela.jsonl"
     ],
-    "chars_kept": 108831798,
+    "chars_kept": 108831563,
     "docs": {
       "train": 88,
       "val": 1
     }
   },
-  "receipt_sha256": "f7c6a6c71d88b7a85c22fa51fd1264d265baa54f939e76c9f42fc1657e6b9517"
+  "receipt_sha256": "f9aec510cc9b692bbb35f9ec5f568822e47d11d6da60b5e93c4002952102eb76"
 }

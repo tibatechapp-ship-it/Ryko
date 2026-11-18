@@ -9,6 +9,7 @@
       "verified": 100
     },
     "domains": {
+      "استكمال-النص-اللغوي": 129,
       "استكمال-نص": 100,
       "استنتاج-نصي": 70,
       "اعتراض-وجواب": 100,
@@ -29,29 +30,40 @@
       "كشف-التركيب": 72,
       "لا-سند-معاصر": 28,
       "معاصر": 22,
+      "نسبة-القاعدة-اللغوية": 9,
       "نسبة-الكتاب": 48,
       "نسبة-الكتاب-التراثي": 12,
+      "نسبة-الكتاب-اللغوي": 129,
+      "نسبة-المؤلف-اللغوي": 33,
       "نسبة-المسألة": 40,
       "نقل-متعدد-المصادر": 100
     },
     "families": {
       "akhta": 100,
+      "balagha": 100,
       "fahm": 100,
       "ikhtilaf": 100,
+      "irab": 100,
       "istidlal": 100,
       "itirad": 100,
       "multisource": 100,
       "mustalahat": 100,
       "naql": 100,
+      "sarf": 100,
       "tarjih": 100,
       "yaqin": 100
     },
     "kinds": {
       "abstain": 100,
       "cite": 200,
-      "mcq": 700
+      "mcq": 1000
     },
     "max_book_share_per_family": {
+      "balagha": {
+        "book_id": "shamela-1074",
+        "count": 35,
+        "share": 0.361
+      },
       "fahm": {
         "book_id": "shamela-4569",
         "count": 16,
@@ -61,6 +73,11 @@
         "book_id": "turath-1714",
         "count": 4,
         "share": 0.067
+      },
+      "irab": {
+        "book_id": "shamela-1074",
+        "count": 35,
+        "share": 0.361
       },
       "istidlal": {
         "book_id": "shamela-190",
@@ -87,6 +104,11 @@
         "count": 9,
         "share": 0.09
       },
+      "sarf": {
+        "book_id": "shamela-1074",
+        "count": 35,
+        "share": 0.361
+      },
       "tarjih": {
         "book_id": "shamela-4569",
         "count": 15,
@@ -94,48 +116,48 @@
       }
     },
     "source_layers": {
-      "shamela": 634,
+      "shamela": 925,
       "turath": 196
     },
     "sources": {
       "ryko-bench-seed": 315,
-      "ryko1000-seed": 685
+      "ryko1000-seed": 985
     },
-    "total": 1000
+    "total": 1300
   },
   "gates": {
     "abstention": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "answers": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "citations": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "contradictions": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "dedup": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "madhhab": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     },
     "quotes": {
-      "checked": 1000,
+      "checked": 1300,
       "failures": [],
       "pass": true
     }
@@ -145,18 +167,19 @@
   "seed": "docs/benchmarks/ryko1000_seed.jsonl",
   "store_stats": {
     "argument_relations": 35,
-    "authors": 11,
-    "books": 70,
-    "chars": 35414718,
-    "claims": 87,
-    "passages": 93359,
+    "authors": 90,
+    "books": 159,
+    "chars": 184268996,
+    "claims": 107,
+    "passages": 516609,
     "passages_by_source": {
       "econom": 5075,
       "fikr": 65467,
+      "lugha": 423250,
       "shamela": 11674,
       "turath": 11143
     },
     "schema_version": 1,
-    "sources": 4
+    "sources": 5
   }
 }
