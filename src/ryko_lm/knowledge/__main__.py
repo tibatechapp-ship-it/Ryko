@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> int:
     p_ing = sub.add_parser("ingest", help="ingest a collector JSONL into the store")
     p_ing.add_argument("--db", required=True)
     p_ing.add_argument("--jsonl", type=Path, required=True)
-    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr", "econom", "turath"],
+    p_ing.add_argument("--format", choices=["shamela", "openiti", "fikr", "econom", "lugha", "turath"],
                        default="shamela")
     p_ing.add_argument("--no-classify", action="store_true",
                        help="skip rule-based discourse labelling")
@@ -70,7 +70,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p_seed = sub.add_parser("ideas-seed",
                             help="seed the claims table from a curated manifest "
-                                 "(fikr | econom)")
+                                 "(fikr | econom | lugha)")
     p_seed.add_argument("--db", required=True)
     p_seed.add_argument("--manifest", type=Path,
                         default=Path("data/knowledge/fikr_manifest.json"))
@@ -92,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
                          help="restrict to one school/section id (e.g. naqd-hanbali, "
                               "econom-adawat)")
     p_ideas.add_argument("--layer", default=None,
-                         help="restrict to one curated layer (fikr | econom)")
+                         help="restrict to one curated layer (fikr | econom | lugha)")
 
     p_rel_seed = sub.add_parser(
         "relations-seed",
@@ -122,6 +122,7 @@ def main(argv: list[str] | None = None) -> int:
         fn = (ingest_mod.ingest_shamela_jsonl if args.format == "shamela"
               else ingest_mod.ingest_fikr_jsonl if args.format == "fikr"
               else ingest_mod.ingest_econom_jsonl if args.format == "econom"
+              else ingest_mod.ingest_lugha_jsonl if args.format == "lugha"
               else ingest_mod.ingest_turath_jsonl if args.format == "turath"
               else ingest_mod.ingest_openiti_jsonl)
         report = fn(store, args.jsonl, classify=not args.no_classify)

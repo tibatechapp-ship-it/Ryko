@@ -86,7 +86,7 @@ async def lifespan(_app: FastAPI):
     state["store"] = None
 
 
-app = FastAPI(title="Ryko Arabic LM", version="1.20.1", lifespan=lifespan)
+app = FastAPI(title="Ryko Arabic LM", version="1.21.0", lifespan=lifespan)
 
 
 class GenerateRequest(BaseModel):
@@ -226,12 +226,12 @@ def knowledge_search(q: str, k: int = 5, mode: str = "hybrid",
 @app.get("/knowledge/ideas")
 def knowledge_ideas(q: str, k: int = 8, school: str | None = None,
                     layer: str | None = None) -> dict:
-    """Curated idea layers (الفكر والاقتصاد والحقوق): hybrid ranking over claims.
+    """Curated idea layers (الفكر والاقتصاد واللغة): hybrid ranking over claims.
 
     Returns school-attributed ideas (originator + school + layer in meta)
-    seeded from the curated manifests (فكر v2 منقحة / اقتصاد وحقوق).
+    seeded from the curated manifests (فكر v2 منقحة / اقتصاد وحقوق / لغة).
     ``school`` optionally restricts to one curated school/section id and
-    ``layer`` to one curated layer (``fikr`` | ``econom``).
+    ``layer`` to one curated layer (``fikr`` | ``econom`` | ``lugha``).
     """
     from ..knowledge.ideas import search_ideas
 

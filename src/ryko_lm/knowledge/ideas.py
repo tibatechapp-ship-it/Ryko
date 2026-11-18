@@ -52,11 +52,12 @@ SUPPORTED_MANIFEST_VERSIONS = (1, 2)
 MANIFEST_KINDS = {
     "ryko-fikr-manifest": "fikr",
     "ryko-econom-manifest": "econom",
+    "ryko-lugha-manifest": "lugha",
 }
 
 
 def manifest_layer(manifest: dict) -> str:
-    """Knowledge layer for a manifest (``fikr`` | ``econom``)."""
+    """Knowledge layer for a manifest (``fikr`` | ``econom`` | ``lugha``)."""
     layer = MANIFEST_KINDS.get(manifest.get("kind"))
     if layer is None:
         raise ValueError(f"unknown manifest kind: {manifest.get('kind')!r}")

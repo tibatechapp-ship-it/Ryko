@@ -59,6 +59,14 @@ ECONOM_SOURCE = {
     "rights_status": sch.RIGHTS_DECLARED_OPEN,
 }
 
+LUGHA_SOURCE = {
+    "source_id": "lugha",
+    "name": "طبقة اللغة — النحو والصرف والبلاغة والمعاجم واللسانيات والأدب والمقررات (مرآة الشاملة على HuggingFace، قائمة مُنَسَّقة)",
+    "homepage": "https://huggingface.co/datasets/AuthenticIlm/Shamela4_Full_DB",
+    "license": "MIT declared by dataset publisher; editorial rights of individual editions remain with their holders",
+    "rights_status": sch.RIGHTS_DECLARED_OPEN,
+}
+
 
 TURATH_SOURCE = {
     "source_id": "turath",
@@ -183,6 +191,20 @@ def ingest_econom_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
     so the money-and-rights layer stays queryable as one domain.
     """
     return _ingest_curated_jsonl(store, jsonl_path, ECONOM_SOURCE, classify,
+                                 register_source)
+
+
+def ingest_lugha_jsonl(store: KnowledgeStore, jsonl_path: str | Path,
+                       classify: bool = True,
+                       register_source: bool = True) -> dict:
+    """Ingest the curated Linguistics layer (``collect_lugha`` output).
+
+    Same page-level provenance as the fikr format, but books register under
+    the dedicated ``lugha`` source with ``category=لغة/<section>`` so the
+    linguistics layer (نحو/صرف/بلاغة/معاجم/لسانيات/أدب/مقررات) stays
+    queryable as one domain.
+    """
+    return _ingest_curated_jsonl(store, jsonl_path, LUGHA_SOURCE, classify,
                                  register_source)
 
 

@@ -1,0 +1,33 @@
+{
+  "kind": "ryko-corpus-receipt",
+  "created_utc": "2026-11-18T00:48:41Z",
+  "artifacts": [
+    {
+      "path": "data/processed_ling/train.txt",
+      "sha256": "6c9d4d1ea667623533dec976b8fc617b560f05490e339842e8aae0e8f3bcd97d",
+      "bytes": 194697411
+    },
+    {
+      "path": "data/processed_ling/val.txt",
+      "sha256": "01c77c1ef4e1171d54bc1f81af56921285fa1bd1c206398bec3528a336524c25",
+      "bytes": 756577
+    },
+    {
+      "path": "data/processed_ling/stats.json",
+      "sha256": "5937fe7480275c52e6a2b6f53f58e9c615cd6d35b8fefaaa1c62bb5cd42fd832",
+      "bytes": 973
+    }
+  ],
+  "meta": {
+    "pack": "linguistics-v1",
+    "raw_sources": [
+      "data/raw/lugha_shamela.jsonl"
+    ],
+    "chars_kept": 108831798,
+    "docs": {
+      "train": 88,
+      "val": 1
+    }
+  },
+  "receipt_sha256": "f7c6a6c71d88b7a85c22fa51fd1264d265baa54f939e76c9f42fc1657e6b9517"
+}

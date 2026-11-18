@@ -1,0 +1,53 @@
+{
+  "pack": "linguistics-v1",
+  "sections": {
+    "nahw": {
+      "docs": 28,
+      "chars": 20578118,
+      "dup_paragraphs": 3768
+    },
+    "sarf": {
+      "docs": 5,
+      "chars": 1796790,
+      "dup_paragraphs": 94
+    },
+    "balagha": {
+      "docs": 8,
+      "chars": 5588845,
+      "dup_paragraphs": 1114
+    },
+    "maajim": {
+      "docs": 15,
+      "chars": 61283373,
+      "dup_paragraphs": 9544
+    },
+    "fiqh-lugha": {
+      "docs": 8,
+      "chars": 3948883,
+      "dup_paragraphs": 446
+    },
+    "adab": {
+      "docs": 12,
+      "chars": 8220927,
+      "dup_paragraphs": 2042
+    },
+    "munhaj": {
+      "docs": 13,
+      "chars": 7414862,
+      "dup_paragraphs": 1987
+    }
+  },
+  "docs": {
+    "train": 88,
+    "val": 1
+  },
+  "chars_kept": 108831798,
+  "dup_paragraphs_dropped": 18995,
+  "val_ratio_new": 0.004,
+  "cleaning": {
+    "min_line_len": 40,
+    "min_arabic_letters": 20,
+    "min_arabic_ratio": 0.55,
+    "remove_diacritics": true
+  }
+}

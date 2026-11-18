@@ -53,6 +53,14 @@ artifacts/training_v5/last.pt
 artifacts/training_v5/best.pt
 artifacts/training_v5/*.tmp
 
+# v1.15 linguistics pack (طبقة اللغة) — stats + receipt ARE committed
+data/processed_ling/train.txt
+data/processed_ling/val.txt
+data/processed_ling/*.bin
+data/processed_ling/*.binarize_state.json
+artifacts/training_ling_shard/
+artifacts/training_small_ling/
+
 # Training checkpoints (heavy) — final fp16 artifact IS committed
 artifacts/training_v5b/last.pt
 artifacts/training_v5b/best.pt

@@ -132,24 +132,49 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
-    print(f"[fikr] manifest v{manifest.get('version')} — "
+    kind = manifest.get("kind", "ryko-fikr-manifest")
+    tag = {"ryko-fikr-manifest": "fikr",
+           "ryko-econom-manifest": "econom",
+           "ryko-lugha-manifest": "lugha"}.get(kind, kind.removeprefix("ryko-").removesuffix("-manifest"))
+    print(f"[{tag}] manifest v{manifest.get('version')} — "
           f"{len(manifest['schools'])} schools, {len(manifest['ideas'])} ideas", flush=True)
 
     listing = list_page_files()
     resolved, unresolved = resolve_paths(manifest, listing)
-    print(f"[fikr] resolved {len(resolved)} books from the mirror, "
+    print(f"[{tag}] resolved {len(resolved)} books from the mirror, "
           f"{len(unresolved)} pending external sources", flush=True)
 
-    done: set[str] = set()
+    # progress v2: {"done": {path: {"ok": bool, "mb": cap}}}.  Successful
+    # books never re-download on resume; books that exceeded a smaller byte
+    # budget (ok=False) retry automatically once a bigger cap is passed, so
+    # staged passes (small matn first, then xlarge dictionaries) share one
+    # progress file without duplicate records.
+    done: dict[str, dict] = {}
     if args.progress.exists():
         try:
-            done = set(json.loads(args.progress.read_text())["done"])
+            raw_done = json.loads(args.progress.read_text())["done"]
+            if isinstance(raw_done, list):  # v1 legacy format
+                done = {p: {"ok": True, "mb": 0} for p in raw_done}
+            else:
+                done = {k: v for k, v in raw_done.items()}
         except Exception:  # noqa: BLE001
-            done = set()
-    todo = [(p, b) for p, b in resolved if p not in done]
+            done = {}
+    max_bytes = int(args.max_file_mb * 1e6)
+
+    def _todo() -> list[tuple[str, dict]]:
+        todo = []
+        for p, b in resolved:
+            state = done.get(p)
+            if state and state.get("ok"):
+                continue
+            if state and not state.get("ok") and state.get("mb", 0) >= args.max_file_mb:
+                continue  # already tried at this cap or bigger — skip
+            todo.append((p, b))
+        return todo
+
+    todo = _todo()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    max_bytes = int(args.max_file_mb * 1e6)
     total_chars, total_books, errors = 0, 0, 0
     t0 = time.time()
 
@@ -167,20 +192,25 @@ def main(argv: list[str] | None = None) -> int:
                 sink.flush()
                 total_books += 1
                 total_chars += sum(len(p["body"]) for p in rec["page_records"])
-            elif rec:
-                errors += 1
-                print(f"[fikr] ERROR {rec['path']}: {rec['error']}", flush=True)
-            done.add(path)
+                done[path] = {"ok": True, "mb": args.max_file_mb}
+            else:
+                # oversize (rec=None) or download error: record with the tried
+                # cap so a bigger --max-file-mb pass retries it
+                done[path] = {"ok": False, "mb": args.max_file_mb}
+                if rec:
+                    errors += 1
+                    print(f"[{tag}] ERROR {rec['path']}: {rec['error']}", flush=True)
             # incremental checkpoint: a killed run resumes without re-downloads
-            args.progress.write_text(json.dumps({"done": sorted(done)}),
+            args.progress.write_text(json.dumps({"done": done}, ensure_ascii=False),
                                      encoding="utf-8")
-            print(f"[fikr] +{total_books}/{len(todo)} books, "
+            print(f"[{tag}] +{total_books}/{len(todo)} books, "
                   f"{total_chars / 1e6:.1f}M chars, err={errors} "
                   f"({time.time() - t0:.0f}s)", flush=True)
 
-    args.progress.write_text(json.dumps({"done": sorted(done)}), encoding="utf-8")
-    print(f"[done] +{total_books} books, +{total_chars / 1e6:.1f}M chars, "
-          f"errors={errors} -> {args.out}", flush=True)
+    args.progress.write_text(json.dumps({"done": done}, ensure_ascii=False), encoding="utf-8")
+    deferred = sum(1 for v in done.values() if not v.get("ok"))
+    print(f"[done:{tag}] +{total_books} books, +{total_chars / 1e6:.1f}M chars, "
+          f"errors={errors}, deferred-by-budget={deferred} -> {args.out}", flush=True)
     return 0 if errors == 0 else 3
 
 
