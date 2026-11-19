@@ -101,6 +101,15 @@ def test_ci_workflow_valid_and_baseline_wired():
     assert any("pytest -q" in s.get("run", "") for s in steps)
 
 
+def test_no_py311_invalid_fstrings():
+    # CI run #67 root cause: PEP 701 f-strings (newline inside a
+    # replacement field) parse on 3.12+ but are SyntaxErrors on the
+    # CI's 3.11 — the guard runs in CI before pytest; this test pins
+    # the same guard into the suite on every interpreter.
+    r = _run([sys.executable, "scripts/check_py311_fstrings.py", "src", "tests"])
+    assert r.returncode == 0, r.stdout[-500:]
+
+
 # ------------------------------------------------------------ build glue
 def test_makefile_exposes_core_targets():
     text = (ROOT / "Makefile").read_text(encoding="utf-8")

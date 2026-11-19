@@ -61,6 +61,9 @@ jobs:
           python -m ryko_lm.provenance verify data/knowledge/ryko.receipt.json
           python -m ryko_lm.knowledge stats --db data/knowledge/ryko.sqlite
 
+      - name: Python 3.11 grammar guard (PEP 701 f-strings, run #67)
+        run: python scripts/check_py311_fstrings.py src tests
+
       - name: Run test suite
         run: pytest -q
 

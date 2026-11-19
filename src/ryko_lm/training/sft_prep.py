@@ -562,8 +562,11 @@ def build_dpo_r2(seed_path: Path, split_dir: Path, store_path: Path,
         prompt = f"السؤال: {rec.get('question', '')}\nالجواب:"
         chosen = f" {rec['expected_answer']}"
         # 1) wrong-attribution pair (the embedded probe)
-        rejected = f" {_ling_distractor(rec, authors, books, cont_pool,
-                                        rule_pool)}"
+        # (single line: a newline inside a replacement field is a
+        #  SyntaxError on Python 3.11 — CI runs 3.11, see run #67)
+        distractor = _ling_distractor(
+            rec, authors, books, cont_pool, rule_pool)
+        rejected = f" {distractor}"
         if chosen == rejected:
             raise ValueError(f"{rec['case_id']}: chosen == rejected")
         new_pairs.append({
