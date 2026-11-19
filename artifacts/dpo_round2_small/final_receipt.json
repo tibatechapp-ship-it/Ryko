@@ -1,0 +1,36 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-19T00:03:56Z",
+  "artifacts": [
+    {
+      "path": "artifacts/dpo_round2_small/final.pt",
+      "sha256": "f0361c4a54e01e1a198d2bd00fa2b5be2393d988204dabe7b59916240a52157d",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "model": "ryko-small",
+    "params": 52179456,
+    "phase": "9 DPO round 2 (v1.23.0)",
+    "init_from": "artifacts/training_small_ling_sftdpo/final.pt",
+    "reference": "frozen copy of the same init point (v1.20.0 protocol)",
+    "pairs": "data/training/ryko1000_dpo_train_r2.jsonl (1094 = 792 frozen round-1 + 300 linguistic wrong_attribution + 2 dev over-refusal)",
+    "steps": 547,
+    "epochs": 1,
+    "beta": 0.1,
+    "lr": 1e-05,
+    "batch_size": 2,
+    "seed": 1337,
+    "preference_accuracy": 0.9762,
+    "measured": {
+      "rb_ling_52": 0.4423,
+      "ryko1000_base_mcq_1000": 0.3371,
+      "ryko1000_rag_mcq_1000": 0.3386,
+      "correct_abstain": 1.0,
+      "over_refusal_base": 0.5938,
+      "cite_alignment": 1.0,
+      "probe_compliance": 1.0
+    }
+  },
+  "receipt_sha256": "18be0c55702722721e37822f16275a36af59454fc3b6fbf5cb56992fc3fc2746"
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "ryko1000-dpo-r2/1",
+  "source": "frozen round-1 bundle + linguistic families' embedded wrong_attribution probes (300 cases) + over-refusal counter-pairs (dev must-answer) — the v1.22.0 pre-approved treatment; the r2a anti-refusal flood was measured to break the correct-abstain gate and dropped (docs/results/ryko1000_eval_dpo_r2a.md)",
+  "files": {
+    "train": {
+      "path": "data/training/ryko1000_dpo_train_r2.jsonl",
+      "n": 1094,
+      "sha256": "06fb78f82d6512bb886ecd7c42b024d5f095464452b2dd81e0918a188844bbd8"
+    }
+  },
+  "sources": {
+    "round1": {
+      "path": "data/training/ryko1000_dpo_train.jsonl",
+      "n": 792,
+      "sha256": "457fb4ffe3de3bf04a97fb36e1b4a4a71bdd1f63a31f469754f3c964f126cba5"
+    },
+    "seed": {
+      "path": "docs/benchmarks/ryko1000_seed.jsonl",
+      "n": 1300,
+      "sha256": "a5613cb020067a21d1be3bb3ddc3858e5477f9f548915e808f592cbba05f1d25"
+    },
+    "store_catalog": {
+      "path": "data/knowledge/ryko.sqlite",
+      "authors": 90,
+      "books": 159
+    }
+  },
+  "counts": {
+    "round1_pairs": 792,
+    "new_pairs": 302,
+    "by_family": {
+      "balagha": 100,
+      "irab": 100,
+      "sarf": 100,
+      "yaqin": 2
+    },
+    "by_probe_kind": {
+      "over_refusal": 2,
+      "wrong_attribution": 300
+    }
+  },
+  "leakage_check": {
+    "leaked": 0,
+    "fatal": true,
+    "scope": "original 10-family test bucket"
+  },
+  "test_split": "held out — never consumed by SFT/DPO builders"
+}

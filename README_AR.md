@@ -180,7 +180,11 @@ v1.16.0 بـ 28 كتاباً منتقى من 40 صنفاً، و358 كتاباً 
   الملتزمة، + حزمة pretraining لغوية 34.24M توكن + مسبارات لغوية 52 حالة؛
   **v1.22.0: الحزمة مدمجة في نقطة SFT+DPO والبذرة الإنتاجية 1,300 حالة
   بثلاث عائلات لغوية — القياس الكامل في
-  [docs/results/ryko1000_ling_expansion.md](docs/results/ryko1000_ling_expansion.md)**):
+  [docs/results/ryko1000_ling_expansion.md](docs/results/ryko1000_ling_expansion.md)**؛
+  **v1.23.0: DPO الجولة الثانية فوق النقطة المدمجة — rb-ling 28.85←44.23%
+  وبوابات المحاذاة كلها مستعادة (امتناع صائب 1.00/1.00، رفض زائد 0.5938،
+  اقتباس 1.0) — القياس الكامل في
+  [docs/results/ryko1000_eval_dpo_r2.md](docs/results/ryko1000_eval_dpo_r2.md)**):
   [docs/LINGUISTICS.md](docs/LINGUISTICS.md)
 
 والتقييم الشامل والخطة في [docs/REVIEW.md](docs/REVIEW.md) و[docs/ROADMAP.md](docs/ROADMAP.md).

@@ -313,6 +313,13 @@ def test_committed_pack_stats_exist():
     assert data["pack"] == "linguistics-v1"
     assert data["chars_kept"] > 50_000_000, "the pack must cover the big collection"
     from ryko_lm.provenance import verify_receipt
+    # the receipt covers the binarized pack (train.bin/val.bin — gitignored
+    # build artifacts); in a fresh clone only the signed receipt + stats
+    # are committed, so the offline verify runs only where the bins exist
+    receipt_artifacts = json.loads(
+        receipt.read_text(encoding="utf-8")).get("artifacts") or []
+    if receipt_artifacts and not (ROOT / receipt_artifacts[0]["path"]).exists():
+        pytest.skip("ling pack bins not in this tree (gitignored artifacts)")
     ok, _ = verify_receipt(receipt)
     assert ok
 

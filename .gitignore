@@ -88,3 +88,6 @@ artifacts/*/*.pt.tmp
 # v1.22 unified verify store + receipt (local, rebuildable via lugha-build-full on a core copy)
 data/knowledge/ryko-verify-full.sqlite
 data/knowledge/ryko-verify-full.receipt.json
+
+# v1.23 DPO round-2 working checkpoint (final fp16 artifact IS committed)
+artifacts/dpo_round2_small/last.pt

@@ -282,6 +282,19 @@ class KnowledgeStore:
         for row in self.conn.execute(sql):
             yield dict(row)
 
+    def iter_authors(self):
+        """Deterministic author catalog listing (read-only) — ``author_id``.
+
+        Read accessor for the linguistic-attribution distractor pool: the
+        closed committed catalog is the only legitimate source of wrong
+        originators (no invented attribution may enter a training or eval
+        artifact).
+        """
+        sql = ("SELECT author_id, name_ar, death_year_hijri, meta "
+               "FROM authors ORDER BY author_id")
+        for row in self.conn.execute(sql):
+            yield dict(row)
+
     def passage(self, passage_id: str) -> dict | None:
         row = self.conn.execute(
             "SELECT p.*, b.title_ar, b.source_id FROM passages p "
