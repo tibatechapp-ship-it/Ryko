@@ -91,3 +91,7 @@ data/knowledge/ryko-verify-full.receipt.json
 
 # v1.23 DPO round-2 working checkpoint (final fp16 artifact IS committed)
 artifacts/dpo_round2_small/last.pt
+
+# v1.25 argrel proof shard — final.pt + receipt ARE committed; resumable state is not
+artifacts/proof_argrel_small/last.pt
+artifacts/proof_argrel_small/best.pt

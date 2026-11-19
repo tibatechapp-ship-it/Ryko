@@ -75,9 +75,11 @@ Full curves, eval JSONs and raw samples: [docs/results/](docs/results/).
 > (52M). Details: [docs/TRAINING.md](docs/TRAINING.md).
 
 Artifacts committed in-tree: `artifacts/tokenizer/ryko-tokenizer.json`,
-`artifacts/training_v5c/final.pt` (fp16 — the receipted serving point since
-v1.17.0, held-out PPL 221.38; `artifacts/training/final.pt` stays as the
-v1.1 archive), training curve and samples in `docs/results/`.
+`artifacts/dpo_round2_small/final.pt` (fp16 — the promoted serving point
+since v1.24.0: 52.18M params, receipt-verified sha256 f0361c4a…; previously
+`artifacts/training_v5c/final.pt` (11.5M) held the post since v1.17.0, and
+`artifacts/training/final.pt` stays as the v1.1 archive), training curve
+and samples in `docs/results/`.
 
 ## Quickstart
 
@@ -86,7 +88,7 @@ git clone https://github.com/tibatechapp-ship-it/Ryko.git && cd Ryko
 pip install -r requirements.txt          # torch (CPU wheels fine) + tokenizers + fastapi
 
 # 1) use the trained artifact directly (no training needed)
-python -m ryko_lm.training.evaluate --checkpoint artifacts/training_v5c/final.pt \
+python -m ryko_lm.training.evaluate --checkpoint artifacts/dpo_round2_small/final.pt \
     --prompts "اللغة العربية" "كان يا ما كان"
 
 # 2) launch the Arabic web playground
@@ -103,7 +105,7 @@ import torch
 from ryko_lm.model.ryko_model import RykoLM
 from ryko_lm.tokenizer.loader import RykoTokenizer
 
-model = RykoLM.load("artifacts/training_v5c/final.pt")
+model = RykoLM.load("artifacts/dpo_round2_small/final.pt")
 tok   = RykoTokenizer.from_dir("artifacts/tokenizer")
 
 ids  = tok.encode("اللغة العربية", add_bos=True)

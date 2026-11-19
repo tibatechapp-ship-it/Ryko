@@ -1,0 +1,18 @@
+{
+  "kind": "ryko-ryko-checkpoint-receipt-receipt",
+  "created_utc": "2026-11-19T03:29:41Z",
+  "artifacts": [
+    {
+      "path": "/home/z/my-project/Ryko/artifacts/training/final.pt",
+      "sha256": "4a0e6d2ff422c597f406db615da119e49a90774d604e27b7e0e34ce4ba086fdc",
+      "bytes": 23085725
+    }
+  ],
+  "meta": {
+    "params": 11536640,
+    "receipted_in": "v1.25.0",
+    "model": "ryko-tiny (v1.1 archive)",
+    "phase": "archive — receipted retroactively in the v1.25.0 hygiene pass; wrongly served during the v1.15.0/v1.16.0 PalmX-IC runs, corrected in v1.17.0 (held-out PPL 431.78)"
+  },
+  "receipt_sha256": "e7f088f20545de1e50265c81be0e7ea80490dc91edb7f2371a775768aacbb39e"
+}

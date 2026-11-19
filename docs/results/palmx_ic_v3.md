@@ -45,5 +45,5 @@
 
 - JSON الكامل لكل حالة: `docs/results/palmx_ic_v3.json`
 - JSONL المعيار: `data/bench/palmx_ic.jsonl` (981 حالة، لم تُمس)
-- إيصال المصدر: `data/bench/palmx_ic.receipt.json`
+- إيصال المصدر: `data/bench/palmx_ic.manifest.json`
 - المحوّل: `scripts/palmx_to_bench.py` · الاختبار: `tests/test_palmx.py`

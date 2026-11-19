@@ -1,0 +1,33 @@
+{
+  "kind": "ryko-argrel-pack-receipt",
+  "created_utc": "2026-11-19T02:45:25Z",
+  "artifacts": [
+    {
+      "path": "data/training/argrel_pack/train.bin",
+      "sha256": "b8c59904767c76ff9ff3c5a01b656810f708b4d5a4b53cd8b4da5eccce248067",
+      "bytes": 16082
+    },
+    {
+      "path": "data/training/argrel_pack/val.bin",
+      "sha256": "69b104a0893b780300fea504cea14c14283db07ad5a196a2f28273fcf043d8a6",
+      "bytes": 2644
+    },
+    {
+      "path": "data/training/argrel_pack/pack_manifest.json",
+      "sha256": "7c41de4fe5881f35ad8d3a33779aa7bb308fe0d3e7a8047b089e4f3aaef001af",
+      "bytes": 1065
+    }
+  ],
+  "meta": {
+    "schema": "ryko-argrel-pack/1",
+    "train_pairs": 90,
+    "train_tokens": 8041,
+    "val_pairs": 15,
+    "val_tokens": 1322,
+    "tokens_total": 9363,
+    "tokenizer_sha256": "fe6c68658568b2868d1e0777df70376c9c3184d21c9d114c1c30c6b12d80fce1",
+    "store_sha256": "881df259bc6058a9187a3e05429218cecf090339c42a993c628da69fb6fbbd88",
+    "split_seed": 1337
+  },
+  "receipt_sha256": "769da8229e95daeacb527c7b9685fd5c217144bb02bed326bfe8e5fcb5224071"
+}

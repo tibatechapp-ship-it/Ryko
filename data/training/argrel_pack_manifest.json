@@ -1,0 +1,46 @@
+{
+  "schema": "ryko-argrel-pack/1",
+  "store": {
+    "path": "data/knowledge/ryko.sqlite",
+    "sha256": "881df259bc6058a9187a3e05429218cecf090339c42a993c628da69fb6fbbd88"
+  },
+  "split_seed": 1337,
+  "train_share": 0.85,
+  "relations_total": 35,
+  "relations_train": 30,
+  "relations_val": 5,
+  "pairs_train": 90,
+  "pairs_val": 15,
+  "by_relation": {
+    "cites": 3,
+    "paraphrases": 3,
+    "responds": 3,
+    "summarizes": 15,
+    "supports": 81
+  },
+  "by_variant": {
+    "v1": 35,
+    "v2": 35,
+    "v3": 35
+  },
+  "skipped": [],
+  "files": {
+    "train": {
+      "path": "data/training/argrel_sft_train.jsonl",
+      "n": 90,
+      "sha256": "32cdb37234263a351b82d8451dfaf0dfda23514b1b9ec22066d7edc0139482e1"
+    },
+    "val": {
+      "path": "data/training/argrel_sft_val.jsonl",
+      "n": 15,
+      "sha256": "849da0d525dfbc608550e9c3836769ba85ed32b22d21aa9f8c008a97a891e1b7"
+    }
+  },
+  "leakage_check": {
+    "leaked_relations": 0,
+    "leaked_pair_ids": 0,
+    "leaked_prompts": 0,
+    "fatal": true
+  },
+  "unit_of_split": "relation_id — a relation's phrasings never straddle splits"
+}

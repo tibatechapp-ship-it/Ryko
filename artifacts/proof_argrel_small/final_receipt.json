@@ -1,0 +1,35 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-19T03:02:02Z",
+  "artifacts": [
+    {
+      "path": "artifacts/proof_argrel_small/final.pt",
+      "sha256": "7473ceb677a5323b3fc905d17d04e1912bceea873497c97234ad5c255f71f07a",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "model": "ryko-small (proof shard, NOT a promotion)",
+    "params": 52179456,
+    "phase": "proof shard — argument-relations (علاقة-حجاج)",
+    "config": "configs/models/ryko-small-sft.yaml",
+    "data": "data/training/argrel_pack (built from data/knowledge/ryko.sqlite argument_relations via ryko_lm.training.pack_argrel; receipt.json verified)",
+    "init_from": "artifacts/dpo_round2_small/final.pt (sha256 f0361c4a… — the v1.24.0 serving point)",
+    "lr": "2e-5 cosine -> 2e-6, warmup 15",
+    "batch": "1 x grad_accum 4, block 512",
+    "steps": 90,
+    "tokens": 184320,
+    "train_pairs": 90,
+    "val_pairs": 15,
+    "train_tokens": 8041,
+    "val_tokens": 1322,
+    "epochs_stream": 22.92,
+    "seed": 1337,
+    "val_loss": 4.5477,
+    "final_val_loss": 4.5946,
+    "train_loss_last": 3.3754,
+    "eval": "docs/results/argrel_proof.json (to be measured)",
+    "trained_on": "2-core CPU, sequential shards"
+  },
+  "receipt_sha256": "054f9e2e7cb4321b0f0de46c5d6755eff66fd15901988c0a7a8c8bc50f935715"
+}

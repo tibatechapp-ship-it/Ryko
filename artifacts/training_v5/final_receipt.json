@@ -1,0 +1,18 @@
+{
+  "kind": "ryko-ryko-checkpoint-receipt-receipt",
+  "created_utc": "2026-11-19T03:29:41Z",
+  "artifacts": [
+    {
+      "path": "/home/z/my-project/Ryko/artifacts/training_v5/final.pt",
+      "sha256": "9f9f685ec79c4c2d4a2ce9ff3daedd640884e13ff02e999f26d4ac65b98ea243",
+      "bytes": 23085725
+    }
+  ],
+  "meta": {
+    "params": 11536640,
+    "receipted_in": "v1.25.0",
+    "model": "ryko-tiny (corpus v5 warm continuation)",
+    "phase": "archive — v1.12.0 point (849 steps on corpus v5, held-out PPL 232.9); receipted retroactively in the v1.25.0 hygiene pass"
+  },
+  "receipt_sha256": "15aae4bc9d261ffde583c9edf2b7bcb01f17158f33b7ead302c74f9de75ebd79"
+}

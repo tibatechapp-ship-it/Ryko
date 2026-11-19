@@ -78,6 +78,7 @@
   "test_held_out": true,
   "seed_source": {
     "path": "docs/benchmarks/ryko1000_seed.jsonl",
-    "sha256": "6dd1432669fa17720103f717a1ef64d69be866ed7f377da515af025b646d414c"
+    "sha256": "6dd1432669fa17720103f717a1ef64d69be866ed7f377da515af025b646d414c",
+    "frozen_prefix_note": "this sha256 pins the first 1,000 lines + trailing newline (the pre-v1.22.0 expansion state); the seed grew append-only to 1,300 lines in v1.22.0 — full-file sha256 a5613cb020067a21d1be3bb3ddc3858e5477f9f548915e808f592cbba05f1d25 is pinned by data/knowledge/ryko1000.receipt.json"
   }
 }

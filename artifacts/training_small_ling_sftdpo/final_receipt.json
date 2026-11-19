@@ -1,0 +1,18 @@
+{
+  "kind": "ryko-ryko-checkpoint-receipt-receipt",
+  "created_utc": "2026-11-19T03:29:41Z",
+  "artifacts": [
+    {
+      "path": "/home/z/my-project/Ryko/artifacts/training_small_ling_sftdpo/final.pt",
+      "sha256": "7f770b11ebd646dce0250f75065939b84916f05562d9fb7b15657fd1e0d77575",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "params": 52179456,
+    "receipted_in": "v1.25.0",
+    "model": "ryko-small (ling-merged SFT+DPO point)",
+    "phase": "lineage — v1.22.0 merged point; init_from of the promoted v1.23.0 round-2 checkpoint; receipted retroactively in the v1.25.0 hygiene pass"
+  },
+  "receipt_sha256": "6a34ee807862b876b30fc846e3e39ba83eee905318afd446d91e6dc3d1e2d0a4"
+}

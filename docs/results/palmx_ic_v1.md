@@ -25,7 +25,7 @@
 - **البيانات:** 981 سؤالاً ثقافة إسلامية (4 خيارات لكل سؤال). المصدر الرسمي
   `UBC-NLP/palmx_2025_subtask2_islamic` محمي ببوابة (auto-gated، يتطلب توكن HF)،
   فاستُهلك مرآة المجتمع `qimma/MCQ_PalmX` (islamic split) بنفس المخطط
-  (prompt/question/choices/index) — وثيقة الإثبات: `data/bench/palmx_ic.receipt.json`
+  (prompt/question/choices/index) — وثيقة الإثبات: `data/bench/palmx_ic.manifest.json`
   مع sha256 للـ parquet (01e95f23…) وسجل تحويل حتمي `scripts/palmx_to_bench.py`.
   ما إن يوفر توكن HF، يعمل المحوّل نفسه على parquet الرسمي دون تعديل.
 - **النموذج:** `artifacts/training/final.pt` (11.54M معلم — نقطة خدمة v1.5)
@@ -60,5 +60,5 @@
 
 - JSON الكامل لكل حالة: `docs/results/palmx_ic_v1.json`
 - JSONL القياس: `data/bench/palmx_ic.jsonl` (981 حالة)
-- إيصال المصدر: `data/bench/palmx_ic.receipt.json`
+- إيصال المصدر: `data/bench/palmx_ic.manifest.json`
 - المحوّل: `scripts/palmx_to_bench.py` · الاختبار: `tests/test_palmx.py`

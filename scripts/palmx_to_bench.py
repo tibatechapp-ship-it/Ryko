@@ -16,7 +16,7 @@ Contract (closed, deterministic):
 
 Usage:
     python scripts/palmx_to_bench.py --parquet palmx_islamic.parquet \
-        --out data/bench/palmx_ic.jsonl [--receipt data/bench/palmx_ic.receipt.json]
+        --out data/bench/palmx_ic.jsonl [--receipt data/bench/palmx_ic.manifest.json]
 """
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--parquet", type=Path, required=True)
     p.add_argument("--out", type=Path, default=Path("data/bench/palmx_ic.jsonl"))
     p.add_argument("--receipt", type=Path,
-                   default=Path("data/bench/palmx_ic.receipt.json"))
+                   default=Path("data/bench/palmx_ic.manifest.json"))
     args = p.parse_args(argv)
     rows, sha = convert(args.parquet, args.out, receipt=args.receipt)
     print(f"[palmx] rows={rows} sha256={sha[:16]}… -> {args.out}")

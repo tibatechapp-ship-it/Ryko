@@ -564,3 +564,27 @@ def test_committed_seed_grows_by_append_only():
     assert len([i for i in ids if i.startswith("rb-abstain-t-out-")]) == 8
     # duplicate ids are loader-fatal — the counters above also prove uniqueness
     assert len(set(ids)) == len(ids) == 315
+
+
+LING_PROBES_SHA256 = \
+    "a48ec0a2f5bc9571cdb0697448823f9c96517073b9128724f991e50a995493ca"
+
+
+def test_ling_probes_seed_byte_frozen():
+    """v1.25.0 contract pin: the rb-ling probe seed (52 MCQ cases over the
+    closed linguistic catalog, canonical double-build sha256 documented in
+    docs/LINGUISTICS.md + the CHANGELOG) is byte-frozen — measured history
+    (30.77% tiny baseline -> 28.85% pre-r2 -> 44.23% after DPO round 2 ->
+    30.77% on the v1.25.0 argrel proof shard) hangs on these bytes. A
+    rebuild is a conscious release act: re-measure every published rb-ling
+    number and update this pin + the docs together."""
+    import hashlib
+    from pathlib import Path
+
+    f = (Path(__file__).resolve().parents[1] / "docs" / "benchmarks"
+         / "ling_probes.jsonl")
+    sha = hashlib.sha256(f.read_bytes()).hexdigest()
+    assert sha == LING_PROBES_SHA256, (
+        "ling_probes.jsonl changed — the published rb-ling history is "
+        "pinned to these bytes; a rebuild must re-measure every published "
+        "rb-ling number and update this pin consciously")
