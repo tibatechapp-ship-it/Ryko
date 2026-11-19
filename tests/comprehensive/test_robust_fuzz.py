@@ -9,6 +9,8 @@ stack ever raises, and byte-level BPE still round-trips exactly.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from comprehensive_helpers import fuzz_cases
 
@@ -18,7 +20,10 @@ from ryko_lm.serving.guard import guard_output
 from ryko_lm.tokenizer.loader import RykoTokenizer
 from ryko_lm.tokenizer.normalizers import python_normalize
 
-TOKENIZER_PATH = "/home/z/my-project/Ryko/artifacts/tokenizer/ryko-tokenizer.json"
+# resolved relative to the repo — never a developer-machine absolute path
+# (a hardcoded sandbox path made all 40 module tests ERROR on CI, run #68)
+ROOT = Path(__file__).resolve().parents[2]
+TOKENIZER_PATH = ROOT / "artifacts" / "tokenizer" / "ryko-tokenizer.json"
 
 
 @pytest.fixture(scope="module")

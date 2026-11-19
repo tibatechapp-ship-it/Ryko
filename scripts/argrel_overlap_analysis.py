@@ -4,10 +4,11 @@ seen in the proof pack's TRAIN split (memorization zone) vs VAL-held-out
 (generalization zone) vs untouched by the pack. Compact output only."""
 import json
 import sys
+from pathlib import Path
 
-sys.path.insert(0, "/home/z/my-project/Ryko/src")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-REPO = "/home/z/my-project/Ryko"
+REPO = Path(__file__).resolve().parents[1]
 
 
 def pair_relid(p):
@@ -26,11 +27,11 @@ def main():
     train_rel, val_rel = set(), set()
     for path, bucket in (("data/training/argrel_sft_train.jsonl", train_rel),
                          ("data/training/argrel_sft_val.jsonl", val_rel)):
-        for line in open(REPO + "/" + path, encoding="utf-8"):
+        for line in open(REPO / path, encoding="utf-8"):
             bucket.add(str(pair_relid(json.loads(line))))
     print(f"pack: train_relations={len(train_rel)} val_relations={len(val_rel)}")
 
-    cases = [json.loads(l) for l in open(REPO + "/docs/benchmarks/ryko_bench_seed.jsonl", encoding="utf-8")]
+    cases = [json.loads(l) for l in open(REPO / "docs" / "benchmarks" / "ryko_bench_seed.jsonl", encoding="utf-8")]
     arg = [c for c in cases if c["kind"] == "mcq" and str(c.get("case_id", "")).startswith("rb-rel-")]
     zones = {"train": [], "val": [], "absent": []}
     for c in arg:
@@ -47,9 +48,9 @@ def main():
     from ryko_lm.model.ryko_model import RykoLM
     from ryko_lm.tokenizer.loader import RykoTokenizer
 
-    model = RykoLM.load(REPO + "/artifacts/proof_argrel_small/final.pt", device="cpu")
-    tok = RykoTokenizer.from_file(REPO + "/artifacts/tokenizer/ryko-tokenizer.json")
-    case_objs = [c for c in load_benchmark(REPO + "/docs/benchmarks/ryko_bench_seed.jsonl")
+    model = RykoLM.load(REPO / "artifacts" / "proof_argrel_small" / "final.pt", device="cpu")
+    tok = RykoTokenizer.from_file(REPO / "artifacts" / "tokenizer" / "ryko-tokenizer.json")
+    case_objs = [c for c in load_benchmark(REPO / "docs" / "benchmarks" / "ryko_bench_seed.jsonl")
                  if c.case_id.startswith("rb-rel-")]
     rows = run_mcq(model, tok, case_objs, "cpu")
     by_case = {r["case_id"]: r for r in rows}
