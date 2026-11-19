@@ -1,7 +1,7 @@
 {
   "vocab_size": 32768,
   "train": {
-    "tokens": 34240402,
+    "tokens": 34240396,
     "file": "data/processed_ling/train.bin"
   },
   "val": {

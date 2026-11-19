@@ -1,0 +1,9 @@
+data-contract amendment: ling-pack source-drift rebuild after environment recycle
+
+- Full chain executed locally on 5974814: lugha-collect 89/89 books, 0 errors, 149.3M raw chars -> ling-pack -> ling-pack-binarize
+- val.bin BYTE-EXACT contract held: 148,631 tokens / 297,262 bytes / sha256 e87b880d…5d41 — every PPL gate ruler intact
+- train.bin drifted -6 tokens (34,240,396 / 68,480,792 bytes / sha256 33249458cc3fcb1c…) from live-Shamela drift (chars_kept 108,831,563 -> 108,831,535) — the same documented phenomenon as v1.15.0
+- Original bins (2d6b4f2d…e471) unrecoverable: gitignored heavy artifacts, no GitHub releases — new signed PASSED receipt over the current assets per the documented v1.15.0 pattern (6 artifacts match, faithful meta: pack linguistics-v1 / chars_kept / docs 88+1)
+- GPU_SESSION_PLAN §2.3: drift-update block (session-machine gate = PASSED on the CURRENT receipt, not the 2026-11-18 hashes)
+- CHANGELOG [Unreleased]: ling rebuild amendment + git credential-helper function-form fix (printf format-recycling appended a second password=get line overriding the token — root cause of the silent push failures) + five-agent wave / F1 serving fix pointer to 5974814
+- test_lugha 15 passed; full suite green before push
