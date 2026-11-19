@@ -75,6 +75,46 @@ def test_serving_default_checkpoint_is_receipted():
 
 
 # ---------------------------------------------------------------------------
+# v1.24.0 promotion pin — serving chain == measurement chain, byte-locked
+# ---------------------------------------------------------------------------
+PROMOTED_SERVING_POINT = "artifacts/dpo_round2_small/final.pt"
+PROMOTED_SHA256 = ("f0361c4a54e01e1a198d2bd00fa2b5be2393d988204dabe7b5"
+                   "9916240a52157d")
+
+
+def test_serving_default_is_the_promoted_round2_point():
+    """v1.24.0 promotion pin: the API default must BE the promoted round-2
+    point and its bytes must match the receipt sha256.
+
+    A future promotion is a conscious release act, not a config edit:
+    re-measure the external benchmarks on the new point (RYKO-Bench seed +
+    PalmX-IC), then update this pin (path + sha256), the api docstring
+    ledger, conftest.FINAL_MODEL and docs/ROUTING.md — otherwise the suite
+    fails loudly with this contract spelled out in the assertion messages.
+    Together with test_serving_default_checkpoint_is_receipted (above) the
+    serving chain is double-locked to the measurement chain."""
+    import hashlib
+    from pathlib import Path
+
+    from ryko_lm.serving.api import MODEL_PATH
+
+    assert str(MODEL_PATH) == PROMOTED_SERVING_POINT, (
+        f"serving default moved to {MODEL_PATH} — a promotion is a conscious "
+        "release act: re-measure RYKO-Bench + PalmX-IC on the new point, "
+        "update this pin (path + sha256), the api docstring ledger, "
+        "conftest.FINAL_MODEL and docs/ROUTING.md, then pin the new values "
+        "here")
+    f = Path(MODEL_PATH)
+    assert f.exists(), f"promoted serving checkpoint missing: {f}"
+    digest = hashlib.sha256(f.read_bytes()).hexdigest()
+    assert digest == PROMOTED_SHA256, (
+        f"promoted checkpoint bytes changed (sha256 {digest[:12]}... != "
+        f"pinned {PROMOTED_SHA256[:12]}...) — the served artifact must stay "
+        "byte-stable under its receipt; if this is a new promoted point, "
+        "follow the promotion contract in this test's docstring")
+
+
+# ---------------------------------------------------------------------------
 # generation guard (ZYKO pattern)
 # ---------------------------------------------------------------------------
 def test_guard_allows_good_arabic():

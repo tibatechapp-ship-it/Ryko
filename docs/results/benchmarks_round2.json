@@ -1,0 +1,113 @@
+{
+  "model": {
+    "checkpoint": "artifacts/dpo_round2_small/final.pt",
+    "params_M": 52.18,
+    "abstain_threshold": 0.65,
+    "cases": 315
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 159,
+      "accuracy": 0.3962,
+      "per_domain": {
+        "استكمال-نص": {
+          "n": 48,
+          "rate": 0.6042
+        },
+        "علاقة-حجاج": {
+          "n": 30,
+          "rate": 0.0333
+        },
+        "نسبة-الكتاب": {
+          "n": 29,
+          "rate": 0.2414
+        },
+        "نسبة-الكتاب-التراثي": {
+          "n": 12,
+          "rate": 0.25
+        },
+        "نسبة-المسألة": {
+          "n": 40,
+          "rate": 0.575
+        }
+      }
+    },
+    "abstain": {
+      "n": 56,
+      "correct_abstain_rate": 1.0,
+      "wrong_abstain_rate": 0.5625,
+      "per_domain": {
+        "تقنية": {
+          "n": 10,
+          "correct_abstain": 10,
+          "wrong_abstain": 0
+        },
+        "معاصر": {
+          "n": 22,
+          "correct_abstain": 22,
+          "wrong_abstain": 0
+        },
+        "في-المتن": {
+          "n": 16,
+          "correct_abstain": 0,
+          "wrong_abstain": 9
+        },
+        "تراث/14__الفقه-الحنفي": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/03__التفسير": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/10__علوم-الحديث": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/23__الرقائق-والآداب-والأذكار": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/07__شروح-الحديث": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/17__الفقه-الحنبلي": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/06__كتب-السنة": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        },
+        "تراث/16__الفقه-الشافعي": {
+          "n": 1,
+          "correct_abstain": 1,
+          "wrong_abstain": 0
+        }
+      }
+    },
+    "cite": {
+      "n": 100,
+      "match_rate": 1.0,
+      "verdict_counts": {
+        "not_found": 28,
+        "verified": 72
+      },
+      "per_domain": {
+        "توثيق-اقتباس": {
+          "n": 100,
+          "rate": 1.0
+        }
+      }
+    }
+  }
+}

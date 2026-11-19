@@ -23,7 +23,10 @@ def test_health(client):
 @requires_final_model
 def test_model_info(client):
     info = client.get("/model").json()
-    assert info["params"] == 11_536_640
+    # v1.24.0: the serving default is the promoted round-2 point
+    # (artifacts/dpo_round2_small/final.pt) — 52,179,456 params, the same
+    # test-pinned ryko-small param contract (test_ryko_small_param_contract).
+    assert info["params"] == 52_179_456
     assert info["vocab_size"] == 32768
 
 

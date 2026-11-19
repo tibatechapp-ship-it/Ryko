@@ -1,0 +1,21 @@
+{
+  "model": {
+    "checkpoint": "artifacts/dpo_round2_small/final.pt",
+    "params_M": 52.18,
+    "abstain_threshold": 0.65,
+    "cases": 981
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 981,
+      "accuracy": 0.2905,
+      "per_domain": {
+        "islamic-culture": {
+          "n": 981,
+          "rate": 0.2905
+        }
+      }
+    }
+  }
+}

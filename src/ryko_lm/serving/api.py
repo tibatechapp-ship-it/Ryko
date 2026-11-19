@@ -15,11 +15,22 @@ POST /knowledge/ask       — grounded generation: retrieve → generate → gua
                             → per-sentence cite audit → deliver or abstain
 
 Configuration (environment variables):
-    RYKO_MODEL_PATH      default: artifacts/training_v5c/final.pt (the receipted
-                         v5c serving point, held-out PPL 221.38 — since v1.17.0;
-                         the old artifacts/training/final.pt default silently
-                         served the stale v1.2-era checkpoint for years, which
-                         is exactly what the first PalmX-IC run measured)
+    RYKO_MODEL_PATH      default: artifacts/dpo_round2_small/final.pt — the
+                         promoted round-2 serving point (52.18M params, the
+                         v1.23.0 point: SFT+DPO + ling merge + DPO round 2;
+                         receipt verified offline — since v1.24.0).
+                         Promotion ledger (each step a conscious release act):
+                         artifacts/training/final.pt (stale v1.1 archive, wrong
+                         for years — what the first PalmX-IC runs measured by
+                         mistake) → artifacts/training_v5c/final.pt (11.5M,
+                         receipted, since v1.17.0) →
+                         artifacts/dpo_round2_small/final.pt (since v1.24.0).
+                         The default is pinned by
+                         test_guard_provenance
+                         .test_serving_default_is_the_promoted_round2_point —
+                         a future promotion must re-measure the external
+                         benchmarks on the new point and update the pin, this
+                         ledger, conftest.FINAL_MODEL and docs/ROUTING.md.
     RYKO_TOKENIZER_DIR   default: artifacts/tokenizer
     RYKO_DEVICE          default: cpu
     RYKO_THREADS         default: 2
@@ -46,8 +57,13 @@ from pydantic import BaseModel, Field
 from ..model.ryko_model import RykoLM
 from ..tokenizer.loader import RykoTokenizer
 
+# v1.24.0 promotion: the serving default is the measured round-2 point —
+# re-uniting the serving chain with the measurement chain (every published
+# number is now measured on the exact checkpoint the server serves).  The
+# promotion is pinned byte-exactly by
+# test_guard_provenance.test_serving_default_is_the_promoted_round2_point.
 MODEL_PATH = Path(os.environ.get("RYKO_MODEL_PATH",
-                                 "artifacts/training_v5c/final.pt"))
+                                 "artifacts/dpo_round2_small/final.pt"))
 TOKENIZER_DIR = Path(os.environ.get("RYKO_TOKENIZER_DIR", "artifacts/tokenizer"))
 DEVICE = os.environ.get("RYKO_DEVICE", "cpu")
 THREADS = int(os.environ.get("RYKO_THREADS", "2"))
