@@ -17,8 +17,11 @@ All modes sort by ``(-score, passage_id)`` so equal scores never shuffle.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
+import os
+import pickle
 import sqlite3
 from array import array
 from dataclasses import dataclass
@@ -34,6 +37,20 @@ from ryko_lm.knowledge.embeddings import DIM, embed, pack, unpack
 BM25_K1 = 1.5
 BM25_B = 0.75
 RRF_K = 60
+
+
+def _index_fingerprint(rows: list[dict]) -> str:
+    """Stable fingerprint of the passage population for the sidecar cache.
+
+    sha256 over (schema_version, every passage_id in ``rows`` order, every
+    text length) — any ingest, delete or text edit invalidates the cache.
+    """
+    h = hashlib.sha256()
+    h.update(f"v{sch.SCHEMA_VERSION}|n{len(rows)}".encode())
+    for r in rows:
+        h.update(r["passage_id"].encode())
+        h.update(str(len(r["text"])).encode())
+    return h.hexdigest()
 
 
 @dataclass(frozen=True)
@@ -78,9 +95,17 @@ class KnowledgeStore:
     """
 
     def __init__(self, path: str | Path = ":memory:",
-                 persist_vectors: bool = True) -> None:
+                 persist_vectors: bool = True,
+                 vector_cache: str | Path | None = None) -> None:
         self.path = Path(path) if path != ":memory:" else None
         self.persist_vectors = persist_vectors
+        # Optional derived sidecar for the search index (v1.28.0): a pickle
+        # of (tokens, postings, dense matrix) keyed to the exact passage
+        # population.  Read-only consumers against the committed repo DB
+        # re-derive ~93k passage tokenizations + embeddings on EVERY session
+        # (~41s measured); the sidecar turns that into a ~1.5s load while
+        # keeping the .sqlite bytes untouched — receipts stay intact.
+        self.vector_cache = Path(vector_cache) if vector_cache else None
         # check_same_thread=False: the store may be created in a lifespan
         # thread and used from FastAPI worker threads; access is serialized
         # at the SQL level and the CLI/tests are single-threaded anyway.
@@ -343,7 +368,8 @@ class KnowledgeStore:
     def _ensure_index(self) -> "_Index":
         if self._index is None:
             self._index = _Index(self.conn,
-                                 persist_vectors=self.persist_vectors)
+                                 persist_vectors=self.persist_vectors,
+                                 vector_cache=self.vector_cache)
         return self._index
 
     def search(self, query: str, k: int = 5, mode: str = "hybrid",
@@ -437,7 +463,8 @@ class _Index:
     """
 
     def __init__(self, conn: sqlite3.Connection,
-                 persist_vectors: bool = True) -> None:
+                 persist_vectors: bool = True,
+                 vector_cache: Path | None = None) -> None:
         self.rows = [
             dict(r) for r in conn.execute(
                 "SELECT p.passage_id, p.book_id, p.page_num, p.seq, p.text, "
@@ -453,6 +480,9 @@ class _Index:
         self.by_book: dict[str, list[int]] = {}
         for i, r in enumerate(self.rows):
             self.by_book.setdefault(r["book_id"], []).append(i)
+        self._cache_fp = _index_fingerprint(self.rows)
+        if vector_cache is not None and self._try_load_cache(vector_cache):
+            return  # sidecar hit: tokens/postings/mat adopted as-is
         self.tokens: list[list[str]] = [textproc.ar_tokens(r["text"]) for r in self.rows]
         self.tf: list[dict[str, int]] = []
         df: dict[str, int] = {}
@@ -498,6 +528,65 @@ class _Index:
             )
             conn.commit()
         self._mat = None  # lazy float64 matrix (see _ensure_mat)
+        if vector_cache is not None:
+            self._save_cache(vector_cache)
+
+    # ------------------------------------------------------- sidecar cache
+    def _try_load_cache(self, path: Path) -> bool:
+        """Adopt a derived sidecar index if it matches the DB fingerprint.
+
+        The payload carries the same structures the fresh path builds —
+        ``tokens``, ``postings``, the float32 dense matrix in ``rows`` order
+        — so search arithmetic is bit-identical to the from-scratch path.
+        Any mismatch (schema, population, corruption) falls back to the
+        full recompute and re-saves a fresh sidecar.
+        """
+        try:
+            blob = path.read_bytes()
+        except OSError:
+            return False
+        try:
+            payload = pickle.loads(blob)  # noqa: S301 — repo-local derived file
+            if payload.get("fingerprint") != self._cache_fp:
+                return False
+            mat32 = np.asarray(payload["mat32"], dtype=np.float32)
+            if mat32.shape != (len(self.rows), DIM):
+                return False
+            self.tokens: list[list[str]] = payload["tokens"]
+            if len(self.tokens) != len(self.rows):
+                return False
+            self.postings: dict[str, list[tuple[int, int]]] = payload["postings"]
+            n = max(len(self.rows), 1)
+            total = sum(len(toks) for toks in self.tokens)
+            self.avgdl = max(total / n, 1.0)
+            self.n = n
+            self.idf = {
+                t: math.log(1.0 + (n - len(pl) + 0.5) / (len(pl) + 0.5))
+                for t, pl in self.postings.items()
+            }
+            self.tf = None  # not needed: bm25 uses tokens[i] lengths + postings
+            self.vecs: dict[str, array] = {}
+            self._mat = mat32.astype(np.float64)
+            return True
+        except Exception:  # corrupted/truncated sidecar — recompute
+            return False
+
+    def _save_cache(self, path: Path) -> None:
+        """Atomically persist the derived index (tmp + replace)."""
+        try:
+            payload = {
+                "fingerprint": self._cache_fp,
+                "tokens": self.tokens,
+                "postings": self.postings,
+                "mat32": self._ensure_mat().astype(np.float32),
+            }
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(path.suffix + ".tmp")
+            with open(tmp, "wb") as fh:
+                pickle.dump(payload, fh, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(tmp, path)
+        except OSError:
+            pass  # cache is best-effort; search stays correct without it
 
     def _ensure_mat(self):
         """Lazily build the (n × DIM) float64 matrix in ``rows`` order."""

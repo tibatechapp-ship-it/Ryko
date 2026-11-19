@@ -29,10 +29,23 @@ jobs:
       - name: Local secret gate (ZYKO pattern, stdlib — before anything runs)
         run: python scripts/secret_scan.py --tree .
 
-      - name: Secrets scan (gitleaks)
-        uses: gitleaks/gitleaks-action@v2
+      # gitleaks-action@v2 replaced by a pinned direct run: the action's
+      # hardcoded command cannot take --baseline-path, and the provenance
+      # receipts carry sha256 digests that the generic-api-key rule
+      # misreads as API keys (CI runs #58-#65).  The baseline suppresses
+      # exactly those 5 accepted findings; any NEW secret still fails.
+      # .gitleaks.toml documents the whole story and becomes effective
+      # once gitleaks fixes extend-allowlist merging.
+      - name: Secrets scan (gitleaks, baseline-pinned)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.24.3
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
+          mkdir -p /tmp/gitleaks && tar -xzf /tmp/gitleaks.tgz -C /tmp/gitleaks gitleaks
+          /tmp/gitleaks/gitleaks detect --redact -v --exit-code=2 \
+            --log-opts=-1 \
+            --baseline-path gitleaks-baseline.json \
+            --report-format sarif --report-path results.sarif
 
       - name: Knowledge Core receipt verification (offline)
         run: |

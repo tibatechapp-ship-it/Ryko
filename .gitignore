@@ -95,3 +95,7 @@ artifacts/dpo_round2_small/last.pt
 # v1.25 argrel proof shard — final.pt + receipt ARE committed; resumable state is not
 artifacts/proof_argrel_small/last.pt
 artifacts/proof_argrel_small/best.pt
+
+# v1.28.0 derived search-index sidecar (serving cold-start cache)
+data/knowledge/*.vecs.cache.pkl
+data/knowledge/*.vecs.cache.pkl.tmp

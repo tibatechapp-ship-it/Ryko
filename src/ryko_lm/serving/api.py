@@ -93,7 +93,18 @@ async def lifespan(_app: FastAPI):
         # serving against the committed repo DB never doubles its size or
         # breaks its receipt (the old default persisted ~130 MB of vectors on
         # every session, silently invalidating the committed sha256).
-        state["store"] = KnowledgeStore(str(KNOWLEDGE_DB), persist_vectors=False)
+        #
+        # v1.28.0: the first search against the committed DB re-derived the
+        # whole index per session (~41s measured on 93k passages) — a 45s
+        # cold-start on /knowledge/*.  The derived sidecar cache
+        # (gitignored, best-effort, fingerprint-keyed) turns that into a
+        # ~2s load with bit-identical search results.  Set
+        # RYKO_VECTOR_CACHE="" to disable.
+        state["store"] = KnowledgeStore(
+            str(KNOWLEDGE_DB), persist_vectors=False,
+            vector_cache=os.environ.get("RYKO_VECTOR_CACHE",
+                                        "data/knowledge/ryko.vecs.cache.pkl") or None,
+        )
         print(f"[ryko] knowledge store loaded: {KNOWLEDGE_DB}")
     else:
         print(f"[ryko] WARNING: knowledge store not found at {KNOWLEDGE_DB} — /knowledge/* disabled")

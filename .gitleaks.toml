@@ -1,0 +1,32 @@
+# Gitleaks configuration — Ryko Arabic LM
+#
+# CI failure history (runs #58-#65, 2026-11): the default `generic-api-key`
+# rule flags the provenance receipt lines  `"tokenizer_sha256": "<64-hex>"`.
+# The keyword matcher picks up the substring `token` inside `tokenizer`,
+# and the 64-character hex SHA-256 digests look like high-entropy API keys.
+# These values are public file digests (sha256 of committed artifacts),
+# NOT credentials — they are the honesty ledger of the Knowledge Core and
+# must stay byte-exact in git.
+#
+# Two-layer fix (both required):
+#   1. This allowlist — semantic intent. NOTE: gitleaks 8.24.3 currently
+#      IGNORES global [[allowlists]] when [extend] useDefault is active
+#      (verified empirically on git-scan and no-git modes), so layer 2
+#      carries the fix today. Keep this block: it becomes effective on any
+#      gitleaks version that repairs extend-allowlist merging.
+#   2. gitleaks-baseline.json + `--baseline-path` in .github/workflows/ci.yml
+#      — pinned accepted findings; any NEW secret still fails the build
+#      (verified: known finding suppressed across commits, fresh AKIA key
+#      still flagged).
+#
+# Real secrets (AWS keys, PATs, private keys, ...) keep being caught by the
+# stock default ruleset.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+  description = "provenance sha256 digests (file fingerprints, not secrets)"
+  condition = "AND"
+  regexTarget = "match"
+  regexes = ['[a-zA-Z0-9_.-]*sha256"\s*:\s*"[0-9a-fA-F]{64}"']
