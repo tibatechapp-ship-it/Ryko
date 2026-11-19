@@ -140,11 +140,13 @@ ling-bench-run:
 	python -m ryko_lm.eval.benchmarks run --benchmark docs/benchmarks/ling_probes.jsonl --checkpoint artifacts/training_v5c/final.pt --tokenizer artifacts/tokenizer/ryko-tokenizer.json --store data/knowledge/ryko-verify-full.sqlite --out docs/results/ling_probes_seed
 
 # وصفة التدريب الجاهزة (المرحلة 5 — عند توفر GPU؛ تعمل على CPU بشظايا أصغر):
-#   python -m ryko_lm.training.train --config configs/models/ryko-small.yaml \
+#   PYTHONPATH=src python -m ryko_lm.training.train --config configs/models/ryko-small.yaml \
 #       --data-dir data/processed_ling --out-dir artifacts/training_small_ling \
-#       --init-from artifacts/training_v5b/final.pt --lr 1e-4 --total-steps 20000
+#       --init-from artifacts/dpo_round2_small/final.pt --lr 1e-4 --total-steps 20000
+# (الإحماء من نقطة الخدمة 52.18M — انحراف §6.1 الموثق: training_v5b نقطة Tiny
+#  11.5M ومعمارية مختلفة يفشل تحميلها في ryko-small بخطأ incompatible checkpoint)
 ling-train-small:
-	python -m ryko_lm.training.train --config configs/models/ryko-small.yaml --data-dir data/processed_ling --out-dir artifacts/training_small_ling --init-from artifacts/training_v5b/final.pt --lr 1e-4
+	python -m ryko_lm.training.train --config configs/models/ryko-small.yaml --data-dir data/processed_ling --out-dir artifacts/training_small_ling --init-from artifacts/dpo_round2_small/final.pt --lr 1e-4
 
 ling-train-shard:
 	python -m ryko_lm.training.train --config configs/models/ryko-tiny.yaml --data-dir data/processed_ling --out-dir artifacts/training_ling_shard --init-from artifacts/training_v5b/final.pt --total-steps 300 --batch-size 16

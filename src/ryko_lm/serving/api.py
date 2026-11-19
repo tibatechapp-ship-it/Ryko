@@ -174,10 +174,16 @@ def generate(req: GenerateRequest) -> dict:
     )
     text = tok.decode(out[0].tolist())
     latency_ms = (time.perf_counter() - t0) * 1000
+    generated = int(out.size(1))
+    # QA v1.27.0-prep (FLAW_REPORT F1): immediate-EOS abstention must be
+    # observable to clients, not indistinguishable from a failed call.
+    eos_immediate = generated <= 1 and not text.strip()
     return {
         "completion": text,
         "prompt_tokens": len(ids),
-        "generated_tokens": int(out.size(1)),
+        "generated_tokens": generated,
+        "abstained": eos_immediate,
+        "finish_reason": "eos_immediate" if eos_immediate else "stop",
         "latency_ms": round(latency_ms, 1),
     }
 

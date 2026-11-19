@@ -38,6 +38,21 @@ def test_generate_endpoint(client):
     assert body["prompt_tokens"] >= 1
     assert body["generated_tokens"] == 12
     assert len(body["completion"]) > 0
+    assert body["finish_reason"] == "stop" and body["abstained"] is False
+
+
+@requires_final_model
+def test_generate_reports_immediate_eos_abstention(client):
+    # QA v1.27.0-prep (FLAW_REPORT F1): with the published serving seed 315,
+    # several in-domain prompts emit EOS immediately (empty completion, 1
+    # generated token). The response must expose that as an explicit
+    # abstention signal instead of a bare empty string.
+    body = client.post("/generate", json={
+        "prompt": "ما هي أركان الإسلام؟", "max_new_tokens": 12, "seed": 315,
+    }).json()
+    assert body["completion"] == "" and body["generated_tokens"] == 1
+    assert body["abstained"] is True
+    assert body["finish_reason"] == "eos_immediate"
 
 
 @requires_final_model
