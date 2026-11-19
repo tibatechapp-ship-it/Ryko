@@ -186,7 +186,14 @@ curl -s -X POST localhost:8000/generate -H 'Content-Type: application/json' \
   **v1.23.0: DPO الجولة الثانية فوق النقطة المدمجة — rb-ling 28.85←44.23%
   وبوابات المحاذاة كلها مستعادة (امتناع صائب 1.00/1.00، رفض زائد 0.5938،
   اقتباس 1.0) — القياس الكامل في
-  [docs/results/ryko1000_eval_dpo_r2.md](docs/results/ryko1000_eval_dpo_r2.md)**):
+  [docs/results/ryko1000_eval_dpo_r2.md](docs/results/ryko1000_eval_dpo_r2.md)**؛
+  **v1.26.0: الحزمة المجمّعة (حجاج + لغة + أضعف عائلات الاستدلال) بسبع
+  تجارب مضبوطة — حجاج 76.7% محصّن بالأفضليات الدفاعية عبر DPO،
+  istidlal 23←60 / mustalahat 23←51 / tarjih 29←44، والجدار الموثق:
+  rb-ling ≥44.23 يتطلب الوصفة §6 على GPU — الدفتر الكامل في
+  [docs/results/bundle_treatment.md](docs/results/bundle_treatment.md)
+  وخطة جلسة GPU في
+  [docs/GPU_SESSION_PLAN.md](docs/GPU_SESSION_PLAN.md)**):
   [docs/LINGUISTICS.md](docs/LINGUISTICS.md)
 
 والتقييم الشامل والخطة في [docs/REVIEW.md](docs/REVIEW.md) و[docs/ROADMAP.md](docs/ROADMAP.md).

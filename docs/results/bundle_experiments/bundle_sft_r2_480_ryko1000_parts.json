@@ -1,0 +1,21 @@
+{
+  "schema": "ryko-bundle-experiment/1",
+  "experiment": "bundle_sft_r2_480_ryko1000_parts",
+  "mode": "base",
+  "checkpoint": "artifacts/proof_bundle_small/final.pt",
+  "note": "worklist slices (skip-engine) — istidlal/mustalahat at 100:300, tarjih at 500:600 (worklist order differs from the raw seed order)",
+  "per_family": {
+    "mustalahat": {
+      "n": 100,
+      "rate": 0.51
+    },
+    "istidlal": {
+      "n": 100,
+      "rate": 0.6
+    },
+    "tarjih": {
+      "n": 100,
+      "rate": 0.44
+    }
+  }
+}

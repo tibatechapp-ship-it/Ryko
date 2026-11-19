@@ -1,0 +1,104 @@
+{
+  "schema": "ryko-bundle-pack/1",
+  "seed": 1337,
+  "sources": {
+    "argrel_train": {
+      "path": "data/training/argrel_sft_train.jsonl",
+      "sha256": "32cdb37234263a351b82d8451dfaf0dfda23514b1b9ec22066d7edc0139482e1"
+    },
+    "argrel_val": {
+      "path": "data/training/argrel_sft_val.jsonl",
+      "sha256": "849da0d525dfbc608550e9c3836769ba85ed32b22d21aa9f8c008a97a891e1b7"
+    },
+    "ling_train": {
+      "path": "data/training/ling_sft_train.jsonl",
+      "sha256": "d9adedaee003ca7f29eb579d0e2be5d19161c41a9fad3fcaeb74a19b0b1c2f2f"
+    },
+    "ling_val": {
+      "path": "data/training/ling_sft_val.jsonl",
+      "sha256": "32f9d5d1234d0fff346a22d53563423c5bd21e7668d0859f5be089a4736d5a48"
+    },
+    "sft_train": {
+      "path": "data/training/ryko1000_sft_train.jsonl",
+      "sha256": "43a61061c2cd75a4cfcadae18ed7621888edcde3412900adb06958553ed16902"
+    },
+    "dpo_r2": {
+      "path": "data/training/ryko1000_dpo_train_r2.jsonl",
+      "sha256": "06fb78f82d6512bb886ecd7c42b024d5f095464452b2dd81e0918a188844bbd8"
+    },
+    "probes": {
+      "path": "docs/benchmarks/ling_probes.jsonl",
+      "sha256": "a48ec0a2f5bc9571cdb0697448823f9c96517073b9128724f991e50a995493ca"
+    }
+  },
+  "components": {
+    "argrel": {
+      "train": 90,
+      "val": 15
+    },
+    "ling-sft": {
+      "train": 102,
+      "val": 14
+    },
+    "weakest-families": {
+      "train": 255,
+      "val": 0,
+      "families": [
+        "istidlal",
+        "mustalahat",
+        "tarjih"
+      ]
+    },
+    "ling-replay": {
+      "train": 293,
+      "val": 0,
+      "families": [
+        "balagha",
+        "irab",
+        "sarf"
+      ],
+      "excluded_probe_overlap": 7,
+      "excluded_ids": [
+        "dpo-ry10-irab-001-wrong_attribution",
+        "dpo-ry10-sarf-001-wrong_attribution",
+        "dpo-ry10-sarf-002-wrong_attribution",
+        "dpo-ry10-sarf-003-wrong_attribution",
+        "dpo-ry10-balagha-001-wrong_attribution",
+        "dpo-ry10-balagha-002-wrong_attribution",
+        "dpo-ry10-balagha-003-wrong_attribution"
+      ]
+    }
+  },
+  "rows_train": 740,
+  "rows_val": 29,
+  "by_family_train": {
+    "balagha": 97,
+    "irab": 99,
+    "istidlal": 85,
+    "mustalahat": 85,
+    "sarf": 97,
+    "tarjih": 85,
+    "باب-اللغة": 50,
+    "علاقة-حجاج": 90,
+    "نسبة-القاعدة-اللغوية": 2,
+    "نسبة-المؤلف": 50
+  },
+  "files": {
+    "train": {
+      "path": "data/training/bundle_sft_train.jsonl",
+      "n": 740,
+      "sha256": "ce9cc8b3902aa561b5811fa7c956c90134812af323858f5d64ec29382af535cf"
+    },
+    "val": {
+      "path": "data/training/bundle_sft_val.jsonl",
+      "n": 29,
+      "sha256": "5bbdd0c66014d78b92d5b918e365b64b8d2ee1bee4dc70f88f227444f4c33da2"
+    }
+  },
+  "leakage_check": {
+    "probe_leaks": 0,
+    "policy": "fatal gate; 0 tolerated"
+  },
+  "unit_of_mix": "deterministic component union, id-sorted then seed-1337 shuffled — no family straddles a leak",
+  "provenance_policy": "argrel = committed v1.25.0 package; ling-sft = new store-derived attribution pairs, probe-excluded; ling-replay = committed v1.23.0 DPO-r2 linguistics preferences replayed as SFT (prompt→chosen); weakest-families = committed phase-5 SFT renderings of the three weakest measured RYKO-1000 families (documented phase-5 design)"
+}

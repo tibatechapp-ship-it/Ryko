@@ -1,0 +1,32 @@
+{
+  "kind": "ryko-checkpoint-receipt",
+  "created_utc": "2026-11-19T12:46:27Z",
+  "artifacts": [
+    {
+      "path": "artifacts/proof_bundle_small/final.pt",
+      "sha256": "705874dd22e1a0ad50569deac19e486c9893d043bda122679966c5f05f5369f7",
+      "bytes": 104393431
+    }
+  ],
+  "meta": {
+    "model": "ryko-small (52,179,456 params)",
+    "phase": "v1.26.0 combined-treatment bundle SFT (480 steps, ~17.7 epochs)",
+    "config": "configs/models/ryko-small-sft.yaml (batch 1 x grad_accum 4, block 512, warmup 15)",
+    "data": "data/training/bundle_pack (740 train / 29 val pairs, 55,695 train tokens, receipted bundle-pack)",
+    "init_from": "artifacts/dpo_round2_small/final.pt (promoted serving point, f0361c4a…)",
+    "lr": "2e-5 -> 2e-6 cosine",
+    "batch": "2048 tokens/step",
+    "steps": 480,
+    "tokens": 983040,
+    "train_pairs": 740,
+    "val_pairs": 29,
+    "train_tokens": 55695,
+    "epochs_stream": 17.65,
+    "seed": 1337,
+    "val_loss": 3.7696,
+    "final_val_loss": 3.7696,
+    "perplexity": 43.36,
+    "trained_on": "2-core CPU, sequential foreground time-budget segments with exact resume"
+  },
+  "receipt_sha256": "67ee8557d9caa5ebedab8e89b36997e8ae4e5c1aba1d128988e9b46fc28ef98c"
+}

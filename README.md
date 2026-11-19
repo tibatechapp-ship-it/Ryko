@@ -81,6 +81,14 @@ since v1.24.0: 52.18M params, receipt-verified sha256 f0361c4a…; previously
 `artifacts/training/final.pt` stays as the v1.1 archive), training curve
 and samples in `docs/results/`.
 
+v1.26.0 shipped the combined-treatment bundle (argument relations +
+linguistics + weakest reasoning families) with a seven-experiment measured
+ledger: hajaj 76.7% defended through DPO rounds by defensive preferences,
+weakest families +37/+28/+15 points, and the documented CPU wall —
+rb-ling >=44.23 alongside hajaj >=70 requires the §6 GPU recipe
+([docs/results/bundle_treatment.md](docs/results/bundle_treatment.md),
+[docs/GPU_SESSION_PLAN.md](docs/GPU_SESSION_PLAN.md)).
+
 ## Quickstart
 
 ```bash

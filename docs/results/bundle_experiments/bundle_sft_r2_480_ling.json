@@ -1,0 +1,33 @@
+{
+  "model": {
+    "checkpoint": "artifacts/proof_bundle_small/final.pt",
+    "params_M": 52.18,
+    "abstain_threshold": 0.34,
+    "cases": 52
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 52,
+      "accuracy": 0.2692,
+      "per_domain": {
+        "باب-اللغة": {
+          "n": 12,
+          "rate": 0.3333
+        },
+        "نسبة-القاعدة-اللغوية": {
+          "n": 16,
+          "rate": 0.25
+        },
+        "نسبة-الكتاب-اللغوي": {
+          "n": 12,
+          "rate": 0.1667
+        },
+        "نسبة-المؤلف": {
+          "n": 12,
+          "rate": 0.3333
+        }
+      }
+    }
+  }
+}

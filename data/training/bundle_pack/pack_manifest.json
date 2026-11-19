@@ -1,0 +1,28 @@
+{
+  "schema": "ryko1000-sft-bin/1",
+  "layout": "encode(prompt) + encode(completion) + [EOS] per pair, flat uint16 stream — matches score_option's conditional",
+  "tokenizer_sha256": "fe6c68658568b2868d1e0777df70376c9c3184d21c9d114c1c30c6b12d80fce1",
+  "files": {
+    "train": {
+      "path": "data/training/bundle_pack/train.bin",
+      "source": "data/training/bundle_sft_train.jsonl",
+      "source_sha256": "ce9cc8b3902aa561b5811fa7c956c90134812af323858f5d64ec29382af535cf",
+      "pairs": 740,
+      "tokens": 55695,
+      "skipped": [],
+      "sha256": "a650f7ea28bc7a8ddc2d61152fcc97291e721ad65f40561e6707d583caec39d6",
+      "bytes": 111390
+    },
+    "val": {
+      "path": "data/training/bundle_pack/val.bin",
+      "source": "data/training/bundle_sft_val.jsonl",
+      "source_sha256": "5bbdd0c66014d78b92d5b918e365b64b8d2ee1bee4dc70f88f227444f4c33da2",
+      "pairs": 29,
+      "tokens": 1701,
+      "skipped": [],
+      "sha256": "c398cbe6853486684f743032202b49863e29d5f9c80cea264891b4bfb769a748",
+      "bytes": 3402
+    }
+  },
+  "tokens_total": 57396
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "ryko-ling-sft-manifest/1",
+  "seed": 1337,
+  "sources": {
+    "store": "data/knowledge/ryko.sqlite",
+    "store_sha256": "881df259bc6058a9187a3e05429218cecf090339c42a993c628da69fb6fbbd88",
+    "probes": "docs/benchmarks/ling_probes.jsonl",
+    "probes_sha256": "a48ec0a2f5bc9571cdb0697448823f9c96517073b9128724f991e50a995493ca"
+  },
+  "rows": {
+    "total": 116,
+    "train": 102,
+    "val": 14
+  },
+  "by_family": {
+    "باب-اللغة": 56,
+    "نسبة-القاعدة-اللغوية": 4,
+    "نسبة-المؤلف": 56
+  },
+  "by_split": {
+    "train": 102,
+    "val": 14
+  },
+  "probe_exclusions": {
+    "books_total": 89,
+    "books_excluded": 33,
+    "title_collisions_excluded": 0,
+    "claims_total": 20,
+    "claims_excluded": 16,
+    "leakage_check": "fatal; 0 leaks (probe quotes + ids)"
+  },
+  "held_out_honest_note": "نسبة-الكتاب-اللغوي (rb-ling-book) تحتاج مقاطع لغوية غير ملتزمة تحت سقف 100MiB — عائلة محتجزة بالكامل، تُدرَّب وسيطًا فقط عبر المؤلف/الباب/إعادة التشغيل.",
+  "outputs": {
+    "train": "data/training/ling_sft_train.jsonl",
+    "train_sha256": "d9adedaee003ca7f29eb579d0e2be5d19161c41a9fad3fcaeb74a19b0b1c2f2f",
+    "val": "data/training/ling_sft_val.jsonl",
+    "val_sha256": "32f9d5d1234d0fff346a22d53563423c5bd21e7668d0859f5be089a4736d5a48"
+  }
+}

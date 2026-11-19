@@ -1,0 +1,39 @@
+{
+  "schema": "ryko-bundle-experiments-index/1",
+  "files": [
+    "bundle_sft_r1_82.json",
+    "bundle_sft_r1_82_ling.json",
+    "bundle_sft_r2_480.json",
+    "bundle_sft_r2_480_ling.json",
+    "dpo_r2_replay.json",
+    "dpo_r2_replay_ling.json",
+    "dpo_ling_on_argrel.json",
+    "dpo_ling_on_argrel_ling.json",
+    "dpo_mixed_on_bundle.json",
+    "dpo_mixed_on_bundle_ling.json",
+    "dpo_e_on_argrel.json",
+    "dpo_e_on_argrel_ling.json",
+    "soup_a05.json",
+    "soup_a05_ling.json",
+    "bundle_sft_r2_480_ryko1000_parts.json",
+    "references.json"
+  ],
+  "sha256": {
+    "bundle_sft_r1_82.json": "d100a90480f90f588098e8f52a9cdccbb8e9ad2b15ae548ae3cd101175cb396d",
+    "bundle_sft_r1_82_ling.json": "762964434057555c6a71c71df62536df372616c2ce1880939c69a47a8e1e433d",
+    "bundle_sft_r2_480.json": "8444194b74f16f7b1c7442922e492ca9ef17a2d18c7420277202fac991ccd113",
+    "bundle_sft_r2_480_ling.json": "91d8a2faac15d7b4ab9a368f343407f11f1f108e977de94703d1301601f16e9b",
+    "bundle_sft_r2_480_ryko1000_parts.json": "3d5d4bd1e996727a82170118ddb069ad43e06bda0386f4613442ff86078ac4f4",
+    "dpo_e_on_argrel.json": "2700d89fcdd9be46a799b345197d7fc37c9dbfda8d349de335fe61f4104acc08",
+    "dpo_e_on_argrel_ling.json": "9ac613e87a2cae7977148cf9f4ecb40711443b5c5a2b0d72c8d3beb04829ead8",
+    "dpo_ling_on_argrel.json": "b214ba992f918f06cac256893c95a0dedc7cde25b71fbbeeffc3b823b8ed473e",
+    "dpo_ling_on_argrel_ling.json": "76ae1e6b5340cdaab096c734c868b80851a9df66b458190847d3488b9b1fd5ee",
+    "dpo_mixed_on_bundle.json": "b53b4df8508a855edc19f389d8625ee25561dc3f6664afc37a858edfee71b823",
+    "dpo_mixed_on_bundle_ling.json": "c1a295f9f7764d9f4723a94c63b2b0c6aed08b4819520cfe99db164812692a88",
+    "dpo_r2_replay.json": "d9f3932520958500dcb7ac3c16ba985ed01e8c3f1c7de8b6991103bceb8a565b",
+    "dpo_r2_replay_ling.json": "2b9f17fa5c2ee8014b63d228651a544c2e64af69e17cb815fc25d5e10e4fd501",
+    "references.json": "c44f6102557373342fb74dca53d631afe846046df06b87bc27718e25de970381",
+    "soup_a05.json": "f85ec183be45e7e36215361f6abb696c64bd2c9cead685a4cee988fd66a9f0af",
+    "soup_a05_ling.json": "8d1e9f0e76ba7f948c608c36f22914f3bcc0f8fa901434c093a0e9cf3dd55dcf"
+  }
+}

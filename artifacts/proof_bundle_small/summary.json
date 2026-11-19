@@ -1,0 +1,8 @@
+{
+  "status": "completed",
+  "steps": 480,
+  "final_val_loss": 3.7696,
+  "perplexity": 43.36,
+  "params": 52179456,
+  "tokens": 983040
+}

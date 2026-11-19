@@ -1,0 +1,22 @@
+{
+  "serving_dpo_round2": {
+    "mcq": 39.62,
+    "hajaj": 3.3,
+    "rb_ling": 44.23,
+    "correct_abstain": 1.0,
+    "wrong_abstain": 0.5625,
+    "cite": 1.0,
+    "palmx": 29.05,
+    "doc": "docs/results/benchmarks_round2.md + ling_probes_round2.json + palmx_ic_v4.md"
+  },
+  "argrel_shard_v125": {
+    "mcq": 55.35,
+    "hajaj": 76.67,
+    "rb_ling": 30.77,
+    "correct_abstain": 1.0,
+    "wrong_abstain": 0.4375,
+    "cite": 1.0,
+    "palmx": 28.24,
+    "doc": "docs/results/argrel_proof.md + argrel_proof_ling.json + argrel_proof_palmx.json"
+  }
+}
