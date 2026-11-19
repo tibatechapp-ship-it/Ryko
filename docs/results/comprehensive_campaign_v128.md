@@ -37,7 +37,7 @@
   `--baseline-path gitleaks-baseline.json` بدل الـaction.
 - محاكاة استنساخ CI الضحل محلياً (clone --depth 1 + نفس الأمر):
   **exit 0** مع الـ5 المسموحة.
-- اختبار الحساسية: سر جديد (`aws_key = "AKIAQ2W3E5RT7Y9U1OPL"`) في
+- اختبار الحساسية: سر جديد (`aws_key = "[REDACTED:aws_access_key]"`) في
   commit جديد → **exit 2** (فشل البناء) — أي أن الحماية الصفرية
   للأسرار الجديدة محفوظة حرفياً.
 - `.gitleaks.toml` بوعاء سماح دلالي على أنماط `"*sha256": "<64hex>"`

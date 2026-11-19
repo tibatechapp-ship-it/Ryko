@@ -36,14 +36,22 @@ jobs:
       # exactly those 5 accepted findings; any NEW secret still fails.
       # .gitleaks.toml documents the whole story and becomes effective
       # once gitleaks fixes extend-allowlist merging.
-      - name: Secrets scan (gitleaks, baseline-pinned)
+      #
+      # --no-git (run #66 root cause): in git-scan mode gitleaks fingerprints
+      # embed the scanned commit SHA ("<sha>:<file>:<rule>:<line>"), so a
+      # baseline generated on one commit can NEVER match findings reported
+      # on any later commit — the same 5 provenance digests re-fired on
+      # every push forever.  In --no-git mode the fingerprint is
+      # "<file>:<rule>:<line>": stable across commits, so the baseline
+      # actually suppresses.  A checkout is exactly the tracked tree, so
+      # --no-git on CI scans the same content depth-1 git-scan did.
+      - name: Secrets scan (gitleaks, baseline-pinned, no-git mode)
         env:
           GITLEAKS_VERSION: 8.24.3
         run: |
           curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tgz
           mkdir -p /tmp/gitleaks && tar -xzf /tmp/gitleaks.tgz -C /tmp/gitleaks gitleaks
-          /tmp/gitleaks/gitleaks detect --redact -v --exit-code=2 \
-            --log-opts=-1 \
+          /tmp/gitleaks/gitleaks detect --no-git --redact -v --exit-code=2 \
             --baseline-path gitleaks-baseline.json \
             --report-format sarif --report-path results.sarif
 
