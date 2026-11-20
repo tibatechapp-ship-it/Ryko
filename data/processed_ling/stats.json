@@ -3,13 +3,13 @@
   "sections": {
     "nahw": {
       "docs": 28,
-      "chars": 20586714,
-      "dup_paragraphs": 3596
+      "chars": 20586665,
+      "dup_paragraphs": 3594
     },
     "sarf": {
       "docs": 5,
-      "chars": 1796087,
-      "dup_paragraphs": 108
+      "chars": 1795976,
+      "dup_paragraphs": 110
     },
     "balagha": {
       "docs": 8,
@@ -18,8 +18,8 @@
     },
     "maajim": {
       "docs": 15,
-      "chars": 61287059,
-      "dup_paragraphs": 9477
+      "chars": 61287398,
+      "dup_paragraphs": 9471
     },
     "fiqh-lugha": {
       "docs": 8,
@@ -28,20 +28,20 @@
     },
     "adab": {
       "docs": 12,
-      "chars": 8216058,
+      "chars": 8216060,
       "dup_paragraphs": 2134
     },
     "munhaj": {
       "docs": 13,
-      "chars": 7410899,
-      "dup_paragraphs": 2061
+      "chars": 7410581,
+      "dup_paragraphs": 2067
     }
   },
   "docs": {
     "train": 88,
     "val": 1
   },
-  "chars_kept": 108831535,
+  "chars_kept": 108831398,
   "dup_paragraphs_dropped": 18995,
   "val_ratio_new": 0.004,
   "cleaning": {
