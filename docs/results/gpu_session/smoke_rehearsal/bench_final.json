@@ -1,0 +1,55 @@
+{
+  "model": {
+    "checkpoint": "/tmp/smoke_gpu/bundle_dpo/final.pt",
+    "params_M": 52.18,
+    "abstain_threshold": 0.65,
+    "cases": 16
+  },
+  "results": {
+    "schema": "ryko-bench/1",
+    "mcq": {
+      "n": 8,
+      "accuracy": 0.25,
+      "per_domain": {
+        "استكمال-نص": {
+          "n": 4,
+          "rate": 0.5
+        },
+        "علاقة-حجاج": {
+          "n": 4,
+          "rate": 0.0
+        }
+      }
+    },
+    "abstain": {
+      "n": 4,
+      "correct_abstain_rate": 1.0,
+      "wrong_abstain_rate": null,
+      "per_domain": {
+        "تقنية": {
+          "n": 2,
+          "correct_abstain": 2,
+          "wrong_abstain": 0
+        },
+        "معاصر": {
+          "n": 2,
+          "correct_abstain": 2,
+          "wrong_abstain": 0
+        }
+      }
+    },
+    "cite": {
+      "n": 4,
+      "match_rate": 1.0,
+      "verdict_counts": {
+        "verified": 4
+      },
+      "per_domain": {
+        "توثيق-اقتباس": {
+          "n": 4,
+          "rate": 1.0
+        }
+      }
+    }
+  }
+}

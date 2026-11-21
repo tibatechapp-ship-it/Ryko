@@ -57,6 +57,16 @@ def add(name: str, measured, threshold, ok: bool, note: str) -> None:
     rows.append((name, measured, threshold, ok, note))
 
 
+def rel(name: str, measured, threshold, op: str, note: str) -> None:
+    """بوابة معدل محدد اختيارياً: None (0/0 — لا حالات من هذا الجانب) => FAIL نظيف لا انهيار."""
+    if measured is None:
+        add(name, "UNDEFINED", threshold, False,
+            note + " — لا حالات من هذا الجانب (المعدل غير معرّف)")
+        return
+    ok = (measured >= threshold) if op == ">=" else (measured <= threshold)
+    add(name, measured, threshold, ok, note)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bench", default="docs/results/gpu_bench_final.json")
@@ -91,14 +101,10 @@ def main() -> int:
         m["accuracy"] >= NO_REGRESSION["internal_mcq"], f"{round(m['accuracy']*m['n'])} / {m['n']}")
 
     ab = bench["abstain"]
-    add("internal امتنان صائب =1.00", ab["correct_abstain_rate"],
-        NO_REGRESSION["internal_correct_abstain"],
-        ab["correct_abstain_rate"] >= NO_REGRESSION["internal_correct_abstain"],
-        "خارج-المتن")
-    add("internal رفض زائد <=0.65", ab["wrong_abstain_rate"],
-        NO_REGRESSION["internal_wrong_abstain"],
-        ab["wrong_abstain_rate"] <= NO_REGRESSION["internal_wrong_abstain"],
-        "16 حالة")
+    rel("internal امتنان صائب =1.00", ab.get("correct_abstain_rate"),
+        NO_REGRESSION["internal_correct_abstain"], ">=", "خارج-المتن")
+    rel("internal رفض زائد <=0.65", ab.get("wrong_abstain_rate"),
+        NO_REGRESSION["internal_wrong_abstain"], "<=", "16 حالة")
 
     add("internal cite =1.0", bench["cite"]["match_rate"],
         NO_REGRESSION["internal_cite"],
@@ -114,12 +120,10 @@ def main() -> int:
         f"{round(base['mcq']['accuracy']*base['mcq']['n'])} / {base['mcq']['n']} (target >={NO_REGRESSION['ryko1000_mcq_target']})")
 
     rab = base["abstain"]
-    add("RYKO-1000 امتنان صائب =1.00", rab["correct_abstain_rate"],
-        NO_REGRESSION["ryko1000_correct_abstain"],
-        rab["correct_abstain_rate"] >= NO_REGRESSION["ryko1000_correct_abstain"], "36 حالة")
-    add("RYKO-1000 رفض زائد <=0.65", rab["wrong_abstain_rate"],
-        NO_REGRESSION["ryko1000_wrong_abstain"],
-        rab["wrong_abstain_rate"] <= NO_REGRESSION["ryko1000_wrong_abstain"], "64 حالة")
+    rel("RYKO-1000 امتنان صائب =1.00", rab.get("correct_abstain_rate"),
+        NO_REGRESSION["ryko1000_correct_abstain"], ">=", "36 حالة")
+    rel("RYKO-1000 رفض زائد <=0.65", rab.get("wrong_abstain_rate"),
+        NO_REGRESSION["ryko1000_wrong_abstain"], "<=", "64 حالة")
 
     for fam, th in (("istidlal", 0.50), ("mustalahat", 0.40), ("tarjih", 0.35)):
         f = fams.get(fam)
@@ -164,4 +168,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception as e:  # انهيار الفاحص نفسه لا يتنكر أبداً كقرار عقد (0/1/2)
+        print(f"[gates] CHECKER CRASHED: {type(e).__name__}: {e}")
+        print("[gates] رمز 4 = خلل في الفاحص — راجع المدخلات، لا يُقرأ كقرار §7.1.")
+        sys.exit(4)

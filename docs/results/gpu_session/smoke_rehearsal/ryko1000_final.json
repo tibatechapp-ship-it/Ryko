@@ -1,0 +1,455 @@
+{
+  "schema": "ryko1000-eval/1",
+  "model": {
+    "checkpoint": "/tmp/smoke_gpu/bundle_dpo/final.pt",
+    "params_M": 52.18,
+    "block_size": 512
+  },
+  "seed": {
+    "path": "docs/benchmarks/ryko1000_seed.jsonl",
+    "sha256": "a5613cb020067a21d1be3bb3ddc3858e5477f9f548915e808f592cbba05f1d25",
+    "cases": 26
+  },
+  "abstain_threshold": 0.65,
+  "base": {
+    "mode": "base",
+    "mcq": {
+      "n": 20,
+      "accuracy": 0.3,
+      "per_family": {
+        "balagha": {
+          "n": 2,
+          "rate": 0.0
+        },
+        "fahm": {
+          "n": 2,
+          "rate": 0.5
+        },
+        "ikhtilaf": {
+          "n": 2,
+          "rate": 1.0
+        },
+        "irab": {
+          "n": 2,
+          "rate": 0.5
+        },
+        "istidlal": {
+          "n": 2,
+          "rate": 0.0
+        },
+        "itirad": {
+          "n": 2,
+          "rate": 0.0
+        },
+        "multisource": {
+          "n": 2,
+          "rate": 0.0
+        },
+        "mustalahat": {
+          "n": 2,
+          "rate": 0.5
+        },
+        "sarf": {
+          "n": 2,
+          "rate": 0.0
+        },
+        "tarjih": {
+          "n": 2,
+          "rate": 0.5
+        }
+      },
+      "truncated_prompts": 0
+    },
+    "abstain": {
+      "n": 2,
+      "correct_abstain_rate": 1.0,
+      "wrong_abstain_rate": 0.0,
+      "per_family": {
+        "yaqin": {
+          "n": 2,
+          "rate": 1.0
+        }
+      }
+    },
+    "latency_ms": {
+      "mean": 282.38,
+      "p50": 262.26,
+      "p95": 486.4
+    },
+    "rows": [
+      {
+        "case_id": "ry10-balagha-001",
+        "family": "balagha",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 1,
+        "answer": 3,
+        "correct": false,
+        "confidence": 0.9738,
+        "question_truncated": false,
+        "ms": 216.904
+      },
+      {
+        "case_id": "ry10-balagha-002",
+        "family": "balagha",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 3,
+        "answer": 1,
+        "correct": false,
+        "confidence": 0.8365,
+        "question_truncated": false,
+        "ms": 266.004
+      },
+      {
+        "case_id": "ry10-fahm-001",
+        "family": "fahm",
+        "domain": "استكمال-نص",
+        "predicted": 1,
+        "answer": 3,
+        "correct": false,
+        "confidence": 0.3462,
+        "question_truncated": false,
+        "ms": 293.508
+      },
+      {
+        "case_id": "ry10-fahm-002",
+        "family": "fahm",
+        "domain": "استكمال-نص",
+        "predicted": 0,
+        "answer": 0,
+        "correct": true,
+        "confidence": 0.4014,
+        "question_truncated": false,
+        "ms": 295.414
+      },
+      {
+        "case_id": "ry10-ikhtilaf-001",
+        "family": "ikhtilaf",
+        "domain": "نسبة-المسألة",
+        "predicted": 0,
+        "answer": 0,
+        "correct": true,
+        "confidence": 0.7639,
+        "question_truncated": false,
+        "ms": 228.874
+      },
+      {
+        "case_id": "ry10-ikhtilaf-002",
+        "family": "ikhtilaf",
+        "domain": "نسبة-المسألة",
+        "predicted": 0,
+        "answer": 0,
+        "correct": true,
+        "confidence": 0.4252,
+        "question_truncated": false,
+        "ms": 262.257
+      },
+      {
+        "case_id": "ry10-irab-001",
+        "family": "irab",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 0,
+        "answer": 0,
+        "correct": true,
+        "confidence": 0.9836,
+        "question_truncated": false,
+        "ms": 231.524
+      },
+      {
+        "case_id": "ry10-irab-002",
+        "family": "irab",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 2,
+        "answer": 0,
+        "correct": false,
+        "confidence": 0.6309,
+        "question_truncated": false,
+        "ms": 225.809
+      },
+      {
+        "case_id": "ry10-istidlal-001",
+        "family": "istidlal",
+        "domain": "علاقة-حجاج",
+        "predicted": 2,
+        "answer": 0,
+        "correct": false,
+        "confidence": 0.509,
+        "question_truncated": false,
+        "ms": 486.405
+      },
+      {
+        "case_id": "ry10-istidlal-002",
+        "family": "istidlal",
+        "domain": "علاقة-حجاج",
+        "predicted": 2,
+        "answer": 0,
+        "correct": false,
+        "confidence": 0.5763,
+        "question_truncated": false,
+        "ms": 569.843
+      },
+      {
+        "case_id": "ry10-itirad-001",
+        "family": "itirad",
+        "domain": "اعتراض-وجواب",
+        "predicted": 2,
+        "answer": 3,
+        "correct": false,
+        "confidence": 0.2956,
+        "question_truncated": false,
+        "ms": 285.913
+      },
+      {
+        "case_id": "ry10-itirad-002",
+        "family": "itirad",
+        "domain": "اعتراض-وجواب",
+        "predicted": 2,
+        "answer": 0,
+        "correct": false,
+        "confidence": 0.7166,
+        "question_truncated": false,
+        "ms": 348.734
+      },
+      {
+        "case_id": "ry10-multisource-001",
+        "family": "multisource",
+        "domain": "نقل-متعدد-المصادر",
+        "predicted": 0,
+        "answer": 2,
+        "correct": false,
+        "confidence": 0.3696,
+        "question_truncated": false,
+        "ms": 355.73
+      },
+      {
+        "case_id": "ry10-multisource-002",
+        "family": "multisource",
+        "domain": "نقل-متعدد-المصادر",
+        "predicted": 1,
+        "answer": 0,
+        "correct": false,
+        "confidence": 0.4307,
+        "question_truncated": false,
+        "ms": 317.847
+      },
+      {
+        "case_id": "ry10-mustalahat-001",
+        "family": "mustalahat",
+        "domain": "تفسير-المصطلح",
+        "predicted": 2,
+        "answer": 2,
+        "correct": true,
+        "confidence": 0.5336,
+        "question_truncated": false,
+        "ms": 235.536
+      },
+      {
+        "case_id": "ry10-mustalahat-002",
+        "family": "mustalahat",
+        "domain": "تفسير-المصطلح",
+        "predicted": 2,
+        "answer": 1,
+        "correct": false,
+        "confidence": 0.5547,
+        "question_truncated": false,
+        "ms": 262.104
+      },
+      {
+        "case_id": "ry10-sarf-001",
+        "family": "sarf",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 0,
+        "answer": 3,
+        "correct": false,
+        "confidence": 0.9372,
+        "question_truncated": false,
+        "ms": 234.987
+      },
+      {
+        "case_id": "ry10-sarf-002",
+        "family": "sarf",
+        "domain": "نسبة-القاعدة-اللغوية",
+        "predicted": 0,
+        "answer": 2,
+        "correct": false,
+        "confidence": 0.913,
+        "question_truncated": false,
+        "ms": 258.718
+      },
+      {
+        "case_id": "ry10-tarjih-001",
+        "family": "tarjih",
+        "domain": "ترجيح-وسببه",
+        "predicted": 1,
+        "answer": 3,
+        "correct": false,
+        "confidence": 0.6701,
+        "question_truncated": false,
+        "ms": 331.178
+      },
+      {
+        "case_id": "ry10-tarjih-002",
+        "family": "tarjih",
+        "domain": "ترجيح-وسببه",
+        "predicted": 3,
+        "answer": 3,
+        "correct": true,
+        "confidence": 0.5893,
+        "question_truncated": false,
+        "ms": 268.696
+      }
+    ],
+    "abstain_rows": [
+      {
+        "case_id": "ry10-yaqin-001",
+        "family": "yaqin",
+        "domain": "تقنية",
+        "predicted": 1,
+        "answer": null,
+        "correct": false,
+        "confidence": 0.4514,
+        "question_truncated": false,
+        "ms": 119.418,
+        "should_answer": false,
+        "abstained": true,
+        "correct_abstain": true,
+        "wrong_abstain": false
+      },
+      {
+        "case_id": "ry10-yaqin-002",
+        "family": "yaqin",
+        "domain": "تقنية",
+        "predicted": 1,
+        "answer": null,
+        "correct": false,
+        "confidence": 0.4334,
+        "question_truncated": false,
+        "ms": 116.926,
+        "should_answer": false,
+        "abstained": true,
+        "correct_abstain": true,
+        "wrong_abstain": false
+      }
+    ]
+  },
+  "cite_alignment": {
+    "n": 4,
+    "match_rate": 1.0,
+    "per_family": {
+      "akhta": {
+        "n": 2,
+        "rate": 1.0
+      },
+      "naql": {
+        "n": 2,
+        "rate": 1.0
+      }
+    }
+  },
+  "probes": {
+    "probes_total": 26,
+    "materialized": 12,
+    "not_materializable": 14,
+    "by_kind": {
+      "splice": {
+        "n": 4,
+        "compliant": 4,
+        "rate": 1.0
+      },
+      "wrong_attribution": {
+        "n": 8,
+        "compliant": 8,
+        "rate": 1.0
+      },
+      "evidenceless": {
+        "n": 0,
+        "compliant": 0,
+        "rate": null
+      }
+    },
+    "compliance": 1.0,
+    "failures": [],
+    "unmaterialized_sample": [
+      {
+        "case_id": "ry10-balagha-001",
+        "family": "balagha",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-balagha-002",
+        "family": "balagha",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-ikhtilaf-001",
+        "family": "ikhtilaf",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-ikhtilaf-002",
+        "family": "ikhtilaf",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-irab-001",
+        "family": "irab",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-irab-002",
+        "family": "irab",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-istidlal-001",
+        "family": "istidlal",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-istidlal-002",
+        "family": "istidlal",
+        "kind": "wrong_attribution",
+        "must": "reject",
+        "ok": null,
+        "detail": "no passage anchor — not_materializable"
+      },
+      {
+        "case_id": "ry10-mustalahat-001",
+        "family": "mustalahat",
+        "kind": "evidenceless",
+        "must": "reject",
+        "ok": null,
+        "detail": "no foreign term available"
+      },
+      {
+        "case_id": "ry10-mustalahat-002",
+        "family": "mustalahat",
+        "kind": "evidenceless",
+        "must": "reject",
+        "ok": null,
+        "detail": "no foreign term available"
+      }
+    ]
+  },
+  "engine_scope": "full-seed"
+}

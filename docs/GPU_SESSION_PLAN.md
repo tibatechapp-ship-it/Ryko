@@ -411,10 +411,11 @@ PYTHONPATH=src python -m ryko_lm.provenance verify <كل إيصال فوق>
    بـ`--out` مختلف (نمط `/tmp/<الاسم>_run2`) حمايةً من الطوالان:
    - `benchmarks run` (القياسات 1 و2 و4): ملفا JSON **متطابقان بايت-ببايت**
      (تقارير المشروع بلا أختام زمنية) — المطلوب `sha256(a)==sha256(b)`.
-   - `ryko1000_eval`: التقرير يتضمن `latency_ms` و`ms` لكل صف — هما
-     القياسان الوحيدان المسموح اختلافهما؛ **المطلوب**: تطابق كل المقاييس
-     (`mcq`/`abstain`/`cite_alignment`/`probes` وبصمات `rows` مطروحاً منها
-     `ms`) بين الجولتين. الفحص:
+   - `ryko1000_eval`: التقرير يتضمن `latency_ms` الكلية و`ms` لكل صف قياسي
+     — mcq في `rows` والامتنان في `abstain_rows` (لكل صف منهما حقل `ms`)
+     — هي الأزمنة الوحيدة المسموح اختلافها؛ **المطلوب**: تطابق كل المقاييس
+     (`mcq`/`abstain`/`cite_alignment`/`probes` وبصمات `rows` و`abstain_rows`
+     مطروحاً منها `ms`) بين الجولتين. الفحص:
 
      ```bash
      PYTHONPATH=src python - <<'EOF'
@@ -424,7 +425,9 @@ PYTHONPATH=src python -m ryko_lm.provenance verify <كل إيصال فوق>
      def strip(d):
          d = json.loads(json.dumps(d))
          d['base']['latency_ms'] = {}
-         for r in d['base'].get('rows', []): r.pop('ms', None)
+         for key in ('rows', 'abstain_rows'):
+             for r in d['base'].get(key, []):
+                 if isinstance(r, dict): r.pop('ms', None)
          return d
      assert strip(a) == strip(b), 'ryko1000 double-run mismatch'
      print('ryko1000 double-run: metrics identical')

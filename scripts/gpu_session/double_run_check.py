@@ -3,8 +3,9 @@
 
 - `benchmarks run` (القياسات 1 و2 و4): ملفا JSON متطابقان بايت-ببايت
   (تقارير المشروع بلا أختام زمنية) — المطلوب sha256(a)==sha256(b).
-- `ryko1000_eval`: التقرير يتضمن `latency_ms` و`ms` لكل صف — هما القياسان
-  الوحيدان المسموح اختلافهما؛ المطلوب تطابق كل المقاييس بين الجولتين.
+- `ryko1000_eval`: التقرير يتضمن `latency_ms` الكلية و`ms` لكل صف قياسي
+  (mcq في `rows` والامتنان في `abstain_rows`) — هي الأزمنة الوحيدة المسموح
+  اختلافها؛ المطلوب تطابق كل المقاييس بين الجولتين.
 
 الاستعمال:
     python scripts/gpu_session/double_run_check.py \
@@ -29,11 +30,21 @@ def sha256(p: pathlib.Path) -> str:
 
 
 def strip_r1k(d: dict) -> dict:
-    """نسخة القياس من §5.5: تُسقِط latency_ms وms من كل صف."""
+    """نسخة القياس من §5.5: تُسقِط latency_ms وms من كل صف قياسي.
+
+    الحقول الزمنية في تقرير ryko1000_eval (نمط v1.28.1):
+      - base.latency_ms (خريطة الأزمنة الكلية) — تُصفَّر كاملة
+      - base.rows[*].ms (زمن كل حالة mcq) — يُنزَع
+      - base.abstain_rows[*].ms (زمن كل حالة امتنان) — يُنزَع
+        (اكتشاف البروفة العامة 2026-11-21: صفوف الامتنان تحمل ms خاصاً
+        وكان نزعه غائباً عن العقد — كان سيُجاهر بإجهاض جلسة حتمية)
+    """
     d = json.loads(json.dumps(d))
     d["base"]["latency_ms"] = {}
-    for r in d["base"].get("rows", []):
-        r.pop("ms", None)
+    for key in ("rows", "abstain_rows"):
+        for r in d["base"].get(key, []):
+            if isinstance(r, dict):
+                r.pop("ms", None)
     return d
 
 
